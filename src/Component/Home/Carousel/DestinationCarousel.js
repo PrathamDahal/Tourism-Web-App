@@ -37,7 +37,7 @@ const DestinationCarousel = ({ title, images = [] }) => {
               <img
                 src={images[currentIndex].url}
                 alt={`Slide ${currentIndex + 1}`}
-                className="w-full h-[300px] object-cover"
+                className="w-full xl:h-[300px] sm:h-[150px] md:h-[200px] lg:h-[250px] h-[120px] object-cover"
               />
             ) : (
               <div className="w-full h-48 flex items-center justify-center text-gray-500">
@@ -51,23 +51,23 @@ const DestinationCarousel = ({ title, images = [] }) => {
           <ArrowButton direction="next" onClick={goToNextSlide} />
 
           {/* Pagination Dots */}
-            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-              {images.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentIndex(index)}
-                  className={`w-2 h-2 rounded-full ${
-                    index === currentIndex ? "bg-white" : "bg-gray-400"
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
+          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            {images.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-2 h-2 rounded-full ${
+                  index === currentIndex ? "bg-white" : "bg-gray-400"
+                } sm:w-3 sm:h-3`} // Larger dots on mobile
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Destination Title and Description */}
         <div className="text-black mt-2">
-          <h2 className="text-xl font-semibold font-Open">
+          <h2 className="text-xl font-semibold font-Open sm:text-lg">
             {title || "Untitled Destination"}
           </h2>
         </div>

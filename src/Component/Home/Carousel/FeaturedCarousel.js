@@ -29,13 +29,12 @@ const FeaturedCarousel = ({ images, stayType, getStayTypeColor }) => {
 
   return (
     <div className="relative group overflow-hidden rounded-lg hover:border-gray-400 hover:border mr-3">
-      {/* Image Container with Hover Effect */}
       <div className="transition-transform duration-300 transform group-hover:scale-105">
         {images.length > 0 ? (
           <img
             src={images[currentIndex].url}
             alt={`Slide ${currentIndex + 1}`}
-            className="w-full h-[300px] object-cover"
+            className="w-full xl:h-[300px] sm:h-[150px] md:h-[200px] lg:h-[250px] object-cover"
           />
         ) : (
           <div className="w-full h-48 flex items-center justify-center text-gray-500">

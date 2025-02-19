@@ -1,7 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 import Footer from "./Footer";
-import { FaBell, FaMapMarkerAlt, FaShoppingCart, FaUser } from "react-icons/fa";
+import {
+  FaBars,
+  FaBell,
+  FaMapMarkerAlt,
+  FaShoppingCart,
+  FaTimes,
+  FaUser,
+} from "react-icons/fa";
 import { MdSearch, MdTranslate } from "react-icons/md";
 import "../../App.css"; // Import the CSS file
 
@@ -10,110 +17,107 @@ const Layout = () => {
 
   const isActive = (path) => location.pathname === path;
   const isHomePage = location.pathname === "/";
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="w-full">
-      <nav className="flex justify-between items-center w-full absolute top-6 px-4 z-20">
-        {/* Logo or Title */}
-        <p className="text-red-700 font-redressed text-[34px] px-5">
+      <nav className="flex justify-between items-center w-screen absolute top-6 px-4 z-20">
+        <p className="text-red-700 font-redressed lg:text-[24px] md:text-[16px] md:px-2 lg:px-5">
           Panchpokhari Tourism
         </p>
 
-        {/* Navigation Links */}
-        <ul className="flex space-x-4 text-sm gap-x-3 bg-transparent">
-          <li>
-            <Link
-              to="/"
-              className={`${
-                isActive("/") ? "text-yellow-500" : "text-white"
-              } hover:text-yellow-500 font-sans transition-colors`}
-            >
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/WhereToGo"
-              className={`${
-                isActive("/WhereToGo") ? "text-yellow-500" : "text-white"
-              } hover:text-yellow-500 font-sans transition-colors`}
-            >
-              Where To Go
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/WhereToStay"
-              className={`${
-                isActive("/WhereToStay") ? "text-yellow-500" : "text-white"
-              } hover:text-yellow-500 font-sans transition-colors`}
-            >
-              Where To Stay
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/LocalProducts"
-              className={`${
-                isActive("/LocalProducts") ? "text-yellow-500" : "text-white"
-              } hover:text-yellow-500 font-sans transition-colors`}
-            >
-              Local Products
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/ContactUs"
-              className={`${
-                isActive("/ContactUs") ? "text-yellow-500" : "text-white"
-              } hover:text-yellow-500 font-sans transition-colors`}
-            >
-              Contact Us
-            </Link>
-          </li>
+        <ul
+          className={`absolute top-16 left-0 w-full bg-gray-800 md:bg-transparent 
+              md:flex md:relative md:top-0 md:w-auto 
+              space-y-2 md:space-y-0 md:space-x-4 lg:space-x-6 
+              text-sm md:text-xs lg:text-sm xl:text-base 
+              md:gap-x-1 lg:gap-x-2 lg:px-4 md:px-0 
+              transition-all duration-300 ease-in-out 
+              shadow-md md:shadow-none rounded-b-lg md:rounded-none 
+              ${menuOpen ? "block p-3" : "hidden"}`}
+        >
+          {[
+            { name: "Home", path: "/" },
+            { name: "Where To Go", path: "/WhereToGo" },
+            { name: "Where To Stay", path: "/WhereToStay" },
+            { name: "Local Products", path: "/LocalProducts" },
+            { name: "Contact Us", path: "/ContactUs" },
+          ].map((item) => (
+            <li key={item.path} className="text-center md:text-left">
+              <Link
+                to={item.path}
+                className={`block px-4 py-1 md:px-3 md:py-1 rounded-md transition-colors duration-200 
+                    ${
+                      isActive(item.path)
+                        ? "text-yellow-400 bg-gray-900 md:bg-transparent"
+                        : "text-white"
+                    } 
+                    hover:text-yellow-400 hover:bg-gray-700 md:hover:bg-transparent`}
+              >
+                {item.name}
+              </Link>
+            </li>
+          ))}
         </ul>
 
-        {/* Icons and Links */}
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center space-x-5">
+        {/* Icons and Auth Links */}
+        <div className="flex items-center xl:space-x-4 lg:space-x-2 md:space-x-0 space-x-2">
+          {/* Icons */}
+          <div className="flex items-center xl:space-x-8 lg:space-x-4 md:space-x-2 space-x-2">
             <Link
               to="/notifications"
               className="hover:text-blue-300 text-white"
             >
-              <FaBell className="text-xl" />
+              <FaBell className="lg:text-xl md:text-lg" />
             </Link>
             <Link to="/cart" className="hover:text-blue-300 text-white">
-              <FaShoppingCart className="text-xl" />
+              <FaShoppingCart className="lg:text-xl md:text-lg" />
             </Link>
             <Link to="/cart" className="hover:text-blue-300 text-white">
-              <MdTranslate className="text-xl font-semibold" />
+              <MdTranslate className="lg:text-xl font-semibold md:text-lg" />
             </Link>
           </div>
 
-          <button className="py-1.5 px-5 hover:bg-red-700 rounded-2xl">
-            <Link
-              to="/SignUp"
-              className="text-white hover:text-white font-sans text-base transition-colors underline"
-            >
-              SIGN UP
-            </Link>
-          </button>
-          <button className="py-1.5 px-5 bg-red-500 hover:bg-red-700 rounded-2xl">
-            <Link
-              to="/login"
-              className="hover:text-white text-white font-sans text-base transition-colors"
-            >
-              LOG IN
-            </Link>
-          </button>
+          {/* Authentication Buttons */}
+          <div className="hidden md:flex xl:space-x-4 lg:space-x-2 md:space-x-0">
+            <button className=" lg:py-1.5 lg:px-4 md:py-0.5 md:px-2 hover:bg-red-700 rounded-2xl">
+              <Link
+                to="/SignUp"
+                className="text-white text-base underline xl:text-[18px] lg:text-[14px] md:text-[12px]"
+              >
+                SIGN UP
+              </Link>
+            </button>
+            <button className=" lg:py-1.5 lg:px-4 md:py-0.5 md:px-2 bg-red-500 hover:bg-red-700 rounded-2xl">
+              <Link
+                to="/login"
+                className="text-white text-base xl:text-[18px] lg:text-[14px] md:text-[12px]"
+              >
+                LOG IN
+              </Link>
+            </button>
+          </div>
         </div>
+
+        <button
+          className="md:hidden text-white text-xl"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          {menuOpen ? (
+            <FaTimes className=" text-white lg:text-xl md:text-lg" />
+          ) : (
+            <FaBars className="text-white lg:text-xl md:text-lg" />
+          )}
+        </button>
       </nav>
 
       {/* Hero Section */}
       <section
         className={`hero relative bg-cover bg-center ${
-          isHomePage ? "h-[600px]" : "h-[500px]"
-          } text-white flex items-center justify-center`}
+          isHomePage
+            ? "xl:h-[600px] lg:h-[500px] md:h-[450px] sm:h-[350px] h-[300px]"
+            : "xl:h-[500px] lg:h-[400px] md:h-[350px] sm:h-[250px] h-[200px]"
+        } text-white flex items-center justify-center`}
         style={{ backgroundImage: `url(/assets/Images/UniversalUpscaler.png)` }}
       >
         {isActive("/") && (
@@ -121,53 +125,63 @@ const Layout = () => {
             <img
               src="/assets/Images/Ellipse 2.png"
               alt="Segment"
-              className="absolute bottom-0 right-0 object-contain w-[135px] h-[175px]"
+              className="absolute bottom-0 right-0 object-contain 
+             xl:w-[135px] xl:h-[175px] lg:w-[120px] lg:h-[155px] 
+             md:w-[100px] md:h-[130px] sm:w-[80px] sm:h-[120px] w-[40px] h-[50px]"
             />
             <img
               src="/assets/Images/Ellipse 3.png"
               alt="Segment"
-              className="absolute bottom-0 right-0 object-contain w-[172px] h-[210px]"
+              className="absolute bottom-0 right-0 object-contain 
+             xl:w-[172px] xl:h-[210px] lg:w-[150px] lg:h-[185px] 
+             md:w-[130px] md:h-[160px] sm:w-[110px] sm:h-[150px] w-[60px] h-[70px]"
             />
             <img
               src="/assets/Images/Ellipse 4.png"
               alt="Segment"
-              className="absolute bottom-0 right-0 object-contain w-[205px] h-[240px]"
+              className="absolute bottom-0 right-0 object-contain 
+             xl:w-[205px] xl:h-[240px] lg:w-[180px] lg:h-[215px] 
+             md:w-[160px] md:h-[190px] sm:w-[140px] sm:h-[180px] w-[90px] h-[105px]"
             />
             <img
               src="/assets/Images/Ellipse 5.png"
               alt="Segment"
-              className="absolute bottom-0 right-0 object-contain w-[235px] h-[270px]"
+              className="absolute bottom-0 right-0 object-contain 
+             xl:w-[235px] xl:h-[270px] lg:w-[210px] lg:h-[245px] 
+             md:w-[190px] md:h-[220px] sm:w-[170px] sm:h-[210px] w-[120px] h-[135px]"
             />
             <img
               src="/assets/Images/Ellipse 6.png"
               alt="Segment"
-              className="absolute bottom-0 right-0 object-contain w-[280px] h-[300px]"
+              className="absolute bottom-0 right-0 object-contain 
+             xl:w-[280px] xl:h-[300px] lg:w-[245px] lg:h-[265px] 
+             md:w-[220px] md:h-[235px] sm:w-[200px] sm:h-[220px] w-[145px] h-[155px]"
             />
           </>
         )}
       </section>
 
       {isActive("/") ? ( //Home
-        <div className="justify-center p-3 absolute top-[300px] left-[20px] w-[580px]">
-          <p className="text-4xl font-bold font-Playfair mb-4 text-white">
+        <div className="justify-center xl:p-3 md:p-1 absolute xl:top-[300px] lg:top-[250px] md:top-[200px] top-[150px] left-[20px] w-[250px] md:w-[350px] lg:w-[450px] xl:w-[580px]">
+          <p className="xl:text-4xl lg:text-2xl md:text-xl text-sm font-bold font-Playfair xl:mb-4 lg:mb-2 md:mb-1 text-white">
             Journey Beyond the Ordinary:
             <br /> Discover Panchpokhari
           </p>
-          <p className="text-xl mb-4 text-slate-300 font-medium font-Open">
+          <p className="xl:text-xl lg:text-base md:text-sm text-xs xl:mb-4 lg:mb-2 md:mb-1 text-slate-300 font-medium font-Open">
             Experience Nepal's untouched beauty, whether you're exploring from
             afar or from nearby.
           </p>
           <div className="justify-between flex">
-            <button className="bg-yellow-500 text-white font-Open py-2 px-6 rounded-full hover:bg-red-600 transition-all">
+            <button className="bg-yellow-500 text-white font-Open xl:text-base lg:text-sm md:text-xs text-[8px] px-1 md:py-1 md:px-1.5 lg:py-1 lg:px-3 xl:py-2 xl:px-6 rounded-full hover:bg-red-600 transition-all">
               START YOUR ADVENTURE
             </button>
-            <button className="border-solid border-2 border-white font-Open text-white py-2 px-6 rounded-full hover:bg-red-600 transition-all">
+            <button className="border-solid border-2 border-white font-Open xl:text-base lg:text-sm md:text-xs text-[8px] text-white px-1 md:py-1 md:px-1.5 lg:py-1 lg:px-3 xl:py-2 xl:px-6 rounded-full hover:bg-red-600 transition-all">
               ADD YOUR ACCOMMODATION
             </button>
           </div>
         </div>
       ) : isActive("/WhereToGo") ? ( //WhereToGo
-        <div className="absolute flex flex-col items-center justify-center w-auto h-auto left-1/3 top-1/3">
+        <div className="absolute flex flex-col items-center justify-center w-auto h-auto xl:top-[200px] lg:top-[150px] md:top-[120px] xl:left-1/3 lg:left-1/4 md:left-[150px] ">
           <div className="text-center p-6">
             <p className="text-4xl font-bold font-Playfair mb-4 text-white">
               Destinations in Pachpokhari

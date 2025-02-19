@@ -4,7 +4,7 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 
 const Contact = () => {
   return (
-    <div className="container mx-auto bg-gray-50 py-6 px-2 md:px-5 w-2/3 mt-7">
+    <div className="container mx-auto bg-gray-50 py-6 px-2 md:px-5 lg:w-2/3 w-full mt-7">
       <h2 className="text-center text-black text-2xl md:text-3xl font-Playfair font-medium mb-2">
         Get in Touch
       </h2>
@@ -13,9 +13,9 @@ const Contact = () => {
         bookings? We're here to help!
       </p>
 
-      <div className=" bg-white flex flex-col gap-2 md:flex-row p-2">
+      <div className="bg-white flex flex-col-reverse lg:flex-row md:flex-col-reverse gap-2 p-2">
         {/* Contact Information Section */}
-        <div className="bg-red-800 relative p-6 pr-28 rounded-lg shadow-md text-left flex-1">
+        <div className="bg-red-800 relative p-6 lg:pr-28 rounded-lg shadow-md text-left flex-1">
           <h3 className="text-white font-semibold font-Open text-[20px] mb-1">
             Contact Information
           </h3>
@@ -43,7 +43,7 @@ const Contact = () => {
             </a>
           </div>
 
-          <div className="flex items-center mb-[100px] -mr-10">
+          <div className="flex items-center mb-[100px] lg:-mr-10">
             <FaMapMarkerAlt className="text-xl text-white mx-2" />
             <p className="text-white pl-4 text-[12px]">
               132 Dartmouth Street Boston, Massachusetts 02156 United States
@@ -62,15 +62,15 @@ const Contact = () => {
         </div>
 
         {/* Contact Form Section */}
-        <div className=" px-6 py-10 rounded-lg flex-[2]">
+        <div className="sm:px-6 sm:py-10 md:px-4 px-4 py-6 rounded-lg flex-[2]">
           <form>
-            <div className="flex gap-4 mb-5">
+            <div className="flex flex-col lg:flex-row gap-4 mb-5">
               <div className="border-b-2 border-slate-600 w-full">
                 <p className="font-Open text-xs">First Name</p>
                 <input
                   type="text"
                   placeholder="John"
-                  className="flex-1 focus:outline-none"
+                  className="flex-1 focus:outline-none w-full"
                 />
               </div>
               <div className="border-b-2 border-slate-600 w-full">
@@ -78,17 +78,17 @@ const Contact = () => {
                 <input
                   type="text"
                   placeholder="Doe"
-                  className="flex-1 focus:outline-none"
+                  className="flex-1 focus:outline-none w-full"
                 />
               </div>
             </div>
-            <div className="flex gap-4 mb-8">
+            <div className="flex flex-col lg:flex-row gap-4 mb-8">
               <div className="border-b-2 border-slate-600 w-full">
                 <p className="font-Open text-xs">Email</p>
                 <input
                   type="email"
                   placeholder="Email"
-                  className="flex-1 focus:outline-none"
+                  className="flex-1 focus:outline-none w-full"
                 />
               </div>
               <div className="border-b-2 border-slate-600 w-full">
@@ -96,7 +96,7 @@ const Contact = () => {
                 <input
                   type="tel"
                   placeholder="+1 212 3456 789"
-                  className="flex-1 focus:outline-none"
+                  className="flex-1 focus:outline-none w-full"
                 />
               </div>
             </div>
@@ -104,7 +104,7 @@ const Contact = () => {
               <p className="font-Open text-xs">Message</p>
               <textarea
                 placeholder="Write your message..."
-                className="w-full h-6 resize-none focus:outline-none"
+                className="w-full h-20 lg:h-6 resize-none focus:outline-none"
               ></textarea>
             </div>
             <div className="text-right">
