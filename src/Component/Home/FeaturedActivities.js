@@ -102,7 +102,7 @@ const FeaturedActivities = () => {
             <img
               src="/assets/Images/Activities-Home/Frame 40.png"
               alt="Yoga in nature"
-              className="w-full h-full object-contain rounded-sm"
+              className="w-full h-full object-cover rounded-sm"
             />
           </div>
           {/* Image 2 */}
@@ -110,7 +110,7 @@ const FeaturedActivities = () => {
             <img
               src="/assets/Images/Activities-Home/Frame 39.png"
               alt="Pilgrimage"
-              className="w-full h-full object-contain rounded-sm"
+              className="w-full h-full object-cover rounded-sm"
             />
           </div>
           {/* Image 3 */}

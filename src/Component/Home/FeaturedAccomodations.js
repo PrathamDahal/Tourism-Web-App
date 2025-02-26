@@ -7,9 +7,8 @@ const FeaturedAccomodations = () => {
   const [startIndex, setStartIndex] = useState(0);
   const [isSliding, setIsSliding] = useState(false);
 
-  const [imagesPerSlide, setImagesPerSlide] = useState(4); // Default to 4 items per slide (for large screens)
+  const [imagesPerSlide, setImagesPerSlide] = useState(4); 
   
-    // Adjust images per slide based on window width
     useEffect(() => {
       const updateImagesPerSlide = () => {
         if (window.innerWidth >= 1200) {
@@ -81,7 +80,6 @@ const FeaturedAccomodations = () => {
       </div>
 
       <div className="overflow-hidden">
-        {/* Slide Container */}
         <div
           className="flex transition-transform duration-300 ease-in-out"
           style={{

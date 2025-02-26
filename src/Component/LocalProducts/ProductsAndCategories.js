@@ -7,6 +7,8 @@ import ProductDetails from "./ProductDisplay";
 const ProductPage = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [showMore, setShowMore] = useState(false);
+  const [visibleItems, setVisibleItems] = useState(5);
 
   const categories = Array.from(
     new Set(Products.map((product) => product.category.name))
@@ -35,7 +37,6 @@ const ProductPage = () => {
 
   const handleProductClick = (product) => {
     setSelectedProduct(product);
-    // Push state for product details (optional for navigation state tracking)
     window.history.pushState(
       { productId: product.id },
       "",
@@ -43,45 +44,79 @@ const ProductPage = () => {
     );
   };
 
+  // Function to get visible items based on screen size
+  const getVisibleItems = () => {
+    if (window.innerWidth >= 1280) return 5; // xl
+    if (window.innerWidth >= 1024) return 5; // lg
+    if (window.innerWidth >= 768) return 4; // md
+    return 2; // sm and below
+  };
+
+  useEffect(() => {
+    // Set initial visible items based on screen size
+    setVisibleItems(getVisibleItems());
+
+    const handleResize = () => {
+      setVisibleItems(getVisibleItems());
+      setShowMore(false);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   useEffect(() => {
     const handlePopState = () => {
       setSelectedProduct(null);
       setSelectedCategory(null);
     };
 
-    // Listen for popstate to handle browser back navigation
     window.addEventListener("popstate", handlePopState);
-
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
   }, []);
 
   return (
-    <div className="p-4 items-center justify-center mx-44">
+    <div className="p-4 items-center justify-center xl:mx-44 lg:mx-32 md:mx-20 mx-10">
       {!selectedProduct && !selectedCategory && (
         <div>
           <h1 className="text-2xl font-bold mb-4">Product Categories</h1>
-          <div className="grid grid-cols-5 gap-4 mb-8">
-            {categories.map((category) => (
-              <div
-                key={category.id}
-                className="border p-2 rounded-md cursor-pointer hover:border hover:text-blue-400 hover:border-blue-400 hover:shadow-md"
-                onClick={() => handleCategoryClick(category)}
-              >
-                <img
-                  src={category.categoryImage}
-                  alt={category.name}
-                  className="w-full h-36 object-cover rounded-sm mb-2"
-                />
-                <h2 className="text-lg font-medium font-poppins text-center">
-                  {category.name}
-                </h2>
-              </div>
-            ))}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+            {categories
+              .slice(0, showMore ? categories.length : visibleItems)
+              .map((category) => (
+                <div
+                  key={category.id}
+                  className="border p-2 rounded-md cursor-pointer hover:border hover:text-blue-400 hover:border-blue-400 hover:shadow-md"
+                  onClick={() => handleCategoryClick(category)}
+                >
+                  <img
+                    src={category.categoryImage}
+                    alt={category.name}
+                    className="w-full h-36 object-cover rounded-sm mb-2"
+                  />
+                  <h2 className="text-lg font-medium font-poppins text-center">
+                    {category.name}
+                  </h2>
+                </div>
+              ))}
           </div>
+          <div className="w-full text-right">
+            {categories.length > visibleItems && (
+              <button
+                className="text-blue-500 text-sm hover:underline mb-4"
+                onClick={() => setShowMore(!showMore)}
+              >
+                {showMore ? "Show Less" : "See More..."}
+              </button>
+            )}
+          </div>
+
           <h1 className="text-2xl font-bold mb-4">Products</h1>
-          <div className="grid grid-cols-5 gap-0.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}

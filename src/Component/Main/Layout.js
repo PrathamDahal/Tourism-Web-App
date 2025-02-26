@@ -18,6 +18,11 @@ const Layout = () => {
   const isActive = (path) => location.pathname === path;
   const isHomePage = location.pathname === "/";
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
 
   return (
     <div className="w-full">
@@ -29,9 +34,8 @@ const Layout = () => {
         <ul
           className={`absolute top-16 left-0 w-full bg-gray-800 md:bg-transparent 
               md:flex md:relative md:top-0 md:w-auto 
-              space-y-2 md:space-y-0 md:space-x-4 lg:space-x-6 
-              text-sm md:text-xs lg:text-sm xl:text-base 
-              md:gap-x-1 lg:gap-x-2 lg:px-4 md:px-0 
+              space-y-2 md:space-y-0 
+              text-xs md:text-[10px] lg:text-xs md:gap-x-1
               transition-all duration-300 ease-in-out 
               shadow-md md:shadow-none rounded-b-lg md:rounded-none 
               ${menuOpen ? "block p-3" : "hidden"}`}
@@ -181,16 +185,16 @@ const Layout = () => {
           </div>
         </div>
       ) : isActive("/WhereToGo") ? ( //WhereToGo
-        <div className="absolute flex flex-col items-center justify-center w-auto h-auto xl:top-[200px] lg:top-[150px] md:top-[120px] xl:left-1/3 lg:left-1/4 md:left-[150px] ">
-          <div className="text-center p-6">
-            <p className="text-4xl font-bold font-Playfair mb-4 text-white">
+        <div className="absolute flex flex-col items-center justify-center w-auto h-auto xl:top-[200px] lg:top-[150px] md:top-[120px] top-[80px] xl:left-1/3 lg:left-1/4 md:left-[230px] left-[50px] ">
+          <div className="text-center p-1 md:p-6">
+            <p className="text-base md:text-xl lg:text-4xl font-bold font-Playfair mb-4 text-white">
               Destinations in Pachpokhari
             </p>
-            <div className="flex items-center justify-between px-4 mx-auto mt-4 w-[300px] bg-gray-50 rounded-3xl overflow-hidden">
+            <div className="flex items-center justify-between gap-1 px-4 mx-auto mt-4 w-[120px] md:w-[220px] lg:w-[320px] xl:w-[420px] bg-gray-50 rounded-3xl overflow-hidden">
               <input
                 type="text"
                 placeholder="Search"
-                className="p-2 flex-1 bg-gray-50 text-black focus:outline-none placeholder-sm placeholder-black"
+                className="w-[80%] md:p-2 bg-gray-50 text-black focus:outline-none placeholder-sm placeholder-black"
               />
               <button className="text-gray-700 px-2 py-2 rounded-2xl hover:bg-gray-600 transition-all">
                 <MdSearch />
@@ -199,46 +203,56 @@ const Layout = () => {
           </div>
         </div>
       ) : isActive("/WhereToStay") ? ( //WhereToStay
-        <div className="absolute flex flex-col items-center justify-center w-auto h-auto left-[320px] top-1/3">
-          <div className="text-center p-6">
-            <p className="text-[40px] font-bold font-Playfair mb-4 text-white">
+        <div className="absolute flex flex-col items-center justify-center w-auto h-auto xl:top-[200px] lg:top-[150px] md:top-[120px] top-[80px] 2xl:left-1/3 xl:left-[400px] lg:left-[220px] md:left-[130px] left-[50px]">
+          <div className="text-center p-4 md:p-6">
+            <p className="xl:text-[40px] md:text-[28px] lg:text-[36px] font-bold font-Playfair mb-4 text-white">
               Accomodation in Pachpokhari
             </p>
-            <div className="flex items-center h-14 justify-between mx-auto mt-4 w-[680px] rounded-md bg-orange-400 overflow-hidden">
-              <div className="flex items-center flex-1 ml-1 bg-gray-50 relative rounded-sm">
+            <button
+              onClick={toggleDropdown}
+              className="flex items-center justify-center w-[220px] bg-orange-400 text-white px-4 py-2 rounded-md md:hidden"
+            >
+              <MdSearch className="text-xl mr-2" /> Search
+            </button>
+            <div
+              className={`${
+                isDropdownOpen ? "block" : "hidden"
+              } absolute z-10 md:flex flex-col md:flex-row items-center justify-center w-full max-w-[220px] sm:max-w-[320px] md:max-w-[450px] lg:max-w-[680px] rounded-md bg-orange-400 overflow-hidden space-y-2 md:space-y-0 md:space-x-1 mt-2 md:mt-0`}
+            >
+              <div className="flex items-center w-full bg-gray-50 relative rounded-sm">
                 <FaMapMarkerAlt className="absolute left-3 text-black text-xl" />
                 <input
                   type="text"
                   placeholder="Where are you going..."
-                  className="p-3 pl-10 flex-1 bg-gray-50 font-Open text-black focus:outline-none placeholder-xs placeholder-black"
+                  className="w-full p-3 pl-10 bg-gray-50 font-Open text-black focus:outline-none placeholder-xs placeholder-black rounded-sm"
                 />
               </div>
-              <div className="flex items-center flex-1 mx-1 bg-gray-50 relative rounded-sm">
+              <div className="flex items-center w-full bg-gray-50 relative rounded-sm">
                 <FaUser className="absolute left-3 text-black text-xl" />
                 <input
                   type="text"
                   placeholder="Number of travellers..."
-                  className="p-3 pl-10 flex-1 bg-gray-50 font-Open text-black focus:outline-none placeholder-xs placeholder-black"
+                  className="w-full p-3 pl-10 bg-gray-50 font-Open text-black focus:outline-none placeholder-xs placeholder-black rounded-sm"
                 />
               </div>
-              <button className="text-white px-7 py-[13px] mr-1 rounded-md bg-red-700 transition-all">
+              <button className="w-full md:w-auto text-white px-7 py-[13px] rounded-md bg-red-700 transition-all">
                 Search
               </button>
             </div>
           </div>
         </div>
       ) : isActive("/LocalProducts") ? ( //LocalProducts
-        <div className="absolute flex flex-col items-center justify-center w-auto h-auto left-[400px] top-[300px]">
-          <div className="flex items-center justify-between px-4 mx-auto mt-4 w-[550px] bg-gray-50 rounded-3xl overflow-hidden">
-            <input
-              type="text"
-              placeholder="Search for anything..."
-              className="p-2 flex-1 bg-gray-50 text-black focus:outline-none placeholder-black placeholder-md"
-            />
-            <button className="text-gray-800 text-2xl px-2 py-2 rounded-2xl transition-all">
-              <MdSearch />
-            </button>
-          </div>
+        <div className="absolute flex flex-col p-2 items-center justify-center w-auto h-auto xl:top-[230px] lg:top-[180px] md:top-[150px] top-[100px] left-1/3">
+          <div className="flex items-center justify-between gap-1 px-4 mx-auto w-[120px] md:w-[220px] lg:w-[320px] xl:w-[420px] bg-gray-50 rounded-3xl overflow-hidden">
+              <input
+                type="text"
+                placeholder="Search"
+                className="w-[80%] md:p-2 bg-gray-50 text-black focus:outline-none placeholder-sm placeholder-black"
+              />
+              <button className="text-gray-700 px-2 py-2 rounded-2xl hover:bg-gray-600 transition-all">
+                <MdSearch />
+              </button>
+            </div>
         </div>
       ) : isActive("/ContactUs") ? (
         <div className="absolute flex flex-col items-center justify-center w-auto h-auto left-[540px] top-1/3">

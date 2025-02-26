@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { stays } from "../../Data/stayOptions";
 import { stayOptions } from "./../../Data/stayOptions";
 import ImageCarousel from "./ImageCarousel"; // Import the custom component
@@ -6,6 +6,8 @@ import ImageCarousel from "./ImageCarousel"; // Import the custom component
 const Stays = () => {
   const [filter, setFilter] = useState(null);
   const [sort, setSort] = useState("recommended");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(4); // Default for sm and smaller screens
 
   const handleSort = (items) => {
     if (sort === "price-low-high") {
@@ -27,26 +29,68 @@ const Stays = () => {
     return option?.color || "#000";
   };
 
+  // Update itemsPerPage based on screen width
+  const updateItemsPerPage = () => {
+    const width = window.innerWidth;
+
+    if (width >= 1280) {
+      setItemsPerPage(8); // XL screens
+    } else if (width >= 1024) {
+      setItemsPerPage(6); // LG screens
+    } else if (width >= 768) {
+      setItemsPerPage(4); // MD screens
+    } else {
+      setItemsPerPage(4); // SM and smaller screens
+    }
+  };
+
+  // Call updateItemsPerPage on resize
+  useEffect(() => {
+    updateItemsPerPage();
+    window.addEventListener("resize", updateItemsPerPage);
+    return () => window.removeEventListener("resize", updateItemsPerPage);
+  }, []);
+
+  // Calculate the number of pages
+  const totalPages = Math.ceil(sortedStays.length / itemsPerPage);
+
+  // Get the stays for the current page
+  const displayedStays = sortedStays.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Change page
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  // Dynamic grid classes based on number of items per page
+  const gridColumnsClass = "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+
   return (
     <div className="py-2 px-4">
-      <div className="flex justify-between items-center mb-10 p-2">
-        <div className="items-center font-Playfair font-semibold text-[28px]">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 md:mb-10 p-2 space-y-4 md:space-y-0">
+        <div className="text-center md:text-left font-Playfair font-semibold text-[24px] md:text-[28px]">
           Explore Your Stay Options
         </div>
-        <div className="flex items-center space-x-4">
+
+        <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
           <button
             onClick={() => setFilter(null)}
-            className="text-gray-700 mx-4 font-Open font-bold"
+            className="text-gray-700 font-Open font-bold"
           >
             Clear Filters
           </button>
 
-          <div className="rounded-lg border border-gray-500 shadow-md items-center p-1">
-            <p className="mb-2 pl-1 text-xs">Sort by</p>
+          <div className="w-full md:w-auto rounded-lg border border-gray-300 shadow-sm items-center p-1">
+            <p className="mb-1 pl-1 text-xs">Sort by</p>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="font-Open text-sm"
+              className="font-Open text-sm w-full md:w-auto"
             >
               <option value="recommended">Recommended</option>
               <option value="price-low-high">Price: Low to High</option>
@@ -56,10 +100,12 @@ const Stays = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-2">
-        {sortedStays.map((stay) => (
-          <div className="relative p-1 mb-5" key={stay.id}>
-            <div className="border rounded-lg items-center mb-1 overflow-hidden">
+      <div
+        className={`grid gap-4 ${gridColumnsClass}`}
+      >
+        {displayedStays.map((stay) => (
+          <div className="relative p-2 mb-4" key={stay.id}>
+            <div className="border rounded-lg items-center mb-2 overflow-hidden">
               <ImageCarousel
                 images={stay.image}
                 stayType={stay.type}
@@ -68,26 +114,45 @@ const Stays = () => {
             </div>
 
             <div className="py-1">
-              <h2 className="font-medium text-[14px] font-Open">
+              <h2 className="font-medium text-[14px] md:text-[16px] font-Open">
                 {stay.title}
               </h2>
-              <div className="flex">
-                <p className="text-gray-700 text-xs font-Open">
-                  {stay.location}
-                </p>
-                <p className="text-gray-700 text-xs font-Open pl-2">
+              <div className="flex flex-col md:flex-row text-[12px] md:text-[14px]">
+                <p className="text-gray-700">{stay.location}</p>
+                <p className="text-gray-700 md:pl-2">
                   Mobile: {stay.contact}
                 </p>
               </div>
-              <p className="font-bold mt-2 font-Open text-[15px]">
+              <p className="font-bold mt-2 font-Open text-[15px] md:text-[17px]">
                 NRS {stay.price}{" "}
-                <span className="text-[14px] font-medium font-Open">
+                <span className="text-[13px] md:text-[15px] font-medium">
                   / night
                 </span>
               </p>
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center space-x-4 mt-6">
+        <button
+          onClick={() => goToPage(currentPage - 1)}
+          className="px-4 py-2 bg-gray-300 rounded-md"
+          disabled={currentPage === 1}
+        >
+          Prev
+        </button>
+        <span className="font-medium text-lg">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={() => goToPage(currentPage + 1)}
+          className="px-4 py-2 bg-gray-300 rounded-md"
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
       </div>
     </div>
   );
