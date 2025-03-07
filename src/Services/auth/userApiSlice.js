@@ -7,16 +7,20 @@ export const userApi = createApi({
   baseQuery,
   endpoints: (builder) => ({
     fetchUserProfile: builder.query({
-      query: (credentials) => {
+      query: () => {
+        // Retrieve accessToken from localStorage
+        const accessToken = localStorage.getItem("accessToken");
+
         // Make sure accessToken is present
-        if (!credentials || !credentials.accessToken) {
+        if (!accessToken) {
           throw new Error("Access token is required");
         }
+
         return {
           url: "/user/profile",
           method: "GET",
           headers: {
-            Authorization: `Bearer ${credentials.accessToken}`, // Passing accessToken in headers
+            Authorization: `Bearer ${accessToken}`, // Pass accessToken in headers
           },
         };
       },

@@ -2,12 +2,29 @@ import React from "react";
 import { BiSolidEnvelope, BiSolidMap, BiSolidPhoneCall } from "react-icons/bi";
 import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
+import { useGetSiteSettingsQuery } from "../../Services/auth/SiteSettingApi"; // Import the hook
 
 const Footer = () => {
   const location = useLocation();
   const isSignUpPage = location.pathname === "/SignUp";
   const isLogInPage = location.pathname === "/login";
   const isResetPage = location.pathname.startsWith("/reset-password");
+
+  // Fetch site settings data
+  const { data, isLoading, error } = useGetSiteSettingsQuery();
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading site settings.</div>;
+
+  const {
+    name = "PanchPokhari Tourism", 
+    phoneNumber = "+1012 3456 7890", 
+    email = "demo@gmail.com", 
+    address = "132 Dartmouth Street, Boston, MA 02156, USA", 
+    facebookLink,
+    instagramLink,
+    twitterLink,
+  } = data || {};
 
   return (
     <footer
@@ -22,7 +39,7 @@ const Footer = () => {
           {/* Logo Section */}
           <div className="text-center md:text-left w-full md:w-auto">
             <p className="lg:text-3xl xl:text-4xl md:text-2xl text-xl font-redressed text-red-700">
-              PanchPokhari Tourism
+              {name}
             </p>
           </div>
 
@@ -35,19 +52,19 @@ const Footer = () => {
               <li className="flex items-center justify-center md:justify-start space-x-4">
                 <BiSolidPhoneCall className="lg:text-2xl md:text-xl text-black" />
                 <span className="text-gray-700 lg:text-base md:text-sm font-Open">
-                  +1012 3456 7890
+                  {phoneNumber}
                 </span>
               </li>
               <li className="flex items-center justify-center md:justify-start space-x-4">
                 <BiSolidEnvelope className="lg:text-2xl md:text-xl text-black" />
                 <span className="text-gray-700 lg:text-base md:text-sm font-Open">
-                  demo@gmail.com
+                  {email}
                 </span>
               </li>
               <li className="flex items-center justify-center md:justify-start space-x-4">
-                <BiSolidMap className="text-3xl md:text-5xl text-black" />
+                <BiSolidMap className="text-xl md:text-2xl text-black" />
                 <span className="text-gray-700 lg:text-base md:text-sm font-Open">
-                  132 Dartmouth Street, Boston, MA 02156, USA
+                  {address}
                 </span>
               </li>
             </ul>
@@ -85,9 +102,9 @@ const Footer = () => {
             </h2>
             <ul className="space-y-4">
               {[
-                { icon: <FaTwitter />, label: "Twitter" },
-                { icon: <FaInstagram />, label: "Instagram" },
-                { icon: <FaFacebookF />, label: "Facebook" },
+                { icon: <FaTwitter />, label: "Twitter", link: twitterLink },
+                { icon: <FaInstagram />, label: "Instagram", link: instagramLink },
+                { icon: <FaFacebookF />, label: "Facebook", link: facebookLink },
               ].map((social, index) => (
                 <li
                   key={index}
@@ -96,9 +113,14 @@ const Footer = () => {
                   <div className="w-7 h-7 flex items-center justify-center rounded-full bg-red-700 text-white">
                     {social.icon}
                   </div>
-                  <span className="text-gray-700 text-base font-Open">
+                  <a
+                    href={social.link || "#"} // Use the link from API or fallback to "#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-700 text-base font-Open hover:text-yellow-500"
+                  >
                     {social.label}
-                  </span>
+                  </a>
                 </li>
               ))}
             </ul>

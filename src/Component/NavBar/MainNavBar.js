@@ -28,8 +28,11 @@ const MainNavBar = () => {
   const dispatch = useDispatch();
   const accessToken = localStorage.getItem("accessToken");
 
-  const { data, isLoading } = useFetchUserProfileQuery({ accessToken });
-
+  // Conditionally fetch user profile only if accessToken is available
+  const { data, isLoading } = useFetchUserProfileQuery(undefined, {
+    skip: !accessToken, // Skip the query if accessToken is not available
+  });
+  
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {

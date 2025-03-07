@@ -4,7 +4,7 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 
 const Contact = () => {
   return (
-    <div className="container mx-auto bg-gray-50 py-6 px-2 md:px-5 lg:w-2/3 w-full mt-7">
+    <div className="container mx-auto bg-gray-50 py-6 px-2 md:px-5 lg:w-2/3 w-full mt-7 shadow-md">
       <h2 className="text-center text-black text-2xl md:text-3xl font-Playfair font-medium mb-2">
         Get in Touch
       </h2>

@@ -33,10 +33,10 @@ const LoginForm = () => {
       const { accessToken, refreshToken } = await login(credentials).unwrap();
 
       dispatch(setCredentials({ accessToken, refreshToken }));
+
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
-
-      console.log("Access token:", accessToken, "Refresh Token:", refreshToken);
+      
       navigate("/"); // Redirect to the home page or another route after login
     } catch (err) {
       console.error("Login failed:", err);
