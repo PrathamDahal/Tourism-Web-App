@@ -148,10 +148,6 @@ const MainNavBar = () => {
                   alt="User"
                   className="w-8 h-8 rounded-full"
                 />
-                <span className="text-sm font-medium">
-                  {data?.user?.firstName} {data?.user?.middleName}{" "}
-                  {data?.user?.lastName}
-                </span>
                 {/* Dropdown Icon */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

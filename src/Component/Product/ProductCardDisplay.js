@@ -1,7 +1,7 @@
 import React from "react";
-import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { HiOutlineShoppingBag } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
+import RatingStars from "../RatingStars";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
@@ -28,30 +28,7 @@ const ProductCard = ({ product }) => {
           <p className="text-black text-base font-bold font-poppins">
             Nrs. {product.price}
           </p>
-          <div className="flex items-center space-x-1 mt-1">
-            {Array.from({ length: 5 }, (_, index) => {
-              if (!product.reviews) return null; 
-              if (index < Math.floor(product.reviews)) {
-                return (
-                  <FaStar key={index} className="text-yellow-500 text-sm" />
-                );
-              } else if (
-                index < Math.ceil(product.reviews) &&
-                product.reviews % 1 !== 0
-              ) {
-                return (
-                  <FaStarHalfAlt
-                    key={index}
-                    className="text-yellow-500 text-sm"
-                  />
-                );
-              } else {
-                return (
-                  <FaRegStar key={index} className="text-yellow-500 text-sm" />
-                );
-              }
-            })}
-          </div>
+          <RatingStars rating={product.reviews} />
         </div>
         <div className="flex items-center m-3 justify-center">
           <button className=" items-center bg-blue-500 text-white px-3 py-2 rounded-full shadow-sm hover:bg-blue-700 transition">

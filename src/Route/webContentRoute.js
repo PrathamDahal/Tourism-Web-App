@@ -12,7 +12,6 @@ import ProductPage from './../Pages/Products/ProductDisplay';
 import LocalProducts from './../Pages/Local Products/LocalProducts';
 import DestinationPage from "../Pages/WhereToGo/Destinations/Destinations";
 import AccomodationPage from "../Pages/WhereToStay/Accomodations/AccomodationPage";
-import ProtectedRoute from "./ProtectedRoute"; 
 
 const WebContentRoute = () => {
   return (
@@ -20,8 +19,7 @@ const WebContentRoute = () => {
       <Route path="/" element={<Outlet />}>
         <Route index element={<Home />} />
 
-        {/* Protected Route: Only accessible to authenticated users */}
-        <Route path="wheretoGo" element={<ProtectedRoute />}>
+        <Route path="wheretoGo" element={<Outlet />}>
           <Route index element={<WhereToGo />} />
           <Route path="destination/:id" element={<DestinationPage />} />
         </Route>

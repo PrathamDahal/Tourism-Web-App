@@ -1,17 +1,23 @@
 import { useParams } from "react-router-dom";
-import CustomerFeedback from './../../Component/Product/CustomerFeedback';
+import CustomerFeedback from "./../../Component/Product/CustomerFeedback";
 import { useRef, useState } from "react";
-import { FaFacebookF, FaInstagram, FaPinterestP, FaRegStar, FaStar, FaStarHalfAlt, FaTwitter } from "react-icons/fa";
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaPinterestP,
+  FaTwitter,
+} from "react-icons/fa";
 import { HiOutlineShoppingBag } from "react-icons/hi";
-import { customerFeedback } from './../../Data/CustomerFeedback';
-import products from './../../Data/Products';  // Import the products data
+import { customerFeedback } from "./../../Data/CustomerFeedback";
+import products from "./../../Data/Products"; // Import the products data
+import RatingStars from "../../Component/RatingStars";
 
 const ProductPage = () => {
   const { id } = useParams(); // Extract the `id` parameter from the URL
   const productId = parseInt(id, 10); // Convert the `id` string to a number
 
   // Filter the product data from imported products based on product id
-  const product = products.find(item => item.id === productId);
+  const product = products.find((item) => item.id === productId);
 
   const [selectedImage, setSelectedImage] = useState(
     product?.productImage[0]?.url || "Image"
@@ -145,33 +151,7 @@ const ProductPage = () => {
           </h1>
 
           {/* Rating and Reviews */}
-          <div className="flex items-center md:justify-normal justify-center mt-2">
-            {Array.from({ length: 5 }, (_, index) => {
-              if (!product.reviews) return null; // Avoid rendering if no reviews exist
-              if (index < Math.floor(product.reviews)) {
-                return (
-                  <FaStar key={index} className="text-yellow-500 text-xs" />
-                );
-              } else if (
-                index < Math.ceil(product.reviews) &&
-                product.reviews % 1 !== 0
-              ) {
-                return (
-                  <FaStarHalfAlt
-                    key={index}
-                    className="text-yellow-500 text-xs"
-                  />
-                );
-              } else {
-                return (
-                  <FaRegStar key={index} className="text-yellow-500 text-xs" />
-                );
-              }
-            })}
-            <span className="ml-2 text-xs text-gray-600">
-              {product.reviews || "0"} Review
-            </span>
-          </div>
+          <RatingStars rating={product.reviews} />
 
           <p className="text-lg md:text-xl md:text-left text-center font-medium text-blue-500 my-3">
             Nrs {product.price || "N/A"}
