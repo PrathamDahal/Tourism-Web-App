@@ -43,7 +43,7 @@ const StayOptions = () => {
               className="flex flex-col items-center transition-all duration-300"
             >
               <button
-                className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 flex items-center justify-center rounded-full focus:outline-none transition-all duration-300"
+                className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 flex items-center justify-center rounded-full cursor-default focus:outline-none transition-all duration-300"
                 style={{ backgroundColor: option.color }}
               >
                 <span className="text-white text-[20px] md:text-[24px] lg:text-[28px]">

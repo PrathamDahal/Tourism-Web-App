@@ -1,25 +1,30 @@
+import { useParams } from "react-router-dom";
+import CustomerFeedback from './../../Component/Product/CustomerFeedback';
 import { useRef, useState } from "react";
-import {
-  FaRegStar,
-  FaStar,
-  FaStarHalfAlt,
-  FaFacebookF,
-  FaTwitter,
-  FaPinterestP,
-  FaInstagram,
-} from "react-icons/fa";
+import { FaFacebookF, FaInstagram, FaPinterestP, FaRegStar, FaStar, FaStarHalfAlt, FaTwitter } from "react-icons/fa";
 import { HiOutlineShoppingBag } from "react-icons/hi";
-import CustomerFeedback from "./CustomerFeedback"; // Import the CustomerFeedback component
-import { customerFeedback } from "../../Data/CustomerFeedback";
+import { customerFeedback } from './../../Data/CustomerFeedback';
+import products from './../../Data/Products';  // Import the products data
 
-const ProductDetails = ({ product }) => {
+const ProductPage = () => {
+  const { id } = useParams(); // Extract the `id` parameter from the URL
+  const productId = parseInt(id, 10); // Convert the `id` string to a number
+
+  // Filter the product data from imported products based on product id
+  const product = products.find(item => item.id === productId);
+
   const [selectedImage, setSelectedImage] = useState(
-    product.productImage[0]?.url || "Image"
+    product?.productImage[0]?.url || "Image"
   );
-  const [activeTab, setActiveTab] = useState("description"); // State to manage active tab
+  const [activeTab, setActiveTab] = useState("description");
 
   // Ref for the gallery container
   const galleryContainerRef = useRef(null);
+
+  // Handle case where no product is found
+  if (!product) {
+    return <div>Product details are not available.</div>;
+  }
 
   // Function to scroll the gallery up
   const scrollUp = () => {
@@ -35,20 +40,31 @@ const ProductDetails = ({ product }) => {
     }
   };
 
-  if (!product) {
-    return (
-      <div className="p-6 text-center text-gray-600">
-        Product details are not available.
-      </div>
-    );
-  }
-
   return (
-    <div className="p-4 my-5 bg-gray-100 font-poppins">
-      <div className="flex gap-4">
-        <div className="flex space-x-4 w-1/2">
-          {/* Left Section: Product Image Gallery with Scroll Arrows */}
-          <div className="flex flex-col items-center p-2">
+    <div className="lg:p-4 md:p-1 my-2 font-poppins">
+      {/* Product Details Section */}
+      <div className="flex flex-col md:flex-row gap-2">
+        {/* Left Section: Product Image Gallery */}
+        <div className="flex flex-col md:flex-row md:space-x-1 w-full md:w-1/2">
+          {/* Scrollable Gallery Container (Horizontal for sm and below) */}
+          <div className="md:hidden flex overflow-x-auto bg-white space-x-2 p-2">
+            {product.productImage?.length > 0 ? (
+              product.productImage.map((img, index) => (
+                <img
+                  key={img.id || index}
+                  src={img.url}
+                  alt="Gallery"
+                  className="w-12 h-12 object-contain border cursor-pointer hover:opacity-75"
+                  onClick={() => setSelectedImage(img.url)}
+                />
+              ))
+            ) : (
+              <p className="text-gray-500">No gallery images</p>
+            )}
+          </div>
+
+          {/* Vertical Scrollable Gallery Container (Visible on md and above) */}
+          <div className="hidden md:flex flex-col items-center">
             {/* Up Arrow */}
             <button
               onClick={scrollUp}
@@ -70,10 +86,10 @@ const ProductDetails = ({ product }) => {
               </svg>
             </button>
 
-            {/* Scrollable Gallery Container */}
+            {/* Scrollable Gallery */}
             <div
               ref={galleryContainerRef}
-              className="flex flex-col px-1 space-y-1 overflow-y-auto max-h-[275px]" // Height for 4 images (64px + 8px spacing)
+              className="flex flex-col px-1 space-y-1 overflow-y-auto max-h-[275px]"
             >
               {product.productImage?.length > 0 ? (
                 product.productImage.map((img, index) => (
@@ -111,23 +127,25 @@ const ProductDetails = ({ product }) => {
               </svg>
             </button>
           </div>
-          <div className="p-1">
+
+          {/* Main Product Image */}
+          <div className="w-full p-1">
             <img
               src={selectedImage}
               alt={product.name || "No Image"}
-              className="w-96 h-96 object-contain"
+              className="w-64 h-64 md:w-96 md:h-96 lg:object-cover object-contain "
             />
           </div>
         </div>
 
         {/* Right Section: Product Details */}
-        <div className="flex-1">
-          <h1 className="text-2xl font-semibold">
+        <div className="w-full md:w-1/2">
+          <h1 className="text-xl md:text-left text-center md:text-2xl font-semibold">
             {product.name || "No Product Name"}
           </h1>
 
           {/* Rating and Reviews */}
-          <div className="flex items-center mt-2">
+          <div className="flex items-center md:justify-normal justify-center mt-2">
             {Array.from({ length: 5 }, (_, index) => {
               if (!product.reviews) return null; // Avoid rendering if no reviews exist
               if (index < Math.floor(product.reviews)) {
@@ -155,13 +173,14 @@ const ProductDetails = ({ product }) => {
             </span>
           </div>
 
-          <p className="text-xl font-medium text-blue-500 my-3">
+          <p className="text-lg md:text-xl md:text-left text-center font-medium text-blue-500 my-3">
             Nrs {product.price || "N/A"}
           </p>
 
-          <hr className=" my-2 border-t-2" />
+          <hr className="my-2 border-t-2" />
 
-          <div className="flex items-center justify-between p-1">
+          {/* Seller Info */}
+          <div className="flex flex-col md:flex-row items-center justify-between p-1">
             <p className="text-gray-700 text-sm">
               <span className="font-bold">Seller :</span>{" "}
               {product.seller?.name
@@ -171,7 +190,7 @@ const ProductDetails = ({ product }) => {
                 : "No seller info"}
             </p>
             {/* Social Media Icons */}
-            <div className="flex items-center text-sm gap-1">
+            <div className="flex items-center text-sm gap-1 mt-2 md:mt-0">
               <span className="text-gray-600">Share item:</span>
               <FaFacebookF className="text-gray-600 rounded-full px-2 text-[26px] cursor-pointer hover:bg-blue-600 hover:text-white" />
               <FaTwitter className="text-gray-600 rounded-full px-1 text-[26px] cursor-pointer hover:bg-blue-600 hover:text-white" />
@@ -179,23 +198,22 @@ const ProductDetails = ({ product }) => {
               <FaInstagram className="text-gray-600 rounded-full px-2 text-[27px] cursor-pointer hover:bg-blue-600 hover:text-white" />
             </div>
           </div>
-          {/* Seller Info */}
 
           {/* Description */}
-          <p className="my-3 w-3/4 text-sm ml-1 text-gray-600">
+          <p className="my-3 w-full md:w-3/4 text-sm text-gray-600">
             {product.description || "No description available."}
           </p>
 
           {/* Add to Cart Button */}
           <div className="border-2 my-2 py-2">
-            <div className="border-y-2  p-2">
+            <div className="border-y-2 p-2">
               <button className="w-full text-sm flex items-center justify-center gap-2 py-2 text-white bg-blue-600 rounded-full hover:bg-blue-700">
                 Add to Cart <HiOutlineShoppingBag />
               </button>
             </div>
           </div>
 
-          <hr className=" my-2 border-t-2 " />
+          <hr className="my-2 border-t-2" />
 
           {/* Category & Tags */}
           <p className="mt-4 text-gray-600 text-sm">
@@ -209,9 +227,10 @@ const ProductDetails = ({ product }) => {
         </div>
       </div>
 
-      <div className="items-center justify-center">
+      {/* Tabs and Feedback Section */}
+      <div className="items-center justify-center mt-6">
         {/* Tabs: Description | Customer Feedback */}
-        <div className="mt-6 border-b flex gap-6 items-center justify-center">
+        <div className="border-b flex gap-6 items-center justify-center">
           <button
             onClick={() => setActiveTab("description")}
             className={`pb-2 text-lg font-semibold ${
@@ -242,11 +261,11 @@ const ProductDetails = ({ product }) => {
           </p>
         ) : (
           // Customer Feedback
-          <CustomerFeedback feedback={customerFeedback}/>
+          <CustomerFeedback feedback={customerFeedback} />
         )}
       </div>
     </div>
   );
 };
 
-export default ProductDetails;
+export default ProductPage;

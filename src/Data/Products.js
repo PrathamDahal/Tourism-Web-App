@@ -181,6 +181,269 @@ const products = [
     availability: "Low Stock",
     tags: ["Omega Watch", "WristWatch", "Digital Watch", "Diving Watch"],
   },
+  {
+    id: 8,
+    name: "Headphones",
+    productImage: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1484704849700-f032a568e944?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+      {
+        id: 2,
+        url: "https://plus.unsplash.com/premium_photo-1678099940967-73fe30680949?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+      {
+        id: 3,
+        url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 4,
+        url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 5,
+        url: "https://plus.unsplash.com/premium_photo-1678099940967-73fe30680949?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 6,
+        url: "https://plus.unsplash.com/premium_photo-1678099940967-73fe30680949?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      }
+    ],
+    category: {
+      id: 3,
+      name: "Accessories",
+      categoryImage:
+        "https://plus.unsplash.com/premium_photo-1664872566404-493056e98f16?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    subcategory: "Electronics",
+    price: 25,
+    stocks: 20,
+    reviews: 3.5,
+    description: "Noise-cancelling over-ear headphones ndjjv jfvenvenv vnovenvkjfevno  fivndfvn.",
+    availability: "Low Stock",
+    tags: ["Wireless", "Noise Cancelling", "Premium"],
+  },
+  {
+    id: 9,
+    name: "Headphones",
+    productImage: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1484704849700-f032a568e944?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+      {
+        id: 2,
+        url: "https://plus.unsplash.com/premium_photo-1678099940967-73fe30680949?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+      {
+        id: 3,
+        url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 4,
+        url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 5,
+        url: "https://plus.unsplash.com/premium_photo-1678099940967-73fe30680949?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 6,
+        url: "https://plus.unsplash.com/premium_photo-1678099940967-73fe30680949?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      }
+    ],
+    category: {
+      id: 3,
+      name: "Accessories",
+      categoryImage:
+        "https://plus.unsplash.com/premium_photo-1664872566404-493056e98f16?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    subcategory: "Electronics",
+    price: 25,
+    stocks: 20,
+    reviews: 3.5,
+    description: "Noise-cancelling over-ear headphones ndjjv jfvenvenv vnovenvkjfevno  fivndfvn.",
+    availability: "Low Stock",
+    tags: ["Wireless", "Noise Cancelling", "Premium"],
+  },
+  {
+    id: 10,
+    name: "Headphones",
+    productImage: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1484704849700-f032a568e944?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+      {
+        id: 2,
+        url: "https://plus.unsplash.com/premium_photo-1678099940967-73fe30680949?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+      {
+        id: 3,
+        url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 4,
+        url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 5,
+        url: "https://plus.unsplash.com/premium_photo-1678099940967-73fe30680949?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 6,
+        url: "https://plus.unsplash.com/premium_photo-1678099940967-73fe30680949?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      }
+    ],
+    category: {
+      id: 3,
+      name: "Accessories",
+      categoryImage:
+        "https://plus.unsplash.com/premium_photo-1664872566404-493056e98f16?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    subcategory: "Electronics",
+    price: 25,
+    stocks: 20,
+    reviews: 3.5,
+    description: "Noise-cancelling over-ear headphones ndjjv jfvenvenv vnovenvkjfevno  fivndfvn.",
+    availability: "Low Stock",
+    tags: ["Wireless", "Noise Cancelling", "Premium"],
+  },
+  {
+    id: 11,
+    name: "Headphones",
+    productImage: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1484704849700-f032a568e944?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+      {
+        id: 2,
+        url: "https://plus.unsplash.com/premium_photo-1678099940967-73fe30680949?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+      {
+        id: 3,
+        url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 4,
+        url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 5,
+        url: "https://plus.unsplash.com/premium_photo-1678099940967-73fe30680949?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 6,
+        url: "https://plus.unsplash.com/premium_photo-1678099940967-73fe30680949?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      }
+    ],
+    category: {
+      id: 3,
+      name: "Accessories",
+      categoryImage:
+        "https://plus.unsplash.com/premium_photo-1664872566404-493056e98f16?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    subcategory: "Electronics",
+    price: 25,
+    stocks: 20,
+    reviews: 3.5,
+    description: "Noise-cancelling over-ear headphones ndjjv jfvenvenv vnovenvkjfevno  fivndfvn.",
+    availability: "Low Stock",
+    tags: ["Wireless", "Noise Cancelling", "Premium"],
+  },
+  {
+    id: 12,
+    name: "Headphones",
+    productImage: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1484704849700-f032a568e944?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+      {
+        id: 2,
+        url: "https://plus.unsplash.com/premium_photo-1678099940967-73fe30680949?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+      {
+        id: 3,
+        url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 4,
+        url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 5,
+        url: "https://plus.unsplash.com/premium_photo-1678099940967-73fe30680949?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      },
+      {
+        id: 6,
+        url: "https://plus.unsplash.com/premium_photo-1678099940967-73fe30680949?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      }
+    ],
+    category: {
+      id: 3,
+      name: "Accessories",
+      categoryImage:
+        "https://plus.unsplash.com/premium_photo-1664872566404-493056e98f16?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    subcategory: "Electronics",
+    price: 25,
+    stocks: 20,
+    reviews: 3.5,
+    description: "Noise-cancelling over-ear headphones ndjjv jfvenvenv vnovenvkjfevno  fivndfvn.",
+    availability: "Low Stock",
+    tags: ["Wireless", "Noise Cancelling", "Premium"],
+  },
+  {
+    id: 13,
+    name: "Watch",
+    productImage: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+    ],
+    category: {
+      id: 3,
+      name: "Accessories",
+      categoryImage:
+        "https://plus.unsplash.com/premium_photo-1664872566404-493056e98f16?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    subcategory: "Electronics",
+    price: 1500,
+    stocks: 5,
+    reviews: 3.5,
+    description:
+      "A classic men's wristwatch with a sleek stainless steel case, a black leather strap, a silver dial with luminous hour markers, and three hands.",
+    availability: "Low Stock",
+    tags: ["Omega Watch", "WristWatch", "Digital Watch", "Diving Watch"],
+  },
+  {
+    id: 14,
+    name: "Watch",
+    productImage: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      },
+    ],
+    category: {
+      id: 3,
+      name: "Accessories",
+      categoryImage:
+        "https://plus.unsplash.com/premium_photo-1664872566404-493056e98f16?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+    subcategory: "Electronics",
+    price: 1500,
+    stocks: 5,
+    reviews: 3.5,
+    description:
+      "A classic men's wristwatch with a sleek stainless steel case, a black leather strap, a silver dial with luminous hour markers, and three hands.",
+    availability: "Low Stock",
+    tags: ["Omega Watch", "WristWatch", "Digital Watch", "Diving Watch"],
+  },
 ];
 
 export default products;

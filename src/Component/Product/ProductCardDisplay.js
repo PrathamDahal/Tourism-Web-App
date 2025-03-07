@@ -1,8 +1,14 @@
 import React from "react";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import { HiOutlineShoppingBag } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
 
-const ProductCard = ({ product, handleProductClick }) => {
+const ProductCard = ({ product }) => {
+  const navigate = useNavigate();
+  const handleProductClick = (product) => {
+    navigate(`/localproducts/product/${product.id}`); // Only pass the product ID
+  };
+
   return (
     <div
       key={product.id}

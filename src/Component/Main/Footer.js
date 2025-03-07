@@ -1,11 +1,22 @@
 import React from "react";
 import { BiSolidEnvelope, BiSolidMap, BiSolidPhoneCall } from "react-icons/bi";
 import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Footer = () => {
+  const location = useLocation();
+  const isSignUpPage = location.pathname === "/SignUp";
+  const isLogInPage = location.pathname === "/login";
+  const isResetPage = location.pathname.startsWith("/reset-password");
+
   return (
-    <footer className="bg-[#EFEFEF] text-black py-10">
+    <footer
+      className={`${
+        isSignUpPage || isLogInPage || isResetPage
+          ? "hidden "
+          : "bg-[#EFEFEF] text-black py-10"
+      }`}
+    >
       <div className="container mx-auto py-10 border-t-2 border-gray-800">
         <div className="mx-4 sm:mx-8 p-2 flex flex-col md:flex-row justify-between items-center md:items-start space-y-6 md:space-y-0">
           {/* Logo Section */}

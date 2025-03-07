@@ -1,10 +1,10 @@
 import React from "react";
-import ProductPage from './../../Component/LocalProducts/ProductsAndCategories';
+import LocalProductPage from './../../Component/LocalProducts/ProductsAndCategories';
 
 const LocalProducts = () => {
   return (
     <div className="bg-gray-50 shadow-md">
-      <ProductPage />
+      <LocalProductPage />
     </div>
   );
 };

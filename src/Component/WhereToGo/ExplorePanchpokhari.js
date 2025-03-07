@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from "react";
-import DestinationCarousel from "./Carousel/DestinationCarousel";
-import { destinations } from "../../Data/DestinationCarousel";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { explore } from "../../Data/ExplorePanchpokhari";
+import DestinationCarousel from './../Home/Carousel/DestinationCarousel';
 
-const PopularDestinations = () => {
-  const [startIndex, setStartIndex] = useState(0);
+const ExplorePanchpokhari = () => {
+  const [currentPage, setCurrentPage] = useState(0);
   const [isSliding, setIsSliding] = useState(false);
   const [imagesPerSlide, setImagesPerSlide] = useState(4);
-  const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
     const updateImagesPerSlide = () => {
       if (window.innerWidth >= 1200) {
-        setImagesPerSlide(4); // XL screen
+        setImagesPerSlide(8); // XL: 8 images (4 per row, 2 rows)
+      } else if (window.innerWidth >= 992) {
+        setImagesPerSlide(6); // LG: 6 images (3 per row, 2 rows)
       } else if (window.innerWidth >= 768) {
-        setImagesPerSlide(3); // MD screen
+        setImagesPerSlide(4); // MD: 4 images (2 per row, 2 rows)
       } else {
-        setImagesPerSlide(1); // Mobile screen
+        setImagesPerSlide(1); // SM and below: 1 image per slide
       }
     };
 
@@ -26,12 +26,15 @@ const PopularDestinations = () => {
     return () => window.removeEventListener("resize", updateImagesPerSlide); // Cleanup listener
   }, []);
 
+  // Calculate total number of pages
+  const totalPages = Math.ceil(explore.length / imagesPerSlide);
+
   const goToPrevSlide = () => {
     if (!isSliding) {
       setIsSliding(true);
       setTimeout(() => {
-        setStartIndex((prevIndex) =>
-          prevIndex === 0 ? destinations.length - imagesPerSlide : prevIndex - imagesPerSlide
+        setCurrentPage((prevPage) => 
+          prevPage === 0 ? totalPages - 1 : prevPage - 1
         );
         setIsSliding(false);
       }, 300);
@@ -42,20 +45,22 @@ const PopularDestinations = () => {
     if (!isSliding) {
       setIsSliding(true);
       setTimeout(() => {
-        setStartIndex((prevIndex) =>
-          prevIndex + imagesPerSlide >= destinations.length
-            ? 0
-            : prevIndex + imagesPerSlide
+        setCurrentPage((prevPage) => 
+          prevPage === totalPages - 1 ? 0 : prevPage + 1
         );
         setIsSliding(false);
       }, 300);
     }
   };
 
-  // Function to handle slide click
-  const handleSlideClick = (destinationId) => {
-    navigate(`/wheretogo/destination/${destinationId}`); // Navigate to the destination page
-  };
+  // Calculate the start index for the current page
+  const startIndex = currentPage * imagesPerSlide;
+
+  // Get destinations for the current page
+  const displayedDestinations = explore.slice(
+    startIndex, 
+    startIndex + imagesPerSlide
+  );
 
   return (
     <div className="py-8 px-4">
@@ -68,7 +73,7 @@ const PopularDestinations = () => {
             &lt;
           </button>
           <h2 className="text-center font-Playfair font-semibold sm:text-2xl">
-            Popular Destinations
+            Explore Panchpokhari
           </h2>
           <button
             onClick={goToNextSlide}
@@ -80,21 +85,14 @@ const PopularDestinations = () => {
       </div>
 
       <div className="overflow-hidden">
-        {/* Slide Container */}
         <div
-          className="flex transition-transform duration-300 ease-in-out"
-          style={{
-            transform: `translateX(-${(startIndex / imagesPerSlide) * 100}%)`,
-          }}
+          className={`grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 transition-all duration-300 ease-in-out ${
+            isSliding ? 'opacity-50' : 'opacity-100'
+          }`}
         >
-          {destinations.map((destination, index) => (
-            <div
-              key={index}
-              className="w-full flex-shrink-0 sm:w-1/2 md:w-1/3 lg:w-1/4 cursor-pointer" // Add cursor-pointer
-              onClick={() => handleSlideClick(destination.id)} // Add onClick handler
-            >
+          {displayedDestinations.map((destination, index) => (
+            <div key={index} className="w-full">
               <DestinationCarousel
-                key={index}
                 title={destination.title}
                 images={destination.image}
               />
@@ -106,4 +104,4 @@ const PopularDestinations = () => {
   );
 };
 
-export default PopularDestinations;
+export default ExplorePanchpokhari;

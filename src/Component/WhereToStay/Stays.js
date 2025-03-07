@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { stays } from "../../Data/stayOptions";
 import { stayOptions } from "./../../Data/stayOptions";
 import ImageCarousel from "./ImageCarousel"; // Import the custom component
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const Stays = () => {
   const [filter, setFilter] = useState(null);
   const [sort, setSort] = useState("recommended");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(4); // Default for sm and smaller screens
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const handleSort = (items) => {
     if (sort === "price-low-high") {
@@ -67,6 +69,11 @@ const Stays = () => {
     }
   };
 
+  // Function to handle stay card click
+  const handleStayClick = (stayId) => {
+    navigate(`/wheretostay/accomodation/${stayId}`); // Navigate to the stay details page
+  };
+
   // Dynamic grid classes based on number of items per page
   const gridColumnsClass = "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
 
@@ -100,11 +107,13 @@ const Stays = () => {
         </div>
       </div>
 
-      <div
-        className={`grid gap-4 ${gridColumnsClass}`}
-      >
+      <div className={`grid gap-4 ${gridColumnsClass}`}>
         {displayedStays.map((stay) => (
-          <div className="relative p-2 mb-4" key={stay.id}>
+          <div
+            className="relative p-2 mb-4 cursor-pointer" // Add cursor-pointer
+            key={stay.id}
+            onClick={() => handleStayClick(stay.id)} // Add onClick handler
+          >
             <div className="border rounded-lg items-center mb-2 overflow-hidden">
               <ImageCarousel
                 images={stay.image}

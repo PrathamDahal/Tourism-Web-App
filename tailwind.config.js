@@ -8,7 +8,8 @@ module.exports = {
         Playfair: ['Playfair Display', 'sans-serif'],
         Open: ['Open Sans', 'sans-serif'],
         allura: ['Allura', 'sans-serif'],
-        poppins: ['Poppins','Open Sans']
+        poppins: ['Poppins','Open Sans'],
+        italiano: ['Italianno','Open Sans'],
       },
     },
   },

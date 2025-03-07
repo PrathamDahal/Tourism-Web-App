@@ -1,8 +1,8 @@
 // src/pages/LoginPage.js
 import React from "react";
-import LoginForm from "../../Component/Login/LoginForm.js";
+import ResetPasswordForm from "../../Component/ResetPassword/ResetPasswordForm.js";
 
-const Login = () => {
+const ResetPassword = () => {
   return (
     <div className="h-screen -m-4">
       <div className="h-full gap-2 lg:flex lg:flex-row justify-center items-center p-1">
@@ -29,11 +29,11 @@ const Login = () => {
 
         {/* Right Section (Login Form) */}
         <div className="lg:h-full bg-gray-200 w-full lg:w-1/2 flex justify-center items-center">
-          <LoginForm />
+          <ResetPasswordForm />
         </div>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default ResetPassword;

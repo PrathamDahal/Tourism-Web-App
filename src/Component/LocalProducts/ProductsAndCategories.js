@@ -1,64 +1,55 @@
 import { useState, useEffect } from "react";
-import Products from "../../Data/Products";
-import ProductCard from "./ProductCardDisplay";
-import CategoryPage from "./CategoryDisplay";
-import ProductDetails from "./ProductDisplay";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import Products from "./../../Data/Products";
+import { FaArrowRight } from "react-icons/fa";
+import PaginationControls from "./../PaginationControls"; 
+import ProductCard from './../Product/ProductCardDisplay';
 
-const ProductPage = () => {
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [showMore, setShowMore] = useState(false);
-  const [visibleItems, setVisibleItems] = useState(5);
+const LocalProductPage = () => {
+  const [showMoreCategories, setShowMoreCategories] = useState(false);
+  const [visibleCategoryItems, setVisibleCategoryItems] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage, setProductsPerPage] = useState(8);
+  
+  const navigate = useNavigate(); // Initialize navigate function
 
   const categories = Array.from(
     new Set(Products.map((product) => product.category.name))
   ).map((categoryName) => {
-    const category = Products.find(
-      (product) => product.category.name === categoryName
-    ).category;
-    return category;
+    return Products.find((product) => product.category.name === categoryName).category;
   });
 
-  const filteredProducts = selectedCategory
-    ? Products.filter(
-        (product) => product.category.name === selectedCategory.name
-      )
-    : Products;
-
   const handleCategoryClick = (category) => {
-    setSelectedCategory(category);
-    window.history.pushState(
-      { productId: category.id },
-      "",
-      `#product-${category.id}`
-    );
-    setSelectedProduct(null);
+    navigate(`/localproducts/category/${category.id}`); // Only pass the category ID
   };
-
+  
   const handleProductClick = (product) => {
-    setSelectedProduct(product);
-    window.history.pushState(
-      { productId: product.id },
-      "",
-      `#product-${product.id}`
-    );
-  };
-
-  // Function to get visible items based on screen size
-  const getVisibleItems = () => {
-    if (window.innerWidth >= 1280) return 5; // xl
-    if (window.innerWidth >= 1024) return 5; // lg
-    if (window.innerWidth >= 768) return 4; // md
-    return 2; // sm and below
+    navigate(`/localproducts/product/${product.id}`); // Only pass the product ID
   };
 
   useEffect(() => {
-    // Set initial visible items based on screen size
-    setVisibleItems(getVisibleItems());
+    const getVisibleCategoryItems = () => {
+      if (window.innerWidth >= 1280) return 10;
+      if (window.innerWidth >= 1024) return 5;
+      if (window.innerWidth >= 768) return 4;
+      return 2;
+    };
+
+    const getVisibleProductItems = () => {
+      if (window.innerWidth >= 1280) return 20;
+      if (window.innerWidth >= 1024) return 15;
+      if (window.innerWidth >= 768) return 12;
+      return 8;
+    };
+
+    setVisibleCategoryItems(getVisibleCategoryItems());
+    setProductsPerPage(getVisibleProductItems());
 
     const handleResize = () => {
-      setVisibleItems(getVisibleItems());
-      setShowMore(false);
+      setVisibleCategoryItems(getVisibleCategoryItems());
+      setProductsPerPage(getVisibleProductItems());
+      setShowMoreCategories(false);
+      setCurrentPage(1);
     };
 
     window.addEventListener("resize", handleResize);
@@ -67,80 +58,73 @@ const ProductPage = () => {
     };
   }, []);
 
-  useEffect(() => {
-    const handlePopState = () => {
-      setSelectedProduct(null);
-      setSelectedCategory(null);
-    };
-
-    window.addEventListener("popstate", handlePopState);
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, []);
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = Products.slice(indexOfFirstProduct, indexOfLastProduct);
+  const totalPages = Math.ceil(Products.length / productsPerPage);
 
   return (
-    <div className="p-4 items-center justify-center xl:mx-44 lg:mx-32 md:mx-20 mx-10">
-      {!selectedProduct && !selectedCategory && (
-        <div>
-          <h1 className="text-2xl font-bold mb-4">Product Categories</h1>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
-            {categories
-              .slice(0, showMore ? categories.length : visibleItems)
-              .map((category) => (
-                <div
-                  key={category.id}
-                  className="border p-2 rounded-md cursor-pointer hover:border hover:text-blue-400 hover:border-blue-400 hover:shadow-md"
-                  onClick={() => handleCategoryClick(category)}
-                >
-                  <img
-                    src={category.categoryImage}
-                    alt={category.name}
-                    className="w-full h-36 object-cover rounded-sm mb-2"
-                  />
-                  <h2 className="text-lg font-medium font-poppins text-center">
-                    {category.name}
-                  </h2>
-                </div>
-              ))}
-          </div>
-          <div className="w-full text-right">
-            {categories.length > visibleItems && (
-              <button
-                className="text-blue-500 text-sm hover:underline mb-4"
-                onClick={() => setShowMore(!showMore)}
-              >
-                {showMore ? "Show Less" : "See More..."}
-              </button>
-            )}
-          </div>
-
-          <h1 className="text-2xl font-bold mb-4">Products</h1>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                handleProductClick={handleProductClick}
+    <div className="p-4 items-center justify-center xl:mx-44 lg:mx-32 md:mx-20 mx-2">
+      {/* Product Categories Section */}
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Product Categories</h1>
+        {categories.length > visibleCategoryItems && (
+          <button
+            className="text-blue-500 text-sm hover:underline flex items-center gap-1"
+            onClick={() => setShowMoreCategories(!showMoreCategories)}
+          >
+            {showMoreCategories ? "Show Less" : "View All"}
+            {!showMoreCategories && <FaArrowRight className="inline-block" />}
+          </button>
+        )}
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+        {categories
+          .slice(0, showMoreCategories ? categories.length : visibleCategoryItems)
+          .map((category) => (
+            <div
+              key={category.id}
+              className="border p-2 rounded-md cursor-pointer hover:border hover:text-blue-400 hover:border-blue-400 hover:shadow-md"
+              onClick={() => handleCategoryClick(category)}
+            >
+              <img
+                src={category.categoryImage}
+                alt={category.name}
+                className="w-full h-36 object-cover rounded-sm mb-2"
               />
-            ))}
-          </div>
-        </div>
-      )}
+              <h2 className="text-lg font-medium font-poppins text-center">
+                {category.name}
+              </h2>
+            </div>
+          ))}
+      </div>
 
-      {!selectedProduct && selectedCategory && (
-        <CategoryPage
-          category={selectedCategory}
-          products={Products.filter(
-            (p) => p.category.name === selectedCategory.name
-          )}
-          onProductClick={handleProductClick}
+      {/* Products Section */}
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Products</h1>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {currentProducts.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            handleProductClick={() => handleProductClick(product)}
+          />
+        ))}
+      </div>
+
+      {/* Pagination Controls */}
+      {Products.length > productsPerPage && (
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          handlePreviousPage={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          handleNextPage={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          handlePageClick={setCurrentPage}
         />
       )}
-
-      {selectedProduct && <ProductDetails product={selectedProduct} />}
     </div>
   );
 };
 
-export default ProductPage;
+export default LocalProductPage;
