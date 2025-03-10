@@ -73,7 +73,7 @@ const Footer = () => {
           {/* PanchPokhari Section */}
           <div className="text-center md:text-left max-w-72 min-w-48 px-2 w-full md:w-auto">
             <h2 className="lg:text-xl font-bold md:text-sm text-yellow-500 mb-4">
-              PanchPokhari
+              {name}
             </h2>
             <ul className="space-y-4">
               <li>

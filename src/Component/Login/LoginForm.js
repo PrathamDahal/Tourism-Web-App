@@ -37,7 +37,7 @@ const LoginForm = () => {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
       
-      navigate("/"); // Redirect to the home page or another route after login
+      navigate("/"); 
     } catch (err) {
       console.error("Login failed:", err);
     }

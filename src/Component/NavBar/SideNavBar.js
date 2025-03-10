@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaBell, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
 import { MdTranslate } from "react-icons/md";
 import { useDispatch } from "react-redux";
@@ -13,7 +13,7 @@ const SideNavBar = () => {
   const toggleDropDown = () => {
     setIsDropdownOpen((prevState) => !prevState);
   };
-
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const accessToken = localStorage.getItem("accessToken");
 
@@ -31,7 +31,8 @@ const SideNavBar = () => {
   }, [data, dispatch]);
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken", "refreshToken");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     dispatch(setCredentials({ user: null }));
     setIsLoggedIn(false);
   };
@@ -136,6 +137,16 @@ const SideNavBar = () => {
               {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg py-2 px-2 z-10">
+                  {/* Dashboard Button */}
+                  {data?.user?.role === "admin" && (
+                    <button
+                      onClick={() => navigate("/dashboard")} // Use navigate for programmatic routing
+                      className="w-full text-center px-4 py-2 mb-2 text-white bg-gradient-to-r from-[#FF5757] to-[#780E0E] hover:from-[#780E0E] hover:to-[#FF5757] rounded-md transition duration-200"
+                    >
+                      Dashboard
+                    </button>
+                  )}
+
                   {/* Log Out Button */}
                   <button
                     onClick={handleLogout}

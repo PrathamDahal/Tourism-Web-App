@@ -30,22 +30,23 @@ const MainNavBar = () => {
 
   // Conditionally fetch user profile only if accessToken is available
   const { data, isLoading } = useFetchUserProfileQuery(undefined, {
-    skip: !accessToken, // Skip the query if accessToken is not available
+    skip: !accessToken,
   });
-  
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(!!accessToken);
 
   useEffect(() => {
-    if (data) {
+    if (accessToken && data) {
       dispatch(setCredentials({ user: data.user }));
       setIsLoggedIn(true);
     } else {
       setIsLoggedIn(false);
     }
-  }, [data, dispatch]);
+  }, [accessToken, data, dispatch]);
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken", "refreshToken");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     dispatch(logout());
     setIsLoggedIn(false);
     navigate(`/login`);
@@ -170,7 +171,17 @@ const MainNavBar = () => {
 
               {/* Dropdown Menu */}
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg py-2 px-2 z-10">
+                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg py-2 px-3 z-10">
+                  {/* Dashboard Button */}
+                  {data?.user?.role === "admin" && (
+                    <button
+                      onClick={() => navigate("/dashboard/home")} 
+                      className="w-full text-center px-4 py-2 mb-2 text-white bg-gradient-to-r from-[#FF5757] to-[#780E0E] hover:from-[#780E0E] hover:to-[#FF5757] rounded-md transition duration-200"
+                    >
+                      Dashboard
+                    </button>
+                  )}
+
                   {/* Log Out Button */}
                   <button
                     onClick={handleLogout}
