@@ -1,6 +1,6 @@
 import React from 'react';
-import StayOptions from '../../Component/WhereToStay/whereToStayOptions';
-import Stays from '../../Component/WhereToStay/Stays';
+import StayOptions from './../../Component/WebContent/WhereToStay/whereToStayOptions';
+import Stays from './../../Component/WebContent/WhereToStay/Stays';
 
 const WhereToStay = () => {
   return(

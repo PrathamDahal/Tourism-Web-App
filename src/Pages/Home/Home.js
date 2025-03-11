@@ -1,8 +1,8 @@
 import React from "react";
-import FeaturedActivities from "./../../Component/Home/FeaturedActivities";
-import PopularDestinations from "./../../Component/Home/PopularDestinations";
-import FeaturedAccomodations from "./../../Component/Home/FeaturedAccomodations";
-import Contact from "./../../Component/ContactUs/Contact";
+import FeaturedActivities from "./../../Component/WebContent/Home/FeaturedActivities";
+import PopularDestinations from "./../../Component/WebContent/Home/PopularDestinations";
+import FeaturedAccomodations from "./../../Component/WebContent/Home/FeaturedAccomodations";
+import Contact from "./../../Component/WebContent/ContactUs/Contact";
 
 const Home = () => {
   return (

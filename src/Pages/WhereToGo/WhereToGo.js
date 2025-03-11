@@ -1,7 +1,7 @@
 import React from "react";
-import PopularDestinations from "../../Component/Home/PopularDestinations";
+import PopularDestinations from "./../../Component/WebContent/Home/PopularDestinations";
 import { Activities } from "../../Data/Activities";
-import ExplorePanchpokhari from "../../Component/WhereToGo/ExplorePanchpokhari";
+import ExplorePanchpokhari from "./../../Component/WebContent/WhereToGo/ExplorePanchpokhari";
 
 const WhereToGo = () => {
   return (

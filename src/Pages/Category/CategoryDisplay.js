@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ProductCard from "./../../Component/Product/ProductCardDisplay";
-import FilterComponent from "./../../Component/Category/FilterComponent";
+import ProductCard from "./../../Component/WebContent/Product/ProductCardDisplay";
+import FilterComponent from "./../../Component/WebContent/Category/FilterComponent";
 import PaginationControls from "./../../Component/PaginationControls";
 import products from "./../../Data/Products";
 

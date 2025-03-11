@@ -1,7 +1,7 @@
 import React from "react";
 import { HiOutlineShoppingBag } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
-import RatingStars from "../RatingStars";
+import RatingStars from "./../../RatingStars";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();

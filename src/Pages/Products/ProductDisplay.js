@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import CustomerFeedback from "./../../Component/Product/CustomerFeedback";
+import CustomerFeedback from "./../../Component/WebContent/Product/CustomerFeedback";
 import { useRef, useState } from "react";
 import {
   FaFacebookF,
@@ -10,7 +10,7 @@ import {
 import { HiOutlineShoppingBag } from "react-icons/hi";
 import { customerFeedback } from "./../../Data/CustomerFeedback";
 import products from "./../../Data/Products"; // Import the products data
-import RatingStars from "../../Component/RatingStars";
+import RatingStars from "./../../Component/RatingStars";
 
 const ProductPage = () => {
   const { id } = useParams(); // Extract the `id` parameter from the URL

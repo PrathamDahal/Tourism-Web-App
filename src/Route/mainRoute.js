@@ -1,8 +1,10 @@
-import { Routes, Route } from "react-router-dom";
-import Layout from "./../Component/Main/Layout";
-import WebContentRoute from "./webContentRoute";
-import NoPage from "../NoPage";
-import DashboardRoute from "./DashboardRoute";
+import { Route, Routes } from "react-router-dom";
+import Layout from './../Component/Main/Layout';
+import WebContentRoute from './webContentRoute';
+import ProtectedRoute from "./ProtectedRoute";
+import DashboardHome from "../Pages/Dashboard/DashboardHome";
+import SiteSettings from "../Pages/Dashboard/Settings/SiteSettings";
+import NoPage from './../NoPage';
 
 function MainRoute() {
   return (
@@ -10,7 +12,14 @@ function MainRoute() {
       <Route element={<Layout />}>
         <Route path="/*" element={<WebContentRoute />} />
       </Route>
-      <Route path="dashboard/*" element={<DashboardRoute />} />
+
+      {/* Dashboard Routes */}
+      <Route path="dashboard" element={<ProtectedRoute />}>
+        <Route index element={<DashboardHome />} />
+        <Route path="home" element={<DashboardHome />} />
+        <Route path="site-settings" element={<SiteSettings />} />
+      </Route>
+
       <Route path="*" element={<NoPage />} />
     </Routes>
   );

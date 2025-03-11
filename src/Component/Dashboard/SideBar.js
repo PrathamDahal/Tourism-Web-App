@@ -22,7 +22,7 @@ const SideBar = () => {
   };
 
   return (
-    <div className="w-[220px] h-screen bg-gray-100 px-4 py-2 flex flex-col relative font-sans shadow-lg">
+    <div className="w-[220px] bg-gray-100 px-4 py-2 flex flex-col relative font-sans shadow-lg">
       <h2 className="text-center py-3 lg:text-lg font-light md:text-sm font-redressed text-red-600 mb-3">
         PanchPokhari Tourism
       </h2>

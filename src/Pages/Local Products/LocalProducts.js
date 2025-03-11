@@ -1,5 +1,5 @@
 import React from "react";
-import LocalProductPage from './../../Component/LocalProducts/ProductsAndCategories';
+import LocalProductPage from './../../Component/WebContent/LocalProducts/ProductsAndCategories';
 
 const LocalProducts = () => {
   return (

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { stayOptions } from "./../../Data/stayOptions";
+import { stayOptions } from "./../../../Data/stayOptions";
 
 const StayOptions = () => {
   const [visibleItems, setVisibleItems] = useState(3);

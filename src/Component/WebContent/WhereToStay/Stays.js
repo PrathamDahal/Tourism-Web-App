@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { stays } from "../../Data/stayOptions";
-import { stayOptions } from "./../../Data/stayOptions";
+import { stays } from "./../../../Data/stayOptions";
+import { stayOptions } from "./../../../Data/stayOptions";
 import ImageCarousel from "./ImageCarousel"; // Import the custom component
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 

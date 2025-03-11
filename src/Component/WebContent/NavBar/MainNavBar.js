@@ -3,8 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaBell, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
 import { MdTranslate } from "react-icons/md";
 import { useDispatch } from "react-redux";
-import { logout, setCredentials } from "../../Features/slice/authSlice";
-import { useFetchUserProfileQuery } from "../../Services/auth/userApiSlice";
+import { logout, setCredentials } from "./../../../Features/slice/authSlice";
+import { useFetchUserProfileQuery } from "./../../../Services/auth/userApiSlice";
 
 const MainNavBar = () => {
   const [menuOpen, setMenuOpen] = useState(false);

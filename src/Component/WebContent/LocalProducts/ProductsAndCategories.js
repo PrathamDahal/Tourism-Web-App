@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
-import Products from "./../../Data/Products";
+import Products from "./../../../Data/Products";
 import { FaArrowRight } from "react-icons/fa";
-import PaginationControls from "./../PaginationControls"; 
+import PaginationControls from "./../../PaginationControls"; 
 import ProductCard from './../Product/ProductCardDisplay';
 
 const LocalProductPage = () => {

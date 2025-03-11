@@ -17,10 +17,10 @@ const Footer = () => {
   if (error) return <div>Error loading site settings.</div>;
 
   const {
-    name = "PanchPokhari Tourism", 
-    phoneNumber = "+1012 3456 7890", 
-    email = "demo@gmail.com", 
-    address = "132 Dartmouth Street, Boston, MA 02156, USA", 
+    name = "PanchPokhari Tourism",
+    phoneNumber = "+1012 3456 7890",
+    email = "demo@gmail.com",
+    address = "132 Dartmouth Street, Boston, MA 02156, USA",
     facebookLink,
     instagramLink,
     twitterLink,
@@ -56,14 +56,14 @@ const Footer = () => {
                 </span>
               </li>
               <li className="flex items-center justify-center md:justify-start space-x-4">
-                <BiSolidEnvelope className="lg:text-2xl md:text-xl text-black" />
-                <span className="text-gray-700 lg:text-base md:text-sm font-Open">
+                <BiSolidEnvelope className="lg:text-2xl md:text-xl text-black flex-shrink-0" />
+                <span className="text-gray-700 lg:text-base md:text-sm font-Open overflow-hidden text-ellipsis whitespace-nowrap">
                   {email}
                 </span>
               </li>
               <li className="flex items-center justify-center md:justify-start space-x-4">
-                <BiSolidMap className="text-xl md:text-2xl text-black" />
-                <span className="text-gray-700 lg:text-base md:text-sm font-Open">
+                <BiSolidMap className="text-xl md:text-2xl text-black flex-shrink-0" />
+                <span className="text-gray-700 lg:text-base md:text-sm font-Open overflow-hidden text-ellipsis whitespace-nowrap">
                   {address}
                 </span>
               </li>
@@ -103,8 +103,16 @@ const Footer = () => {
             <ul className="space-y-4">
               {[
                 { icon: <FaTwitter />, label: "Twitter", link: twitterLink },
-                { icon: <FaInstagram />, label: "Instagram", link: instagramLink },
-                { icon: <FaFacebookF />, label: "Facebook", link: facebookLink },
+                {
+                  icon: <FaInstagram />,
+                  label: "Instagram",
+                  link: instagramLink,
+                },
+                {
+                  icon: <FaFacebookF />,
+                  label: "Facebook",
+                  link: facebookLink,
+                },
               ].map((social, index) => (
                 <li
                   key={index}

@@ -2,15 +2,15 @@ import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Footer from "./Footer";
 import "../../App.css"; // Import the CSS file
-import MainNavBar from "../NavBar/MainNavBar";
-import SideNavBar from "../NavBar/SideNavBar";
-import HeroSection from "../Hero/HeroSection";
-import HomeDetails from "../Section Details/HomeDetails";
-import WhereToGoDetails from "../Section Details/WhereToGoDetails";
-import WhereToStayDetails from "../Section Details/WhereToStayDetails";
-import LocalDetails from "../Section Details/LocalDetails";
-import ContactUsDetails from "../Section Details/ContactUsDetails";
-import CategoryDetails from "../Section Details/CategoryDetails";
+import MainNavBar from "./../WebContent/NavBar/MainNavBar";
+import SideNavBar from "./../WebContent/NavBar/SideNavBar";
+import HeroSection from "./../WebContent/Hero/HeroSection";
+import HomeDetails from "./../WebContent/Section Details/HomeDetails";
+import WhereToGoDetails from "./../WebContent/Section Details/WhereToGoDetails";
+import WhereToStayDetails from "./../WebContent/Section Details/WhereToStayDetails";
+import LocalDetails from "./../WebContent/Section Details/LocalDetails";
+import ContactUsDetails from "./../WebContent/Section Details/ContactUsDetails";
+import CategoryDetails from "./../WebContent/Section Details/CategoryDetails";
 
 const Layout = () => {
   const location = useLocation();

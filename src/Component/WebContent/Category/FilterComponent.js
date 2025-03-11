@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { BiFilterAlt, BiChevronDown } from "react-icons/bi";
 import { AiFillStar } from "react-icons/ai";
-import products from "../../Data/Products";
+import products from "./../../../Data/Products";
 
 const FilterComponent = ({
   subcategories,

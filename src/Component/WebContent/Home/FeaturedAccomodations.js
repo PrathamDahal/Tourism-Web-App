@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { destinations } from "../../Data/DestinationCarousel";
-import { stayOptions, stays } from "../../Data/stayOptions";
+import { destinations } from "./../../../Data/DestinationCarousel";
+import { stayOptions, stays } from "./../../../Data/stayOptions";
 import FeaturedCarousel from "./Carousel/FeaturedCarousel";
 
 const FeaturedAccomodations = () => {

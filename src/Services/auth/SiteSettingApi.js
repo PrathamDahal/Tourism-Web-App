@@ -1,13 +1,25 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
+import { baseQuery } from './../../Features/baseQuery';
 
 export const siteSettingsApi = createApi({
-  reducerPath: 'siteSettingsApi', 
-  baseQuery: fetchBaseQuery({ baseUrl: 'https://tourism.smartptrm.com/api/v1/' }), 
+  reducerPath: 'siteSettingsApi',
+  baseQuery,
   endpoints: (builder) => ({
+    // Existing query to fetch site settings
     getSiteSettings: builder.query({
-      query: () => 'site-settings', 
+      query: () => 'site-settings',
+    }),
+
+    // New mutation to update site settings
+    updateSiteSetting: builder.mutation({
+      query: (siteSettings) => ({
+        url: 'site-settings', 
+        method: 'PATCH', 
+        body: siteSettings, 
+      }),
     }),
   }),
 });
 
-export const { useGetSiteSettingsQuery } = siteSettingsApi;
+// Export the hooks for both the query and the mutation
+export const { useGetSiteSettingsQuery, useUpdateSiteSettingMutation } = siteSettingsApi;

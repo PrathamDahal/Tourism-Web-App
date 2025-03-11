@@ -1,6 +1,6 @@
 // src/pages/LoginPage.js
 import React from "react";
-import ResetPasswordForm from "../../Component/ResetPassword/ResetPasswordForm.js";
+import ResetPasswordForm from "./../../Component/Login/ResetPasswordForm.js";
 
 const ResetPassword = () => {
   return (

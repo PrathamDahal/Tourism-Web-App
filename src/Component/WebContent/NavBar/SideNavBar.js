@@ -3,8 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaBell, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
 import { MdTranslate } from "react-icons/md";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "../../Features/slice/authSlice";
-import { useFetchUserProfileQuery } from "../../Services/auth/userApiSlice";
+import { setCredentials } from "./../../../Features/slice/authSlice";
+import { useFetchUserProfileQuery } from "./../../../Services/auth/userApiSlice";
 
 const SideNavBar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
