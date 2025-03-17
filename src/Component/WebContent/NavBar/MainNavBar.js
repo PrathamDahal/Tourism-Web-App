@@ -101,9 +101,9 @@ const MainNavBar = () => {
       </ul>
 
       {/* Icons and Auth Links */}
-      <div className="flex items-center xl:space-x-4 lg:space-x-2 md:space-x-0 space-x-2">
+      <div className="flex items-center xl:space-x-3 lg:space-x-2 md:space-x-0 space-x-2">
         {/* Icons */}
-        <div className="flex items-center xl:space-x-8 lg:space-x-4 md:space-x-2 space-x-2">
+        <div className="flex items-center xl:space-x-6 lg:space-x-4 md:space-x-2 space-x-2">
           <Link to="/notifications" className="hover:text-blue-300 text-white">
             <FaBell className="lg:text-xl md:text-lg" />
           </Link>

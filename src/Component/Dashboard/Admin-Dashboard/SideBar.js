@@ -2,7 +2,7 @@ import React from "react";
 import { FaClock } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
-import { logout } from "../../Features/slice/authSlice";
+import { logout } from "../../../Features/slice/authSlice";
 
 const SideBar = () => {
   const navigate = useNavigate();
@@ -52,10 +52,10 @@ const SideBar = () => {
         </h3>
         <div className="py-1">
           <NavLink
-            to="/dashboard/services"
+            to="/dashboard/category"
             className={({ isActive }) => getLinkClasses(isActive)}
           >
-            Services
+            Category
           </NavLink>
           <NavLink
             to="/dashboard/products"

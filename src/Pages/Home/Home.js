@@ -3,6 +3,7 @@ import FeaturedActivities from "./../../Component/WebContent/Home/FeaturedActivi
 import PopularDestinations from "./../../Component/WebContent/Home/PopularDestinations";
 import FeaturedAccomodations from "./../../Component/WebContent/Home/FeaturedAccomodations";
 import Contact from "./../../Component/WebContent/ContactUs/Contact";
+import TravelPackagesCarousel from "../../Component/WebContent/Home/TravelPackagesCarousel";
 
 const Home = () => {
   return (
@@ -15,6 +16,9 @@ const Home = () => {
       </div>
       <div className="sm:my-[50px] items-center justify-center bg-gray-50 px-3">
         <FeaturedAccomodations />
+      </div>
+      <div className="sm:my-[50px] items-center justify-center bg-gray-50 px-3">
+        <TravelPackagesCarousel />
       </div>
       <div className="sm:my-[50px] items-center justify-center bg-gray-50 px-3">
         <Contact />

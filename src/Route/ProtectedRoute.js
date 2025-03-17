@@ -8,7 +8,6 @@ const ProtectedRoute = () => {
   const token = localStorage.getItem("accessToken");
 
   useEffect(() => {
-    console.log("Data:", data);
     if (data?.ok) {
       setOk(true);
     } else {

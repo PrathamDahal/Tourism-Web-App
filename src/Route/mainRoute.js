@@ -5,6 +5,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import DashboardHome from "../Pages/Dashboard/DashboardHome";
 import SiteSettings from "../Pages/Dashboard/Settings/SiteSettings";
 import NoPage from './../NoPage';
+import Category from "../Pages/Dashboard/Category/Category";
 
 function MainRoute() {
   return (
@@ -18,6 +19,7 @@ function MainRoute() {
         <Route index element={<DashboardHome />} />
         <Route path="home" element={<DashboardHome />} />
         <Route path="site-settings" element={<SiteSettings />} />
+        <Route path="category" element={<Category />} />
       </Route>
 
       <Route path="*" element={<NoPage />} />

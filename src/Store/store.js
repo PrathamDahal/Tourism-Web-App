@@ -5,6 +5,7 @@ import { resetPasswordApi } from "../Services/auth/resetPasswordApi";
 import { protectedApi } from "../Services/auth/admin-authApi";
 import authReducer from "../Features/slice/authSlice";
 import { siteSettingsApi } from './../Services/auth/SiteSettingApi';
+import { categoryApi } from "../Services/auth/categoryApiSlice";
 
 export const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ export const store = configureStore({
     [resetPasswordApi.reducerPath]: resetPasswordApi.reducer,
     [protectedApi.reducerPath]: protectedApi.reducer,
     [siteSettingsApi.reducerPath]: siteSettingsApi.reducer,
+    [categoryApi.reducerPath]: categoryApi.reducer,
     auth: authReducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -22,6 +24,7 @@ export const store = configureStore({
       protectedApi.middleware,
       resetPasswordApi.middleware,
       siteSettingsApi.middleware,
+      categoryApi.middleware
     ),
 });
 

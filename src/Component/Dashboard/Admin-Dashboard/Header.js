@@ -1,12 +1,15 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { useFetchUserProfileQuery } from "../../Services/auth/userApiSlice";
+import { useFetchUserProfileQuery } from "../../../Services/auth/userApiSlice";
 
 const Header = () => {
   const location = useLocation();
 
   const isSiteSetting = location.pathname.startsWith(
     "/dashboard/site-settings"
+  );
+  const isCategory = location.pathname.startsWith(
+    "/dashboard/category"
   );
   const isOverview = location.pathname.startsWith("/dashboard/home");
 
@@ -15,8 +18,8 @@ const Header = () => {
       return "Welcome to the Overview Page";
     } else if (isSiteSetting) {
       return "Site Settings";
-    } else {
-      return "Dashboard";
+    } else if (isCategory) {
+      return "Product Categories";
     }
   };
 

@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import {
   useUpdateSiteSettingMutation,
   useGetSiteSettingsQuery,
-} from "../../../Services/auth/SiteSettingApi";
+} from "../../../../Services/auth/SiteSettingApi.js";
 
 const SettingsContent = () => {
   // Fetch site settings data

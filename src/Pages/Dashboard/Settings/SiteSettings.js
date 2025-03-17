@@ -1,7 +1,7 @@
 import React from 'react'
-import SideBar from '../../../Component/Dashboard/SideBar'
-import Header from '../../../Component/Dashboard/Header'
-import SettingsContent from '../../../Component/Dashboard/SiteSettings/SettingContent'
+import SettingsContent from './../../../Component/Dashboard/Admin-Dashboard/SiteSettings/SettingContent'
+import Header from './../../../Component/Dashboard/Admin-Dashboard/Header';
+import SideBar from './../../../Component/Dashboard/Admin-Dashboard/SideBar';
 
 const SiteSettings = () => {
   return (
