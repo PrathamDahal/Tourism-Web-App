@@ -11,6 +11,9 @@ const Header = () => {
   const isCategory = location.pathname.startsWith(
     "/dashboard/category"
   );
+  const isProduct = location.pathname.startsWith(
+    "/dashboard/product"
+  );
   const isOverview = location.pathname.startsWith("/dashboard/home");
 
   const renderHeaderText = () => {
@@ -20,6 +23,8 @@ const Header = () => {
       return "Site Settings";
     } else if (isCategory) {
       return "Product Categories";
+    } else if (isProduct) {
+      return "Products";
     }
   };
 

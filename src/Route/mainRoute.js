@@ -6,6 +6,7 @@ import DashboardHome from "../Pages/Dashboard/DashboardHome";
 import SiteSettings from "../Pages/Dashboard/Settings/SiteSettings";
 import NoPage from './../NoPage';
 import Category from "../Pages/Dashboard/Category/Category";
+import Product from "../Pages/Dashboard/Products/Product";
 
 function MainRoute() {
   return (
@@ -20,6 +21,7 @@ function MainRoute() {
         <Route path="home" element={<DashboardHome />} />
         <Route path="site-settings" element={<SiteSettings />} />
         <Route path="category" element={<Category />} />
+        <Route path="product" element={<Product />} />
       </Route>
 
       <Route path="*" element={<NoPage />} />

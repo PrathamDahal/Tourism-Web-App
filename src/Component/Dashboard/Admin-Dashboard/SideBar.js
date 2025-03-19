@@ -58,7 +58,7 @@ const SideBar = () => {
             Category
           </NavLink>
           <NavLink
-            to="/dashboard/products"
+            to="/dashboard/product"
             className={({ isActive }) => getLinkClasses(isActive)}
           >
             Products

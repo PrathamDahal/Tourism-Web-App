@@ -60,7 +60,18 @@ const CreateCategoryModal = ({ isOpen, onClose, onCreate }) => {
         </div>
         <form onSubmit={formik.handleSubmit}>
           <div className="mb-4 justify-center">
-            <h3 className="font-Open text-red-600 mb-6">Basic Information</h3>
+            <div className="flex items-center">
+              <div
+                className={`rounded-full w-6 h-6 flex items-center justify-center bg-red-600 text-white`}
+              >
+                1
+              </div>
+              <span
+                className="mx-4 text-red-600 text-lg"
+              >
+                Basic Information
+              </span>
+            </div>
             <div className="mb-4 flex flex-col items-center justify-center">
               {/* Image Preview */}
               {formik.values.image ? (
