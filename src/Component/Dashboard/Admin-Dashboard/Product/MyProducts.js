@@ -1,212 +1,359 @@
-import { useState } from "react";
-import { useCreateProductMutation, useDeleteProductMutation, useGetProductsQuery } from "../../../../Services/auth/productApiSlice";
+import { useState, useEffect } from "react";
+import {
+  useCreateProductMutation,
+  useDeleteProductMutation,
+  useGetProductsQuery,
+} from "../../../../Services/auth/productApiSlice";
 import { BiFilterAlt, BiSearch } from "react-icons/bi";
 import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
 import CreateProductModal from "./CreateProductModal";
+import LoadingSpinner from "./../../../LoadingSpinner";
+import ErrorMessage from "./../../../ErrorMessage";
+import SuccessToast from "./../../../SuccessToast";
+import ErrorToast from "./../../../ErrorToast";
+import UpdateProductModal from "./UpdateProductModal";
+
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const MyProducts = () => {
-    const { data: response, isLoading, isError } = useGetProductsQuery();
-    const products = response?.products || []; // Access the nested products array
-    const [createProduct] = useCreateProductMutation();
-    const [deleteProduct] = useDeleteProductMutation();
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-    const [selectedProductId, setSelectedProductId] = useState(null);
-  
-    const handleCreateProduct = async (newProduct) => {
-      try {
-        await createProduct(newProduct).unwrap();
-        console.log("Product created successfully");
-      } catch (error) {
-        console.error("Failed to create product:", error);
-      }
+  // State management
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [notification, setNotification] = useState({
+    show: false,
+    message: "",
+    type: "",
+  });
+
+  // API hooks
+  const {
+    data: response,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useGetProductsQuery();
+  const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
+  const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
+
+  // Derived data
+  const products = response?.data || [];
+  const filteredProducts = products.filter((product) => {
+    // Handle cases where product or product.name might be undefined/null
+    const productName = product?.name || "";
+    const searchText = searchTerm || "";
+
+    return productName.toLowerCase().includes(searchText.toLowerCase());
+  });
+
+  // Cleanup effect for object URLs
+  useEffect(() => {
+    return () => {
+      // Cleanup any object URLs when component unmounts
+      document.querySelectorAll("img[src^='blob:']").forEach((img) => {
+        URL.revokeObjectURL(img.src);
+      });
     };
-  
-    const handleUpdate = (productId) => {
-      setSelectedProductId(productId);
-      setIsUpdateModalOpen(true);
-    };
-  
-    const handleDelete = async (id) => {
-      const isConfirmed = window.confirm(
-        "Are you sure you want to delete this product?"
+  }, []);
+
+  const handleCreateProduct = async (newProduct) => {
+    try {
+      // Validation
+      const requiredFields = ["name", "price", "category", "description"];
+      const missingFields = requiredFields.filter(
+        (field) => !newProduct[field] && newProduct[field] !== 0
       );
-      if (isConfirmed) {
-        try {
-          await deleteProduct(id).unwrap();
-          console.log("Product deleted successfully");
-        } catch (error) {
-          console.error("Failed to delete product:", error);
+
+      if (missingFields.length > 0) {
+        throw new Error(`Missing fields: ${missingFields.join(", ")}`);
+      }
+
+      // Type validation
+      const price = Number(newProduct.price);
+      if (isNaN(price)) throw new Error("Price must be a number");
+
+      // Prepare FormData
+      const formData = new FormData();
+      formData.append("name", newProduct.name);
+      formData.append("price", price.toString());
+      formData.append("category", newProduct.category);
+      formData.append("description", newProduct.description);
+
+      // Optional fields
+      if (newProduct.tags) {
+        // Check if tags is already an array
+        const tagsArray = Array.isArray(newProduct.tags)
+          ? newProduct.tags
+          : JSON.parse(newProduct.tags);
+
+        formData.append("tags", JSON.stringify(tagsArray));
+      }
+      if (newProduct.stock) {
+        const stock = Number(newProduct.stock);
+        if (!isNaN(stock)) formData.append("stock", stock.toString());
+      }
+
+      // Image validation and handling
+      if (!newProduct.images || newProduct.images.length === 0) {
+        throw new Error("At least one image is required");
+      }
+
+      newProduct.images.forEach((image) => {
+        if (!image.type?.startsWith("image/")) {
+          throw new Error("Only image files are allowed");
         }
-      }
-    };
-  
-    const renderImage = (imageUrl) => {
-      if (!imageUrl) {
-        return (
-          <div className="w-12 h-12 rounded-sm bg-gray-200 flex items-center justify-center">
-            No Image
-          </div>
-        );
-      }
-  
-      if (typeof imageUrl === "string" && imageUrl.startsWith("data:image")) {
-        return (
-          <img
-            src={imageUrl}
-            alt="Product"
-            className="w-14 h-14 rounded-sm object-contain"
-            onError={(e) => {
-              e.target.src = "/path/to/fallback-image.jpg";
-            }}
-          />
-        );
-      }
-  
-      if (imageUrl instanceof File || imageUrl instanceof Blob) {
-        const objectUrl = URL.createObjectURL(imageUrl);
-        return (
-          <img
-            src={objectUrl}
-            alt="Product"
-            className="w-14 h-14 rounded-sm object-contain"
-            onError={(e) => {
-              e.target.src = "/path/to/fallback-image.jpg";
-            }}
-          />
-        );
-      }
-  
-      return (
-        <img
-          src={imageUrl}
-          alt="Product"
-          className="w-14 h-14 rounded-sm object-contain"
-          onError={(e) => {
-            e.target.src = "/path/to/fallback-image.jpg";
-          }}
-        />
-      );
-    };
-  
-    if (isLoading) return <div>Loading...</div>;
-    if (isError) return <div>Error fetching products</div>;
-  
+        if (image.size > 5_000_000) {
+          throw new Error("Image size must be less than 5MB");
+        }
+        formData.append("images", image);
+      });
+
+      // Send request
+      const response = await createProduct(formData).unwrap();
+
+      // Show success notification
+      setNotification({
+        show: true,
+        message: "Product created successfully!",
+        type: "success",
+      });
+
+      // Close modal and refetch products
+      setIsModalOpen(false);
+      refetch();
+
+      return response;
+    } catch (error) {
+      setNotification({
+        show: true,
+        message: error.message || "Failed to create product",
+        type: "error",
+      });
+      throw error;
+    }
+  };
+
+  const handleUpdateProduct = (productId) => {
+    setSelectedProductId(productId);
+    setIsUpdateModalOpen(true);
+  };
+
+  const handleDelete = async (id) => {
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this product?"
+    );
+    if (!isConfirmed) return;
+
+    try {
+      await deleteProduct(id).unwrap();
+      setNotification({
+        show: true,
+        message: "Product deleted successfully!",
+        type: "success",
+      });
+      refetch();
+    } catch (error) {
+      console.error("Failed to delete product:", error);
+      setNotification({
+        show: true,
+        message: error.message || "Failed to delete product",
+        type: "error",
+      });
+    }
+  };
+
+  if (isLoading) return <LoadingSpinner fullScreen />;
+
+  if (isError)
     return (
-      <div className="p-4 min-h-screen">
-        <div className="flex flex-col md:flex-row justify-between items-center py-2 mb-3 space-y-4 md:space-y-0">
-          <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
-            <div className="relative flex w-full md:w-64">
-              <input
-                type="text"
-                placeholder="Search Here"
-                className="w-full px-4 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <BiSearch
-                size={18}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2"
-              />
-            </div>
-            <button className="px-3 py-2 flex items-center justify-center bg-gray-200 rounded-md hover:bg-gray-300 w-full md:w-auto">
-              Filter <BiFilterAlt size={18} className="ml-2" />
-            </button>
+      <ErrorMessage
+        message={error?.message || "Error fetching products"}
+        onRetry={refetch}
+      />
+    );
+
+  return (
+    <div className="p-4 min-h-full">
+      {/* Notification Toasts */}
+      {notification.show && (
+        <div className="fixed top-4 right-4 z-50">
+          {notification.type === "success" ? (
+            <SuccessToast
+              message={notification.message}
+              onClose={() => setNotification({ ...notification, show: false })}
+            />
+          ) : (
+            <ErrorToast
+              message={notification.message}
+              onClose={() => setNotification({ ...notification, show: false })}
+            />
+          )}
+        </div>
+      )}
+
+      {/* Search and Filter Controls */}
+      <div className="flex flex-col md:flex-row justify-between items-center py-2 mb-3 space-y-4 md:space-y-0">
+        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
+          <div className="relative flex w-full md:w-64">
+            <input
+              type="text"
+              placeholder="Search products..."
+              className="w-full px-4 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <BiSearch
+              size={18}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            />
           </div>
           <button
-            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 w-full md:w-auto"
-            onClick={() => setIsModalOpen(true)}
+            className="px-3 py-2 flex items-center justify-center bg-gray-200 rounded-md hover:bg-gray-300 w-full md:w-auto"
+            aria-label="Filter products"
           >
-            + Add Product
+            Filter <BiFilterAlt size={18} className="ml-2" />
           </button>
         </div>
-  
-        <div className="rounded-sm shadow overflow-x-auto">
-          <table className="min-w-full">
+        <button
+          className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 w-full md:w-auto disabled:opacity-50"
+          onClick={() => setIsModalOpen(true)}
+          disabled={isCreating}
+          aria-label="Add new product"
+        >
+          {isCreating ? <LoadingSpinner size="small" /> : "+ Add Product"}
+        </button>
+      </div>
+
+      {/* Products Table */}
+      <div className="rounded-sm shadow overflow-x-auto">
+        <div className="max-h-[500px] overflow-y-auto">
+          <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-300">
               <tr>
-                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium tracking-wider">
+                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Product Image
                 </th>
-                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium tracking-wider">
+                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Product Name
                 </th>
-                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium tracking-wider">
+                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Category
                 </th>
-                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium tracking-wider">
-                  Rate
+                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  Price
                 </th>
-                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium tracking-wider">
+                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Stock
                 </th>
-                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium tracking-wider">
+                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Orders
                 </th>
-                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium tracking-wider">
+                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
-              {products.map((product) => (
-                <tr key={product._id} className="hover:bg-gray-100 text-center">
-                  <td className="px-4 md:px-6 py-3">
-                    {renderImage(product.images[0])} {/* Use the first image if available */}
-                  </td>
-                  <td className="px-4 md:px-6 py-3 text-gray-800">
-                    {product.name}
-                  </td>
-                  <td className="px-4 md:px-6 py-3 text-gray-800">
-                    {product.category}
-                  </td>
-                  <td className="px-4 md:px-6 py-3 text-gray-800">
-                    {product.price} {/* Use price instead of rate */}
-                  </td>
-                  <td className="px-4 md:px-6 py-3 text-gray-800">
-                    {product.stock || "N/A"} {/* Handle missing stock */}
-                  </td>
-                  <td className="px-4 md:px-6 py-3 text-gray-800">
-                    {product.orders || "N/A"} {/* Handle missing orders */}
-                  </td>
-                  <td className="px-4 md:px-6 py-3">
-                    <div className="flex space-x-2 justify-center">
-                      <div
-                        className="text-green-500 hover:text-green-600 cursor-pointer"
-                        onClick={() => handleUpdate(product._id)}
-                        title="Edit"
-                      >
-                        <FaPencilAlt className="w-4 h-4" />
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => (
+                  <tr
+                    key={product._id}
+                    className="hover:bg-gray-50 text-center"
+                  >
+                    <td className="px-4 md:px-6 py-3">
+                      {product.images?.[0] ? (
+                        <img
+                          src={`${API_BASE_URL}/${product.images[0]}`}
+                          alt={product.name || "Product image"}
+                          className="w-14 h-14 rounded-sm object-contain"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                          }}
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-sm bg-gray-200 flex items-center justify-center">
+                          No Image
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-4 md:px-6 py-3 text-gray-800">
+                      {product.name}
+                    </td>
+                    <td className="px-4 md:px-6 py-3 text-gray-800">
+                      {product.category?.name || product.category || "N/A"}
+                    </td>
+                    <td className="px-4 md:px-6 py-3 text-gray-800">
+                      ${product.price?.toFixed(2)}
+                    </td>
+                    <td className="px-4 md:px-6 py-3 text-gray-800">
+                      {product.stock ?? "N/A"}
+                    </td>
+                    <td className="px-4 md:px-6 py-3 text-gray-800">
+                      {product.orders ?? "N/A"}
+                    </td>
+                    <td className="px-4 md:px-6 py-3">
+                      <div className="flex space-x-2 justify-center">
+                        <button
+                          className="text-green-500 hover:text-green-600 focus:outline-none"
+                          onClick={() => handleUpdateProduct(product._id)}
+                          aria-label={`Edit ${product.name}`}
+                          disabled={isDeleting}
+                        >
+                          <FaPencilAlt className="w-4 h-4" />
+                        </button>
+                        <button
+                          className="text-red-500 hover:text-red-600 focus:outline-none"
+                          onClick={() => handleDelete(product._id)}
+                          aria-label={`Delete ${product.name}`}
+                          disabled={isDeleting}
+                        >
+                          {isDeleting ? (
+                            <LoadingSpinner size="small" />
+                          ) : (
+                            <FaTrashAlt className="w-4 h-4" />
+                          )}
+                        </button>
                       </div>
-                      <div
-                        className="text-red-500 hover:text-red-600 cursor-pointer"
-                        onClick={() => handleDelete(product._id)}
-                        title="Delete"
-                      >
-                        <FaTrashAlt className="w-4 h-4" />
-                      </div>
-                    </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="7"
+                    className="px-4 md:px-6 py-4 text-center text-gray-500"
+                  >
+                    {searchTerm
+                      ? "No matching products found"
+                      : "No products available"}
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
-  
-        <CreateProductModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onCreate={handleCreateProduct}
-        />
-  
-        {/* <UpdateProductModal
-          isOpen={isUpdateModalOpen}
-          onClose={() => {
-            setIsUpdateModalOpen(false);
-            setSelectedProductId(null);
-          }}
-          productId={selectedProductId}
-        /> */}
       </div>
-    );
-  };
-  
-  export default MyProducts;
+
+      {/* Modals */}
+      <CreateProductModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCreate={handleCreateProduct}
+        isSubmitting={isCreating}
+      />
+
+      <UpdateProductModal
+        isOpen={isUpdateModalOpen}
+        onClose={() => {
+          setIsUpdateModalOpen(false);
+          setSelectedProductId(null);
+        }}
+        productId={selectedProductId}
+      />
+    </div>
+  );
+};
+
+export default MyProducts;

@@ -6,6 +6,8 @@ import {
   useGetSiteSettingsQuery,
 } from "../../../../Services/auth/SiteSettingApi.js";
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const SettingsContent = () => {
   // Fetch site settings data
   const {
@@ -96,9 +98,9 @@ const SettingsContent = () => {
   }
 
   return (
-    <div className="p-2 h-auto mt-5 bg-white shadow-md rounded-lg flex space-x-2">
+    <div className="p-4 h-auto bg-white shadow-md rounded-lg flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
       {/* Left Side - Titles */}
-      <div className="w-64 relative space-y-20 justify-between">
+      <div className="w-64 relative space-y-20 justify-between hidden md:block">
         <div className="absolute top-2 p-2">
           <h2 className="font-semibold mb-2">Company Info</h2>
           <p className="text-sm text-gray-500">
@@ -113,14 +115,13 @@ const SettingsContent = () => {
         </div>
       </div>
 
-      {/* Right Side - Form Fields */}
-      <div className="w-full rounded-xl p-4 border border-gray-300 mb-10">
-        <form onSubmit={formik.handleSubmit} className="space-y-2">
+      <div className="w-full rounded-xl p-4 border border-gray-300">
+        <form onSubmit={formik.handleSubmit} className="space-y-4">
           <div className="mb-4">
             {logoPreview ? (
               <div className="flex items-center space-x-4">
                 <img
-                  src={logoPreview}
+                  src={`${API_BASE_URL}/${logoPreview}`}
                   alt="Logo Preview"
                   className="w-20 h-20 object-cover rounded-md"
                 />
@@ -135,7 +136,7 @@ const SettingsContent = () => {
             ) : (
               <div className="flex items-center space-x-4">
                 <img
-                  src="path_to_default_logo.jpg"
+                  src="/assets/Images/default-avatar-image.jpg"
                   alt="Default Logo"
                   className="w-20 h-20 object-cover rounded-md"
                 />
@@ -158,8 +159,8 @@ const SettingsContent = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="mb-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="mb-4">
               <label
                 htmlFor="name"
                 className="block text-sm font-medium text-gray-700"
@@ -175,7 +176,7 @@ const SettingsContent = () => {
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
-            <div className="mb-2">
+            <div className="mb-4">
               <label
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700"
@@ -191,7 +192,7 @@ const SettingsContent = () => {
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
-            <div className="mb-2">
+            <div className="mb-4">
               <label
                 htmlFor="phoneNumber"
                 className="block text-sm font-medium text-gray-700"
@@ -207,7 +208,7 @@ const SettingsContent = () => {
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
-            <div className="mb-2">
+            <div className="mb-4">
               <label
                 htmlFor="district"
                 className="block text-sm font-medium text-gray-700"
@@ -223,8 +224,7 @@ const SettingsContent = () => {
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
-
-            <div className="mb-8">
+            <div className="mb-4">
               <label
                 htmlFor="address"
                 className="block text-sm font-medium text-gray-700"
@@ -242,8 +242,8 @@ const SettingsContent = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="mb-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="mb-4">
               <label
                 htmlFor="facebookLink"
                 className="block text-sm font-medium text-gray-700"
@@ -259,8 +259,7 @@ const SettingsContent = () => {
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
-
-            <div className="mb-2">
+            <div className="mb-4">
               <label
                 htmlFor="twitterLink"
                 className="block text-sm font-medium text-gray-700"
@@ -276,8 +275,7 @@ const SettingsContent = () => {
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
-
-            <div className="mb-2">
+            <div className="mb-4">
               <label
                 htmlFor="instagramLink"
                 className="block text-sm font-medium text-gray-700"
@@ -293,8 +291,7 @@ const SettingsContent = () => {
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
-
-            <div className="mb-2">
+            <div className="mb-4">
               <label
                 htmlFor="linkedIn"
                 className="block text-sm font-medium text-gray-700"
@@ -315,7 +312,7 @@ const SettingsContent = () => {
           <button
             type="submit"
             disabled={isUpdating}
-            className="float-right inline-flex justify-center ml-auto py-2 px-8 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            className="w-full md:w-auto float-right inline-flex justify-center ml-auto py-2 px-8 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
           >
             {isUpdating ? "Updating..." : "Save Changes"}
           </button>

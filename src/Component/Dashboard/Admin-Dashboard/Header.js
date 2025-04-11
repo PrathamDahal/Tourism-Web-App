@@ -1,19 +1,16 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import { useFetchUserProfileQuery } from "../../../Services/auth/userApiSlice";
+import { FiMenu } from "react-icons/fi";
 
-const Header = () => {
+const Header = ({ onMenuToggle }) => {
   const location = useLocation();
 
   const isSiteSetting = location.pathname.startsWith(
     "/dashboard/site-settings"
   );
-  const isCategory = location.pathname.startsWith(
-    "/dashboard/category"
-  );
-  const isProduct = location.pathname.startsWith(
-    "/dashboard/product"
-  );
+  const isCategory = location.pathname.startsWith("/dashboard/category");
+  const isProduct = location.pathname.startsWith("/dashboard/product");
   const isOverview = location.pathname.startsWith("/dashboard/home");
 
   const renderHeaderText = () => {
@@ -28,17 +25,27 @@ const Header = () => {
     }
   };
 
-  //   const accessToken = localStorage.getItem("accessToken");
   const { data, isLoading } = useFetchUserProfileQuery();
 
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <div className="flex items-center justify-between px-4 py-2 border-b-2 border-gray-100">
-      <div>
-        <p className="font-poppins text-xl">{renderHeaderText()}</p>
+    <div className="flex flex-col md:flex-row items-center justify-between px-4 py-2 border-b-2 border-gray-100">
+      <div className="w-full flex justify-between mb-2">
+        {/* Header Text */}
+        <div className="text-center md:text-left md:mb-0">
+          <p className="font-poppins text-lg md:text-xl">
+            {renderHeaderText()}
+          </p>
+        </div>
+        {/* Menu Button for Mobile */}
+        <button className="md:hidden p-2" onClick={onMenuToggle}>
+          <FiMenu className="w-4 h-4" />
+        </button>
       </div>
-      <div className="flex px-1 items-center gap-4">
+
+      {/* Notification and User Profile */}
+      <div className="flex items-center gap-4">
         <img
           src="/assets/Images/carbon_notification.svg"
           alt="Notification"
@@ -47,7 +54,7 @@ const Header = () => {
         <img
           src={data?.user?.images || "/assets/Images/default-avatar-image.jpg"}
           alt="User"
-          className="w-10 h-10 rounded-full"
+          className="w-8 h-8 md:w-10 md:h-10 rounded-full"
         />
       </div>
     </div>

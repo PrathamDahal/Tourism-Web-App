@@ -1,30 +1,49 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
-import Products from "./../../../Data/Products";
+import { useNavigate } from "react-router-dom";
 import { FaArrowRight } from "react-icons/fa";
-import PaginationControls from "./../../PaginationControls"; 
-import ProductCard from './../Product/ProductCardDisplay';
+import PaginationControls from "./../../PaginationControls";
+import ProductCard from "./../Product/ProductCardDisplay";
+import { useGetCategoriesQuery } from "../../../Services/auth/categoryApiSlice";
+import { useGetProductsQuery } from "../../../Services/auth/productApiSlice";
 
 const LocalProductPage = () => {
   const [showMoreCategories, setShowMoreCategories] = useState(false);
   const [visibleCategoryItems, setVisibleCategoryItems] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage, setProductsPerPage] = useState(8);
-  
-  const navigate = useNavigate(); // Initialize navigate function
 
-  const categories = Array.from(
-    new Set(Products.map((product) => product.category.name))
-  ).map((categoryName) => {
-    return Products.find((product) => product.category.name === categoryName).category;
+  const navigate = useNavigate();
+
+  // Fetch categories
+  const {
+    data: categoriesData,
+    isLoading: categoriesLoading,
+    isError: categoriesError,
+    error: categoriesErrorData,
+  } = useGetCategoriesQuery();
+
+  // Fetch products with pagination
+  const {
+    data: productsData = { data: [], totalProducts: 0 },
+    isLoading: productsLoading,
+    isError: productsError,
+    error: productsErrorData,
+  } = useGetProductsQuery({
+    page: currentPage,
+    limit: productsPerPage,
   });
 
+  const categories = categoriesData || [];
+  const products = productsData?.data || [];
+  const totalProducts = productsData?.totalProducts || 0;
+  const totalPages = Math.ceil(totalProducts / productsPerPage);
+
   const handleCategoryClick = (category) => {
-    navigate(`/localproducts/category/${category.id}`); // Only pass the category ID
+    navigate(`/localproducts/category/${category._id}`);
   };
-  
+
   const handleProductClick = (product) => {
-    navigate(`/localproducts/product/${product.id}`); // Only pass the product ID
+    navigate(`/localproducts/product/${product._id}`);
   };
 
   useEffect(() => {
@@ -47,8 +66,10 @@ const LocalProductPage = () => {
 
     const handleResize = () => {
       setVisibleCategoryItems(getVisibleCategoryItems());
-      setProductsPerPage(getVisibleProductItems());
+      const newProductsPerPage = getVisibleProductItems();
+      setProductsPerPage(newProductsPerPage);
       setShowMoreCategories(false);
+      // Reset to first page when changing items per page
       setCurrentPage(1);
     };
 
@@ -58,10 +79,11 @@ const LocalProductPage = () => {
     };
   }, []);
 
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = Products.slice(indexOfFirstProduct, indexOfLastProduct);
-  const totalPages = Math.ceil(Products.length / productsPerPage);
+  if (categoriesLoading || productsLoading) return <div>Loading...</div>;
+  if (categoriesError)
+    return <div>Error loading categories: {categoriesErrorData.message}</div>;
+  if (productsError)
+    return <div>Error loading products: {productsErrorData.message}</div>;
 
   return (
     <div className="p-4 items-center justify-center xl:mx-44 lg:mx-32 md:mx-20 mx-2">
@@ -80,18 +102,23 @@ const LocalProductPage = () => {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
         {categories
-          .slice(0, showMoreCategories ? categories.length : visibleCategoryItems)
+          .slice(
+            0,
+            showMoreCategories ? categories.length : visibleCategoryItems
+          )
           .map((category) => (
             <div
-              key={category.id}
+              key={category._id}
               className="border p-2 rounded-md cursor-pointer hover:border hover:text-blue-400 hover:border-blue-400 hover:shadow-md"
               onClick={() => handleCategoryClick(category)}
             >
-              <img
-                src={category.categoryImage}
-                alt={category.name}
-                className="w-full h-36 object-cover rounded-sm mb-2"
-              />
+              {category.categoryImage && (
+                <img
+                  src={category.categoryImage}
+                  alt={category.name}
+                  className="w-full h-36 object-cover rounded-sm mb-2"
+                />
+              )}
               <h2 className="text-lg font-medium font-poppins text-center">
                 {category.name}
               </h2>
@@ -102,25 +129,39 @@ const LocalProductPage = () => {
       {/* Products Section */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Products</h1>
+        <span className="text-gray-600">
+          {totalProducts} products available
+        </span>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {currentProducts.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            handleProductClick={() => handleProductClick(product)}
-          />
-        ))}
+        {products.map((product) => {
+            return <ProductCard
+              key={product._id}
+              product={{
+                ...product,
+                images: product.images,
+                category: product.category || {
+                  _id: "",
+                  name: "Uncategorized",
+                },
+              }}
+              handleProductClick={() => handleProductClick(product)}
+            />
+            })}
       </div>
 
       {/* Pagination Controls */}
-      {Products.length > productsPerPage && (
+      {totalProducts > productsPerPage && (
         <PaginationControls
           currentPage={currentPage}
           totalPages={totalPages}
-          handlePreviousPage={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          handleNextPage={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-          handlePageClick={setCurrentPage}
+          handlePreviousPage={() =>
+            setCurrentPage((prev) => Math.max(prev - 1, 1))
+          }
+          handleNextPage={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
+          handlePageClick={(page) => setCurrentPage(page)}
         />
       )}
     </div>

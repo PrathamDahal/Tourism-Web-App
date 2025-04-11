@@ -30,7 +30,6 @@ export const userApi = createApi({
           const { data } = await queryFulfilled;
           dispatch(setCredentials({ user: data.user }));
         } catch (error) {
-          console.error("Fetch user profile error:", error);
         }
       },
     }),

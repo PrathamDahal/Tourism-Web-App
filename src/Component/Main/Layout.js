@@ -21,11 +21,12 @@ const Layout = () => {
   const isDestinationPage = location.pathname.startsWith("/wheretogo/destination");
   const isAccomodationPage = location.pathname.startsWith("/wheretostay/accomodation");
   const isTravelDealsPage = location.pathname.startsWith("/travel-packages/travel-deals");
+  const isCartPage = location.pathname.startsWith("/localproducts/cart");
 
 
   return (
     <div className="w-full">
-      {(isProductPage || isDestinationPage || isAccomodationPage || isTravelDealsPage) ? <SideNavBar /> : <MainNavBar />}
+      {(isProductPage || isDestinationPage || isAccomodationPage || isTravelDealsPage || isCartPage) ? <SideNavBar /> : <MainNavBar />}
 
       {/* Hero Section */}
       <HeroSection />

@@ -3,6 +3,7 @@ import { stays } from "./../../../Data/stayOptions";
 import { stayOptions } from "./../../../Data/stayOptions";
 import ImageCarousel from "./ImageCarousel"; // Import the custom component
 import { useNavigate } from "react-router-dom"; // Import useNavigate
+import PaginationControls from './../../PaginationControls';
 
 const Stays = () => {
   const [filter, setFilter] = useState(null);
@@ -144,25 +145,13 @@ const Stays = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center space-x-4 mt-6">
-        <button
-          onClick={() => goToPage(currentPage - 1)}
-          className="px-4 py-2 bg-gray-300 rounded-md"
-          disabled={currentPage === 1}
-        >
-          Prev
-        </button>
-        <span className="font-medium text-lg">
-          Page {currentPage} of {totalPages}
-        </span>
-        <button
-          onClick={() => goToPage(currentPage + 1)}
-          className="px-4 py-2 bg-gray-300 rounded-md"
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </button>
-      </div>
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        handlePreviousPage={() => goToPage(currentPage - 1)}
+        handleNextPage={() => goToPage(currentPage + 1)}
+        handlePageClick={(page) => goToPage(page)}
+      />
     </div>
   );
 };

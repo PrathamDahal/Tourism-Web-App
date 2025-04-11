@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import CustomerFeedback from "./../../Component/WebContent/Product/CustomerFeedback";
 import { useRef, useState } from "react";
 import {
@@ -9,59 +9,58 @@ import {
 } from "react-icons/fa";
 import { HiOutlineShoppingBag } from "react-icons/hi";
 import { customerFeedback } from "./../../Data/CustomerFeedback";
-import products from "./../../Data/Products"; // Import the products data
 import RatingStars from "./../../Component/RatingStars";
+import { useGetProductByIdQuery } from "../../Services/auth/productApiSlice";
+
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const ProductPage = () => {
-  const { id } = useParams(); // Extract the `id` parameter from the URL
-  const productId = parseInt(id, 10); // Convert the `id` string to a number
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  // Filter the product data from imported products based on product id
-  const product = products.find((item) => item.id === productId);
+  const { data, isLoading, isError } = useGetProductByIdQuery(id); // Fetch data using your API
+  const product = data?.product;
 
-  const [selectedImage, setSelectedImage] = useState(
-    product?.productImage[0]?.url || "Image"
-  );
+  const [selectedImage, setSelectedImage] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
-
-  // Ref for the gallery container
   const galleryContainerRef = useRef(null);
 
-  // Handle case where no product is found
-  if (!product) {
-    return <div>Product details are not available.</div>;
-  }
-
-  // Function to scroll the gallery up
+  // Scroll functions
   const scrollUp = () => {
     if (galleryContainerRef.current) {
       galleryContainerRef.current.scrollBy({ top: -100, behavior: "smooth" });
     }
   };
 
-  // Function to scroll the gallery down
   const scrollDown = () => {
     if (galleryContainerRef.current) {
       galleryContainerRef.current.scrollBy({ top: 100, behavior: "smooth" });
     }
   };
 
+  const handleAddToCartClick = () => {
+    navigate(`/localproducts/cart`);
+  };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError || !product) return <div>Product details are not available.</div>;
+
+  const images = product.images || [];
+
   return (
     <div className="lg:p-4 md:p-1 my-2 font-poppins">
-      {/* Product Details Section */}
       <div className="flex flex-col md:flex-row gap-2">
-        {/* Left Section: Product Image Gallery */}
         <div className="flex flex-col md:flex-row md:space-x-1 w-full md:w-1/2">
-          {/* Scrollable Gallery Container (Horizontal for sm and below) */}
+          {/* Horizontal scroll (mobile) */}
           <div className="md:hidden flex overflow-x-auto bg-white space-x-2 p-2">
-            {product.productImage?.length > 0 ? (
-              product.productImage.map((img, index) => (
+            {images.length > 0 ? (
+              images.map((img, index) => (
                 <img
-                  key={img.id || index}
-                  src={img.url}
+                  key={index}
+                  src={`${API_BASE_URL}/${img}`}
                   alt="Gallery"
                   className="w-12 h-12 object-contain border cursor-pointer hover:opacity-75"
-                  onClick={() => setSelectedImage(img.url)}
+                  onClick={() => setSelectedImage(`${API_BASE_URL}/${img}`)}
                 />
               ))
             ) : (
@@ -69,9 +68,8 @@ const ProductPage = () => {
             )}
           </div>
 
-          {/* Vertical Scrollable Gallery Container (Visible on md and above) */}
+          {/* Vertical scroll (desktop) */}
           <div className="hidden md:flex flex-col items-center">
-            {/* Up Arrow */}
             <button
               onClick={scrollUp}
               className="p-2 my-2 hover:bg-gray-200 rounded-full"
@@ -92,19 +90,18 @@ const ProductPage = () => {
               </svg>
             </button>
 
-            {/* Scrollable Gallery */}
             <div
               ref={galleryContainerRef}
               className="flex flex-col px-1 space-y-1 overflow-y-auto max-h-[275px]"
             >
-              {product.productImage?.length > 0 ? (
-                product.productImage.map((img, index) => (
+              {images.length > 0 ? (
+                images.map((img, index) => (
                   <img
-                    key={img.id || index}
-                    src={img.url}
+                    key={index}
+                    src={`${API_BASE_URL}/${img}`}
                     alt="Gallery"
                     className="w-20 h-22 object-contain border cursor-pointer hover:opacity-75"
-                    onClick={() => setSelectedImage(img.url)}
+                    onClick={() => setSelectedImage(`${API_BASE_URL}/${img}`)}
                   />
                 ))
               ) : (
@@ -112,7 +109,6 @@ const ProductPage = () => {
               )}
             </div>
 
-            {/* Down Arrow */}
             <button
               onClick={scrollDown}
               className="p-2 my-2 hover:bg-gray-200 rounded-full"
@@ -134,42 +130,32 @@ const ProductPage = () => {
             </button>
           </div>
 
-          {/* Main Product Image */}
+          {/* Main Image */}
           <div className="w-full p-1">
             <img
-              src={selectedImage}
+              src={selectedImage || `${API_BASE_URL}/${images[0]}`}
               alt={product.name || "No Image"}
-              className="w-64 h-64 md:w-96 md:h-96 lg:object-cover object-contain "
+              className="w-64 h-64 md:w-96 md:h-96 lg:object-cover object-contain"
             />
           </div>
         </div>
 
-        {/* Right Section: Product Details */}
+        {/* Right Details */}
         <div className="w-full md:w-1/2">
           <h1 className="text-xl md:text-left text-center md:text-2xl font-semibold">
-            {product.name || "No Product Name"}
+            {product.name}
           </h1>
-
-          {/* Rating and Reviews */}
-          <RatingStars rating={product.reviews} />
-
+          <RatingStars rating={4} />{" "}
+          {/* Static or replace with real rating if available */}
           <p className="text-lg md:text-xl md:text-left text-center font-medium text-blue-500 my-3">
-            Nrs {product.price || "N/A"}
+            Nrs {product.price}
           </p>
-
           <hr className="my-2 border-t-2" />
-
-          {/* Seller Info */}
           <div className="flex flex-col md:flex-row items-center justify-between p-1">
             <p className="text-gray-700 text-sm">
-              <span className="font-bold">Seller :</span>{" "}
-              {product.seller?.name
-                ? `${product.seller.name}, ${
-                    product.seller.contact || "No contact"
-                  }`
-                : "No seller info"}
+              <span className="font-bold">Seller:</span>{" "}
+              {product.seller.name || "No seller info"}
             </p>
-            {/* Social Media Icons */}
             <div className="flex items-center text-sm gap-1 mt-2 md:mt-0">
               <span className="text-gray-600">Share item:</span>
               <FaFacebookF className="text-gray-600 rounded-full px-2 text-[26px] cursor-pointer hover:bg-blue-600 hover:text-white" />
@@ -178,24 +164,20 @@ const ProductPage = () => {
               <FaInstagram className="text-gray-600 rounded-full px-2 text-[27px] cursor-pointer hover:bg-blue-600 hover:text-white" />
             </div>
           </div>
-
-          {/* Description */}
           <p className="my-3 w-full md:w-3/4 text-sm text-gray-600">
-            {product.description || "No description available."}
+            <span dangerouslySetInnerHTML={{ __html: product.description }} />
           </p>
-
-          {/* Add to Cart Button */}
           <div className="border-2 my-2 py-2">
             <div className="border-y-2 p-2">
-              <button className="w-full text-sm flex items-center justify-center gap-2 py-2 text-white bg-blue-600 rounded-full hover:bg-blue-700">
+              <button
+                className="w-full text-sm flex items-center justify-center gap-2 py-2 text-white bg-blue-600 rounded-full hover:bg-blue-700"
+                onClick={handleAddToCartClick}
+              >
                 Add to Cart <HiOutlineShoppingBag />
               </button>
             </div>
           </div>
-
           <hr className="my-2 border-t-2" />
-
-          {/* Category & Tags */}
           <p className="mt-4 text-gray-600 text-sm">
             <span className="font-bold">Category:</span>{" "}
             {product.category.name || "Uncategorized"}
@@ -207,9 +189,8 @@ const ProductPage = () => {
         </div>
       </div>
 
-      {/* Tabs and Feedback Section */}
+      {/* Tabs */}
       <div className="items-center justify-center mt-6">
-        {/* Tabs: Description | Customer Feedback */}
         <div className="border-b flex gap-6 items-center justify-center">
           <button
             onClick={() => setActiveTab("description")}
@@ -233,14 +214,12 @@ const ProductPage = () => {
           </button>
         </div>
 
-        {/* Content based on active tab */}
         {activeTab === "description" ? (
-          // Long Description
           <p className="mt-4 text-center text-gray-600">
-            {product.longDescription || "No additional information available."}
+            {/* Show more HTML description if needed */}
+            <span dangerouslySetInnerHTML={{ __html: product.description }} />
           </p>
         ) : (
-          // Customer Feedback
           <CustomerFeedback feedback={customerFeedback} />
         )}
       </div>

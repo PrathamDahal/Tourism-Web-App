@@ -13,6 +13,7 @@ const HeroSection = () => {
   const isDestinationPage = location.pathname.startsWith("/wheretogo/destination");
   const isAccomodationPage = location.pathname.startsWith("/wheretostay/accomodation");
   const isTravelDealsPage = location.pathname.startsWith("/travel-packages/travel-deals");
+  const isCartPage = location.pathname.startsWith("/localproducts/cart");
 
   // Check if the current route is the home page
   const isActive = (path) => location.pathname === path;
@@ -24,7 +25,7 @@ const HeroSection = () => {
           ? "xl:h-[600px] lg:h-[500px] md:h-[450px] sm:h-[350px] h-[300px]"
           : "xl:h-[500px] lg:h-[400px] md:h-[350px] sm:h-[250px] h-[200px]"
       } ${
-        isSignUpPage || isLogInPage || isResetPage || isProductPage || isDestinationPage || isAccomodationPage || isTravelDealsPage
+        isSignUpPage || isLogInPage || isResetPage || isProductPage || isDestinationPage || isAccomodationPage || isTravelDealsPage || isCartPage
           ? "hidden"
           : "hero relative bg-cover bg-center text-white flex items-center justify-center"
       }`}

@@ -14,6 +14,7 @@ import DestinationPage from "../Pages/WhereToGo/Destinations/Destinations";
 import AccomodationPage from "../Pages/WhereToStay/Accomodations/AccomodationPage";
 import TravelPackages from "../Pages/Travel Packages/TravelPackages";
 import TravelDeals from "../Pages/Travel Packages/Travel Deals/TravelDeals";
+import AddToCart from "../Pages/Cart Page/AddToCart";
 
 const WebContentRoute = () => {
   return (
@@ -46,6 +47,7 @@ const WebContentRoute = () => {
           <Route index element={<LocalProducts />} />
           <Route path="category/:id" element={<CategoryPage />} />
           <Route path="product/:id" element={<ProductPage />} />
+          <Route path="cart" element={<AddToCart />} />
         </Route>
       </Route>
 

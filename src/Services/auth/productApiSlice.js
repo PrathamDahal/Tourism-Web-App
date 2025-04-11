@@ -21,19 +21,20 @@ export const productApi = createApi({
 
     // Create a new product
     createProduct: builder.mutation({
-      query: (newProduct) => ({
+      query: (formData) => ({
         url: '/seller-products',
         method: 'POST',
-        body: newProduct,
+        body: formData,
+        formData: true, // This tells RTK Query to handle as FormData
       }),
-      invalidatesTags: ['Product'], // Optional: for cache invalidation
+      invalidatesTags: ['Product'],
     }),
 
     // Update an existing product
     updateProduct: builder.mutation({
       query: ({ id, ...updates }) => ({
         url: `/seller-products/${id}`,
-        method: 'PUT',
+        method: 'PATCH',
         body: updates,
       }),
       invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }], // Optional: for cache invalidation

@@ -12,26 +12,16 @@ const CreateCategoryModal = ({ isOpen, onClose, onCreate }) => {
     initialValues: {
       name: "",
       description: "",
-      image: "",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Name is required"),
       description: Yup.string().required("Description is required"),
-      image: Yup.mixed().required("Image is required"), // Validate "image" field
     }),
     onSubmit: (values) => {
       onCreate(values); // Pass form values to the parent component
       handleClose(); // Close and refresh the modal
     },
   });
-
-  // Handle image file change
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      formik.setFieldValue("image", file); // Update Formik's image field
-    }
-  };
 
   // Reset form, close modal, and refresh
   const handleClose = () => {
@@ -72,45 +62,7 @@ const CreateCategoryModal = ({ isOpen, onClose, onCreate }) => {
                 Basic Information
               </span>
             </div>
-            <div className="mb-4 flex flex-col items-center justify-center">
-              {/* Image Preview */}
-              {formik.values.image ? (
-                <img
-                  src={URL.createObjectURL(formik.values.image)} // Preview uploaded image
-                  alt="Uploaded"
-                  className="w-32 h-24 rounded-sm object-cover mb-3"
-                />
-              ) : (
-                <img
-                  src="/assets/Images/Upload-Image.png"
-                  alt="Upload-Image"
-                  className="w-32 h-24 rounded-sm object-cover mb-3"
-                />
-              )}
-              <input
-                type="file"
-                onChange={handleImageChange}
-                className="hidden"
-                id="image-upload"
-                accept="image/*" // Restrict to image files
-              />
-              <label
-                htmlFor="image-upload"
-                className="cursor-pointer px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-              >
-                Add Category Image
-              </label>
-              {formik.values.image && (
-                <span className="ml-4 text-sm text-gray-600">
-                  {formik.values.image.name}
-                </span>
-              )}
-              {formik.touched.image && formik.errors.image ? (
-                <div className="text-red-500 text-sm mt-1">
-                  {formik.errors.image}
-                </div>
-              ) : null}
-            </div>
+          
             <div className="mb-2">
               <label
                 htmlFor="name"

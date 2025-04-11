@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 import { logout } from "../../../Features/slice/authSlice";
 
-const SideBar = () => {
+const SideBar = ({ isSidebarOpen, onClose }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -22,8 +22,21 @@ const SideBar = () => {
   };
 
   return (
-    <div className="w-[220px] bg-gray-100 px-4 py-2 flex flex-col relative font-sans shadow-lg">
-      <h2 className="text-center py-3 lg:text-lg font-light md:text-sm font-redressed text-red-600 mb-3">
+    <div
+      className={`fixed md:relative w-[220px] bg-gray-100 px-4 flex flex-col justify-between h-[650px] shadow-lg transform transition-transform duration-200 ease-in-out ${
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      } md:translate-x-0 z-50 overflow-y-auto`}
+    >
+      {/* Close Button for Mobile */}
+      <button
+        className="md:hidden absolute top-2 right-2 p-2 text-gray-700 hover:text-red-500"
+        onClick={onClose}
+      >
+        ✕
+      </button>
+
+      {/* Sidebar Content */}
+      <h2 className="text-center py-3 lg:text-lg font-light md:text-sm font-redressed text-red-600">
         PanchPokhari Tourism
       </h2>
       <div className="mb-3">

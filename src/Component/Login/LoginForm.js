@@ -37,7 +37,7 @@ const LoginForm = () => {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
       
-      navigate("/"); 
+      navigate("/", { replace: true });
     } catch (err) {
       console.error("Login failed:", err);
     }
