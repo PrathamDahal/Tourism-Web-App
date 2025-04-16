@@ -106,7 +106,7 @@ const SideNavBar = () => {
               {/* Profile Button */}
               <button
                 onClick={toggleDropDown}
-                className="flex items-center space-x-2 bg-transparent text-black rounded-2xl py-1.5 px-4"
+                className="flex items-center space-x-2 bg-transparent hover:bg-gray-100 text-black rounded-full py-2 px-3 transition-all duration-200"
               >
                 {/* User Image */}
                 <img
@@ -115,12 +115,25 @@ const SideNavBar = () => {
                     "/assets/Images/default-avatar-image.jpg"
                   }
                   alt="User"
-                  className="w-8 h-8 rounded-full"
+                  className="w-10 h-10 rounded-full border-2 border-gray-200 object-cover"
                 />
+                <div className="hidden md:block text-left">
+                  <p className="font-medium text-sm">
+                    {data?.user?.name || "Username"}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {data?.user?.email || "user@example.com"}
+                  </p>
+                </div>
                 {/* Dropdown Icon */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="w-4 h-4 ml-2"
+                  className="w-4 h-4 text-gray-500 transition-transform duration-200"
+                  style={{
+                    transform: isDropdownOpen
+                      ? "rotate(180deg)"
+                      : "rotate(0deg)",
+                  }}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -136,24 +149,126 @@ const SideNavBar = () => {
 
               {/* Dropdown Menu */}
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg py-2 px-2 z-10">
-                  {/* Dashboard Button */}
-                  {data?.user?.role === "admin" && (
+                <div className="absolute right-0 mt-2 w-64 bg-white shadow-xl rounded-lg overflow-hidden z-10 border border-gray-100">
+                  {/* User Info Header */}
+                  <div className="bg-gray-50 p-4 border-b border-gray-100">
+                    <div className="flex items-center">
+                      <img
+                        src={
+                          data?.user?.images ||
+                          "/assets/Images/default-avatar-image.jpg"
+                        }
+                        alt="User"
+                        className="w-12 h-12 rounded-full border-2 border-white shadow-sm object-cover"
+                      />
+                      <div className="ml-3">
+                        <p className="font-semibold">
+                          {data?.user?.name || "Username"}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {data?.user?.email || "user@example.com"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Menu Options */}
+                  <div className="py-2">
+                    {/* My Profile Option */}
                     <button
-                      onClick={() => navigate("/dashboard")} // Use navigate for programmatic routing
-                      className="w-full text-center px-4 py-2 mb-2 text-white bg-gradient-to-r from-[#FF5757] to-[#780E0E] hover:from-[#780E0E] hover:to-[#FF5757] rounded-md transition duration-200"
+                      onClick={() => navigate("/profile")}
+                      className="w-full text-left px-4 py-2 flex items-center hover:bg-gray-50 transition-colors"
                     >
-                      Dashboard
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 mr-3 text-gray-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
+                      </svg>
+                      My Profile
                     </button>
-                  )}
+
+                    {/* My Cart Option */}
+                    <button
+                      onClick={() => navigate("/localproducts/cart")}
+                      className="w-full text-left px-4 py-2 flex items-center hover:bg-gray-50 transition-colors"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 mr-3 text-gray-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                        />
+                      </svg>
+                      My Cart
+                    </button>
+
+                    {/* Dashboard Option - Only for Admins */}
+                    {data?.user?.role === "admin" && (
+                      <button
+                        onClick={() => navigate("/dashboard/home")}
+                        className="w-full text-left px-4 py-2 flex items-center hover:bg-gray-50 transition-colors"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5 mr-3 text-gray-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                          />
+                        </svg>
+                        Dashboard
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Divider */}
+                  <div className="border-t border-gray-100"></div>
 
                   {/* Log Out Button */}
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-center px-4 py-2 text-white bg-red-600 hover:bg-red-700 rounded-full transition duration-200"
-                  >
-                    Logout
-                  </button>
+                  <div className="p-3">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-center px-4 py-2 text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-md transition-colors shadow-sm"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                        />
+                      </svg>
+                      Logout
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

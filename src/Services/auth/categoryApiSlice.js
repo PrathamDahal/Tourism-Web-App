@@ -4,7 +4,7 @@ import { baseQuery } from './../../Features/baseQuery';
 export const categoryApi = createApi({
   reducerPath: 'categoryApi',
   baseQuery,
-  tagTypes: ['Category'], // Used for caching and invalidation
+  tagTypes: ['Category', 'CategoryProducts'], // Added 'CategoryProducts' for products caching
   endpoints: (builder) => ({
     // GET all categories
     getCategories: builder.query({
@@ -15,7 +15,20 @@ export const categoryApi = createApi({
     // GET a specific category by ID
     getCategoryById: builder.query({
       query: (id) => `/seller-categories/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Category', id }], // Cache by ID
+      providesTags: (result, error, id) => [{ type: 'Category', id }],
+    }),
+
+    // GET all products inside a specific category
+    getCategoryProducts: builder.query({
+      query: (categoryId) => `/seller-categories/${categoryId}`,
+      providesTags: (result, error, categoryId) => [
+        { type: 'CategoryProducts', id: categoryId },
+        ...(result?.products?.map(({ id }) => ({ type: 'CategoryProducts', id })) || []),
+      ],
+      transformResponse: (response) => {
+        // Assuming the API returns the category with a products array
+        return response.products || [];
+      },
     }),
 
     // CREATE a new category
@@ -25,7 +38,7 @@ export const categoryApi = createApi({
         method: 'POST',
         body: newCategory,
       }),
-      invalidatesTags: ['Category'], // Invalidate cache after creation
+      invalidatesTags: ['Category'],
     }),
 
     // UPDATE a category
@@ -35,7 +48,7 @@ export const categoryApi = createApi({
         method: 'PATCH',
         body: updatedCategory,
       }),
-      invalidatesTags: ['Category'], // Invalidate cache after update
+      invalidatesTags: ['Category'],
     }),
 
     // DELETE a category
@@ -44,7 +57,7 @@ export const categoryApi = createApi({
         url: `/seller-categories/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Category'], // Invalidate cache after deletion
+      invalidatesTags: ['Category'],
     }),
   }),
 });
@@ -52,7 +65,8 @@ export const categoryApi = createApi({
 // Export hooks for usage in components
 export const {
   useGetCategoriesQuery,
-  useGetCategoryByIdQuery, // Export the new hook
+  useGetCategoryByIdQuery,
+  useGetCategoryProductsQuery, // Added the new hook
   useCreateCategoryMutation,
   useUpdateCategoryMutation,
   useDeleteCategoryMutation,

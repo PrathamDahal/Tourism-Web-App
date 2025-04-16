@@ -1,10 +1,16 @@
 import React from "react";
 import { HiOutlineShoppingBag } from "react-icons/hi";
 import RatingStars from "./../../RatingStars";
+import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const ProductCard = ({ product, handleProductClick }) => {
+  const navigate = useNavigate();
+
+  const handleAddToCartClick = () => {
+    navigate(`/localproducts/cart`);
+  };
 
   // Safely access product properties with fallbacks
   const productImages = product?.images || [];
@@ -48,7 +54,7 @@ const ProductCard = ({ product, handleProductClick }) => {
             className="items-center bg-blue-500 text-white px-3 py-2 rounded-full shadow-sm hover:bg-blue-700 transition"
             onClick={(e) => {
               e.stopPropagation();
-              // Add to cart logic here
+              handleAddToCartClick();
             }}
           >
             <HiOutlineShoppingBag className="text-base" />

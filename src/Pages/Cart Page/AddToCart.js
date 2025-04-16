@@ -1,18 +1,10 @@
 import React from "react";
-import ShoppingCart from "../../Component/WebContent/Cart Page/ShoppingCart";
-import CartSummary from "../../Component/WebContent/Cart Page/CartSummary";
+import ShoppingCartPage from './../../Component/WebContent/Cart Page/ShoppingCart';
 
 const AddToCart = () => {
   return (
-    <div className="mx-auto px-32 py-8">
-      <div className="flex flex-col lg:flex-row gap-2">
-        <div className="lg:w-2/3">
-          <ShoppingCart />
-        </div>
-        <div className="lg:w-1/3">
-          <CartSummary />
-        </div>
-      </div>
+    <div className="container mx-auto px-4 md:px-8 lg:px-16 xl:px-32 py-8">
+      <ShoppingCartPage />
     </div>
   );
 };
