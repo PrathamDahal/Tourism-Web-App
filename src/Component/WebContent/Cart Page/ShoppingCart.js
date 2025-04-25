@@ -1,70 +1,79 @@
 import React, { useEffect, useState } from "react";
-import { FaTrashAlt } from "react-icons/fa";
+import { FaShoppingCart, FaTrashAlt } from "react-icons/fa";
 import DeleteConfirmationModal from "../../DeleteModal";
 import PurchaseModal from "./QrPurchaseModal";
 import CODPurchaseModal from "./CODPurchaseModal";
+import {
+  useClearCartMutation,
+  useGetCartQuery,
+  useRemoveFromCartMutation,
+  useAddToCartMutation,
+} from "../../../Services/cartSlice";
 
 const ShoppingCartPage = () => {
-  const initialProducts = [
-    {
-      vendor: "Bajrang Fashion Collection",
-      items: [
-        {
-          id: 1,
-          name: "Tray Table",
-          color: "Black",
-          quantity: 1,
-          initialStock: 5, // Maximum available stock
-          price: 19.0,
-          checked: false,
-        },
-        {
-          id: 2,
-          name: "Wooden Chair",
-          color: "Brown",
-          quantity: 1,
-          initialStock: 3,
-          price: 45.0,
-          checked: false,
-        },
-      ],
-      checked: false,
-    },
-    {
-      vendor: "Abc Chair House",
-      items: [
-        {
-          id: 3,
-          name: "Coffee Table",
-          color: "White",
-          quantity: 1,
-          initialStock: 2,
-          price: 25.0,
-          checked: false,
-        },
-        {
-          id: 4,
-          name: "Side Table",
-          color: "Black",
-          quantity: 1,
-          initialStock: 4,
-          price: 32.0,
-          checked: false,
-        },
-      ],
-      checked: false,
-    },
-  ];
+  // RTK Query hooks
+  const { data: cartData, isLoading, isError, refetch } = useGetCartQuery();
+  const [removeFromCart] = useRemoveFromCartMutation();
+  const [clearCart] = useClearCartMutation();
+  const [addToCart] = useAddToCartMutation();
 
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState([]);
   const [hasCheckedItems, setHasCheckedItems] = useState(false);
   const [total, setTotal] = useState(0);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemsToDelete, setItemsToDelete] = useState([]);
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
+  const [isClearCartModalOpen, setIsClearCartModalOpen] = useState(false);
 
-  // Calculate total whenever products change
+  // Transform API data to match component's structure
+  useEffect(() => {
+    if (cartData) {
+      const transformedData = transformCartData(cartData);
+      setProducts(transformedData);
+    }
+  }, [cartData]);
+
+  // Helper function to transform API data
+  const transformCartData = (apiData) => {
+    // Check if apiData exists and has an items array
+    if (!apiData || !apiData.items || !Array.isArray(apiData.items)) {
+      console.error("Invalid cart data structure:", apiData);
+      return [];
+    }
+
+    // Group items by vendor (since vendor is missing in this data structure,
+    // we'll create a default vendor)
+    const defaultVendor = {
+      vendorId: "default",
+      vendor: "Store",
+      items: [],
+      checked: false,
+    };
+
+    // Process each item in the items array
+    apiData.items.forEach((item) => {
+      if (!item || !item.product) {
+        console.warn("Skipping invalid cart item:", item);
+        return;
+      }
+
+      defaultVendor.items.push({
+        id: item._id,
+        productId: item.product._id,
+        name: item.product.name,
+        color: item.product.color || "N/A",
+        quantity: item.quantity,
+        price: item.product.price,
+        initialStock: item.product.stock || 10,
+        checked: false,
+      });
+    });
+
+    return defaultVendor.items.length > 0 ? [defaultVendor] : [];
+  };
+
+  // Calculate total and checked items
   useEffect(() => {
     const calculatedTotal = products.reduce((sum, vendor) => {
       return (
@@ -89,15 +98,38 @@ const ShoppingCartPage = () => {
   };
 
   // Update quantity of an item
-  const updateQuantity = (vendorIndex, itemIndex, newQuantity) => {
-    const item = products[vendorIndex].items[itemIndex];
+  const updateQuantity = async (vendorIndex, itemIndex, newQuantity) => {
+    // Create a deep copy of the products array
+    const updatedProducts = JSON.parse(JSON.stringify(products));
+    const item = updatedProducts[vendorIndex].items[itemIndex];
 
-    // Don't allow quantity less than 1 or more than initial stock
-    if (newQuantity < 1 || newQuantity > item.initialStock) return;
+    // Convert to number in case it's a string
+    newQuantity = Number(newQuantity);
 
-    const updatedProducts = [...products];
-    updatedProducts[vendorIndex].items[itemIndex].quantity = newQuantity;
+    // Validate new quantity - this is the crucial fix
+    if (
+      isNaN(newQuantity) ||
+      newQuantity < 1 ||
+      newQuantity > item.initialStock
+    ) {
+      return; // Exit if invalid
+    }
+
+    // Optimistic UI update
+    item.quantity = newQuantity;
     setProducts(updatedProducts);
+
+    try {
+      await addToCart({
+        productId: item.productId,
+        quantity: newQuantity,
+      });
+      refetch(); // Sync with server
+    } catch (error) {
+      console.error("Failed to update quantity:", error);
+      // Revert on error
+      refetch(); // Get fresh data from server
+    }
   };
 
   // Toggle item checkbox
@@ -106,7 +138,6 @@ const ShoppingCartPage = () => {
     const item = updatedProducts[vendorIndex].items[itemIndex];
     item.checked = !item.checked;
 
-    // Update vendor checkbox if all items are checked/unchecked
     const vendor = updatedProducts[vendorIndex];
     vendor.checked = vendor.items.every((item) => item.checked);
 
@@ -119,7 +150,6 @@ const ShoppingCartPage = () => {
     const vendor = updatedProducts[vendorIndex];
     vendor.checked = !vendor.checked;
 
-    // Update all items under this vendor
     vendor.items.forEach((item) => {
       item.checked = vendor.checked;
     });
@@ -127,13 +157,24 @@ const ShoppingCartPage = () => {
     setProducts(updatedProducts);
   };
 
-  const deleteCheckedItems = () => {
+  // Clear entire cart
+  const handleClearCart = async () => {
+    setIsClearCartModalOpen(false);
+    try {
+      await clearCart();
+      refetch();
+    } catch (error) {
+      console.error("Failed to clear cart:", error);
+    }
+  };
+
+  // Prepare selected items for deletion
+  const prepareDeleteCheckedItems = () => {
     const checkedItems = products.flatMap((vendor) =>
       vendor.items.filter((item) => item.checked)
     );
 
     if (checkedItems.length === 0) {
-      // Optional: Show a toast notification instead
       console.log("No items selected");
       return;
     }
@@ -142,17 +183,17 @@ const ShoppingCartPage = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
-    const updatedProducts = products
-      .map((vendor) => ({
-        ...vendor,
-        items: vendor.items.filter((item) => !item.checked),
-      }))
-      .filter((vendor) => vendor.items.length > 0);
-
-    setProducts(updatedProducts);
+  // Confirm deletion of selected items
+  const handleConfirmDelete = async () => {
     setIsDeleteModalOpen(false);
-    // Optional: Show success toast here
+    try {
+      await Promise.all(
+        itemsToDelete.map((item) => removeFromCart(item.productId))
+      );
+      refetch();
+    } catch (error) {
+      console.error("Failed to delete items:", error);
+    }
   };
 
   // Format price with currency
@@ -160,18 +201,11 @@ const ShoppingCartPage = () => {
     return `$${price.toFixed(2)}`;
   };
 
-  // Remove an individual item
-  const removeItem = (vendorIndex, itemIndex) => {
-    const updatedProducts = [...products];
-    updatedProducts[vendorIndex].items.splice(itemIndex, 1);
+  if (isLoading) return <div>Loading cart...</div>;
 
-    // Remove vendor if no items left
-    const filteredProducts = updatedProducts.filter(
-      (vendor) => vendor.items.length > 0
-    );
+  if (isError) return <div>Error loading cart data</div>;
 
-    setProducts(filteredProducts);
-  };
+  if (!cartData) return <div>No cart data available</div>;
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
@@ -190,31 +224,48 @@ const ShoppingCartPage = () => {
               <div className="col-span-2 font-medium text-center py-3">
                 Subtotal
               </div>
-              <div className="col-span-1 ">
+              <div className="col-span-1">
                 {hasCheckedItems && (
-                  <>
-                    <button
-                      onClick={deleteCheckedItems}
-                      className="flex p-2 text-lg items-center gap-1 text-white rounded hover:ring-1 hover:ring-red-600"
-                      title="Delete selected items"
-                    >
-                      <FaTrashAlt className="text-red-500" />
-                    </button>
-
-                    <DeleteConfirmationModal
-                      isOpen={isDeleteModalOpen}
-                      onClose={() => setIsDeleteModalOpen(false)}
-                      onConfirm={handleConfirmDelete}
-                      items={itemsToDelete}
-                    />
-                  </>
+                  <button
+                    onClick={prepareDeleteCheckedItems}
+                    className="flex p-2 text-lg items-center gap-1 text-white rounded hover:ring-1 hover:ring-red-600"
+                    title="Delete selected items"
+                  >
+                    <FaTrashAlt className="text-red-500" />
+                  </button>
+                )}
+                {products.length > 0 && (
+                  <button
+                    onClick={() => setIsClearCartModalOpen(true)}
+                    className="flex p-2 text-lg items-center gap-1 text-white rounded hover:ring-1 hover:ring-red-600 mt-2"
+                    title="Clear entire cart"
+                  >
+                    <FaShoppingCart className="text-red-500" />
+                  </button>
                 )}
               </div>
             </div>
 
+            <DeleteConfirmationModal
+              isOpen={isDeleteModalOpen}
+              onClose={() => setIsDeleteModalOpen(false)}
+              onConfirm={handleConfirmDelete}
+              items={itemsToDelete || []} // Provide default empty array
+              action="delete"
+            />
+
+            <DeleteConfirmationModal
+              isOpen={isClearCartModalOpen}
+              onClose={() => setIsClearCartModalOpen(false)}
+              onConfirm={handleClearCart}
+              title="Clear Entire Cart"
+              message="Are you sure you want to remove all items from your cart?"
+              action="clear"
+            />
+
             {products.length > 0 ? (
               products.map((vendorGroup, vendorIndex) => (
-                <div key={vendorIndex} className="mb-8">
+                <div key={vendorGroup.vendorId} className="mb-8">
                   <div className="flex items-center mb-4">
                     <input
                       type="checkbox"
@@ -247,14 +298,6 @@ const ShoppingCartPage = () => {
                           <p className="text-gray-500 text-sm">
                             Available: {item.initialStock}
                           </p>
-                          <div className="mt-2">
-                            <button
-                              onClick={() => removeItem(vendorIndex, itemIndex)}
-                              className="text-gray-500 hover:text-gray-700"
-                            >
-                              X Remove
-                            </button>
-                          </div>
                         </div>
                       </div>
 
@@ -266,33 +309,41 @@ const ShoppingCartPage = () => {
                                 ? "text-gray-400 cursor-not-allowed"
                                 : ""
                             }`}
-                            onClick={() =>
-                              updateQuantity(
-                                vendorIndex,
-                                itemIndex,
-                                item.quantity - 1
-                              )
-                            }
+                            onClick={() => {
+                              if (item.quantity > 1) {
+                                // Additional client-side check
+                                updateQuantity(
+                                  vendorIndex,
+                                  itemIndex,
+                                  item.quantity - 1
+                                );
+                              }
+                            }}
                             disabled={item.quantity <= 1}
                           >
                             -
                           </button>
+
                           <span className="px-3 py-1 border-x">
                             {item.quantity}
                           </span>
+
                           <button
                             className={`px-3 py-1 text-lg ${
                               item.quantity >= item.initialStock
                                 ? "text-gray-400 cursor-not-allowed"
                                 : ""
                             }`}
-                            onClick={() =>
-                              updateQuantity(
-                                vendorIndex,
-                                itemIndex,
-                                item.quantity + 1
-                              )
-                            }
+                            onClick={() => {
+                              if (item.quantity < item.initialStock) {
+                                // Additional client-side check
+                                updateQuantity(
+                                  vendorIndex,
+                                  itemIndex,
+                                  item.quantity + 1
+                                );
+                              }
+                            }}
                             disabled={item.quantity >= item.initialStock}
                           >
                             +
@@ -376,14 +427,14 @@ const ShoppingCartPage = () => {
               <CODPurchaseModal
                 isOpen={isPurchaseModalOpen}
                 onClose={() => setIsPurchaseModalOpen(false)}
-                cartItems={products.filter((vendor) => vendor.items.length > 0)}
+                cartItems={products}
                 total={total}
               />
             ) : (
               <PurchaseModal
                 isOpen={isPurchaseModalOpen}
                 onClose={() => setIsPurchaseModalOpen(false)}
-                cartItems={products.filter((vendor) => vendor.items.length > 0)}
+                cartItems={products}
                 total={total}
               />
             )}

@@ -4,7 +4,7 @@ import { FaBell, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
 import { MdTranslate } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "./../../../Features/slice/authSlice";
-import { useFetchUserProfileQuery } from "./../../../Services/auth/userApiSlice";
+import { useFetchUserProfileQuery } from "../../../Services/userApiSlice";
 
 const SideNavBar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -38,6 +38,8 @@ const SideNavBar = () => {
   };
 
   if (isLoading) return <div>Loading...</div>;
+
+  const normal = data?.user?.role;
 
   return (
     <nav className="top-0 left-0 w-full z-20 bg-white flex justify-between items-center px-4 py-5 shadow-lg">
@@ -119,7 +121,7 @@ const SideNavBar = () => {
                 />
                 <div className="hidden md:block text-left">
                   <p className="font-medium text-sm">
-                    {data?.user?.name || "Username"}
+                    {data?.user?.username || "Username"}
                   </p>
                   <p className="text-xs text-gray-500">
                     {data?.user?.email || "user@example.com"}
@@ -163,7 +165,7 @@ const SideNavBar = () => {
                       />
                       <div className="ml-3">
                         <p className="font-semibold">
-                          {data?.user?.name || "Username"}
+                          {data?.user?.username || "Username"}
                         </p>
                         <p className="text-xs text-gray-500">
                           {data?.user?.email || "user@example.com"}
@@ -219,7 +221,7 @@ const SideNavBar = () => {
                     </button>
 
                     {/* Dashboard Option - Only for Admins */}
-                    {data?.user?.role === "admin" && (
+                    {["admin", "seller", "host", "travelAgency"].includes(normal) && (
                       <button
                         onClick={() => navigate("/dashboard/home")}
                         className="w-full text-left px-4 py-2 flex items-center hover:bg-gray-50 transition-colors"

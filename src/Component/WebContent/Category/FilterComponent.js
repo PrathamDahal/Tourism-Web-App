@@ -29,6 +29,18 @@ const FilterComponent = ({
     }));
   };
 
+  const cleanTags = (tags) => {
+    // If it's already an array, return it
+    if (Array.isArray(tags)) return tags;
+
+    // Remove brackets and quotes, then split by comma
+    return tags
+      .replace(/[\]"]+/g, "") // Remove brackets and quotes
+      .split(",") // Split by comma
+      .map((tag) => tag.trim()) // Trim whitespace
+      .filter((tag) => tag.length > 0); // Remove empty tags
+  };
+
   return (
     <div className="w-full px-2 py-2">
       {/* Filter Toggle Button for Small Screens */}
@@ -255,7 +267,7 @@ const FilterComponent = ({
             }`}
           >
             <div className="flex flex-wrap gap-2">
-              {allTags.map((tag) => (
+              {cleanTags(allTags).map((tag) => (
                 <button
                   key={tag}
                   className={`px-3 py-1 rounded-full text-xs ${

@@ -2,7 +2,7 @@ import React from "react";
 import { BiSolidEnvelope, BiSolidMap, BiSolidPhoneCall } from "react-icons/bi";
 import { FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
-import { useGetSiteSettingsQuery } from "../../Services/auth/SiteSettingApi"; // Import the hook
+import { useGetSiteSettingsQuery } from "../../Services/SiteSettingApi"; // Import the hook
 
 const Footer = () => {
   const location = useLocation();
@@ -39,7 +39,7 @@ const Footer = () => {
           {/* Logo Section */}
           <div className="text-center md:text-left w-full md:w-auto">
             <p className="lg:text-3xl xl:text-4xl md:text-2xl text-xl font-redressed text-red-700">
-              {name}
+              {name || ""}
             </p>
           </div>
 
@@ -52,19 +52,19 @@ const Footer = () => {
               <li className="flex items-center justify-center md:justify-start space-x-4">
                 <BiSolidPhoneCall className="lg:text-2xl md:text-xl text-black" />
                 <span className="text-gray-700 lg:text-base md:text-sm font-Open">
-                  {phoneNumber}
+                  {phoneNumber || ""}
                 </span>
               </li>
               <li className="flex items-center justify-center md:justify-start space-x-4">
                 <BiSolidEnvelope className="lg:text-2xl md:text-xl text-black flex-shrink-0" />
                 <span className="text-gray-700 lg:text-base md:text-sm font-Open overflow-hidden text-ellipsis whitespace-nowrap">
-                  {email}
+                  {email || ""}
                 </span>
               </li>
               <li className="flex items-center justify-center md:justify-start space-x-4">
                 <BiSolidMap className="text-xl md:text-2xl text-black flex-shrink-0" />
                 <span className="text-gray-700 lg:text-base md:text-sm font-Open overflow-hidden text-ellipsis whitespace-nowrap">
-                  {address}
+                  {address || ""}
                 </span>
               </li>
             </ul>
@@ -73,7 +73,7 @@ const Footer = () => {
           {/* PanchPokhari Section */}
           <div className="text-center md:text-left max-w-72 min-w-48 px-2 w-full md:w-auto">
             <h2 className="lg:text-xl font-bold md:text-sm text-yellow-500 mb-4">
-              {name}
+              {name || ""}
             </h2>
             <ul className="space-y-4">
               <li>

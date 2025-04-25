@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { FaArrowRight } from "react-icons/fa";
 import PaginationControls from "./../../PaginationControls";
 import ProductCard from "./../Product/ProductCardDisplay";
-import { useGetCategoriesQuery } from "../../../Services/auth/categoryApiSlice";
-import { useGetProductsQuery } from "../../../Services/auth/productApiSlice";
+import { useGetCategoriesQuery } from "../../../Services/categoryApiSlice";
+import { useGetProductsQuery } from "../../../Services/productApiSlice";
 
 const LocalProductPage = () => {
   const [showMoreCategories, setShowMoreCategories] = useState(false);
@@ -43,7 +43,7 @@ const LocalProductPage = () => {
   };
 
   const handleProductClick = (product) => {
-    navigate(`/localproducts/product/${product._id}`);
+    navigate(`/localproducts/product/${product.slug}`);
   };
 
   useEffect(() => {

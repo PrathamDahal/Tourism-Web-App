@@ -28,7 +28,7 @@ const PurchaseModal = ({ isOpen, onClose, cartItems, total }) => {
   const orderDetails = {
     orderCode: generateOrderCode(),
     date: getCurrentDate(),
-    total: `Rs. ${total.toFixed(2)}`,
+    total: `$${total.toFixed(2)}`,
     paymentMethod: "Paid through QR",
   };
 
@@ -70,9 +70,18 @@ const PurchaseModal = ({ isOpen, onClose, cartItems, total }) => {
   const totalQuantity = cartItems.reduce(
     (sum, vendor) =>
       sum +
-      vendor.items.reduce((vendorSum, item) => vendorSum + item.quantity, 0),
+      vendor.items.reduce((vendorSum, item) => {
+        // Only count checked items
+        return vendorSum + (item.checked ? item.quantity : 0);
+      }, 0),
     0
   );
+
+  // Get only the checked items for display
+  const checkedItems = cartItems.map(vendor => ({
+    ...vendor,
+    items: vendor.items.filter(item => item.checked)
+  })).filter(vendor => vendor.items.length > 0);
 
   return (
     <>
@@ -160,35 +169,41 @@ const PurchaseModal = ({ isOpen, onClose, cartItems, total }) => {
                     Price Details
                   </h3>
                   <div className="space-y-3 max-h-60 overflow-y-auto p-2">
-                    {cartItems.map((vendor, vendorIndex) => (
-                      <div key={`vendor-${vendorIndex}`}>
-                        <p className="font-medium text-yellow-500 text-sm mb-1">
-                          {vendor.vendor}
-                        </p>
-                        {vendor.items.map((item, itemIndex) => (
-                          <div
-                            key={`item-${vendorIndex}-${itemIndex}`}
-                            className="flex justify-between py-1 px-2"
-                          >
-                            <div>
-                              <span>{item.name}</span>
-                              {item.quantity > 1 && (
-                                <span className="text-gray-500 text-xs ml-1">
-                                  (×{item.quantity})
-                                </span>
-                              )}
+                    {checkedItems.length > 0 ? (
+                      checkedItems.map((vendor, vendorIndex) => (
+                        <div key={`vendor-${vendorIndex}`}>
+                          <p className="font-medium text-yellow-500 text-sm mb-1">
+                            {vendor.vendor}
+                          </p>
+                          {vendor.items.map((item, itemIndex) => (
+                            <div
+                              key={`item-${vendorIndex}-${itemIndex}`}
+                              className="flex justify-between py-1 px-2"
+                            >
+                              <div>
+                                <span>{item.name}</span>
+                                {item.quantity > 1 && (
+                                  <span className="text-gray-500 text-xs ml-1">
+                                    (×{item.quantity})
+                                  </span>
+                                )}
+                              </div>
+                              <span>
+                                ${(item.price * item.quantity).toFixed(2)}
+                              </span>
                             </div>
-                            <span>
-                              Rs.{(item.price * item.quantity).toFixed(2)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    ))}
+                          ))}
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-center py-4 text-gray-500">
+                        No items selected for checkout
+                      </p>
+                    )}
                   </div>
                   <div className="border-t pt-2 flex justify-between font-semibold p-2 bg-gray-50">
                     <span>Total</span>
-                    <span>Rs.{total.toFixed(2)}</span>
+                    <span>${total.toFixed(2)}</span>
                   </div>
                 </div>
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useResetPasswordMutation } from "../../Services/auth/resetPasswordApi";
+import { useResetPasswordMutation } from "../../Services/resetPasswordApi";
 
 const ResetPasswordForm = () => {
   const [newPassword, setNewPassword] = useState("");

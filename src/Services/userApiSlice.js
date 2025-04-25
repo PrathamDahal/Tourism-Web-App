@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { setCredentials } from "../../Features/slice/authSlice"; // Import setCredentials action
-import { baseQuery } from '../../Features/baseQuery';
+import { setCredentials } from "../Features/slice/authSlice"; // Import setCredentials action
+import { baseQuery } from '../Features/baseQuery';
 
 export const userApi = createApi({
   reducerPath: "userApi",

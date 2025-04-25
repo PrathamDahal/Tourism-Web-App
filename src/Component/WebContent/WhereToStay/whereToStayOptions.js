@@ -33,7 +33,7 @@ const StayOptions = () => {
   };
 
   return (
-    <div className="relative bg-gray-200 -mt-[15px] mb-10 py-2 px-8">
+    <div className="relative bg-gray-200 -mt-[15px] mb-6 py-2 px-8">
       <div className=" flex flex-wrap justify-around gap-4 md:gap-8 p-2 md:p-4">
         {stayOptions
           .slice(0, showMore ? stayOptions.length : visibleItems)

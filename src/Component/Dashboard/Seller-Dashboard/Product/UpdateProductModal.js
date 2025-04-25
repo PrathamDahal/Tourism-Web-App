@@ -4,7 +4,7 @@ import { useFormik } from "formik";
 import JoditEditor from "jodit-react";
 import PropTypes from "prop-types";
 import {
-  useGetProductBySlugQuery,
+  useGetProductByIdQuery,
   useUpdateProductMutation,
 } from "../../../../Services/productApiSlice";
 import { useGetCategoriesQuery } from "../../../../Services/categoryApiSlice";
@@ -26,7 +26,7 @@ const UpdateProductModal = ({ isOpen, onClose, productId }) => {
     isLoading: isProductLoading,
     isError: isProductError,
     error: productError,
-  } = useGetProductBySlugQuery(productId, {
+  } = useGetProductByIdQuery(productId, {
     skip: !productId, // Skip if no productId
   });
 

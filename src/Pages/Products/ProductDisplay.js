@@ -10,20 +10,49 @@ import {
 import { HiOutlineShoppingBag } from "react-icons/hi";
 import { customerFeedback } from "./../../Data/CustomerFeedback";
 import RatingStars from "./../../Component/RatingStars";
-import { useGetProductByIdQuery } from "../../Services/auth/productApiSlice";
+import { useGetProductBySlugQuery } from "../../Services/productApiSlice";
+import { useAddToCartMutation } from "../../Services/cartSlice";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const ProductPage = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
+  const [quantity, setQuantity] = useState(1); // Add quantity state
 
-  const { data, isLoading, isError } = useGetProductByIdQuery(id); // Fetch data using your API
+  const { data, isLoading, isError } = useGetProductBySlugQuery(slug);
+  const [addToCart] = useAddToCartMutation(); // Initialize the mutation
   const product = data?.product;
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
   const galleryContainerRef = useRef(null);
+
+  // Quantity handlers
+  const increaseQuantity = () => {
+    setQuantity((prev) => prev + 1);
+  };
+
+  const decreaseQuantity = () => {
+    if (quantity > 1) {
+      setQuantity((prev) => prev - 1);
+    }
+  };
+
+  const handleAddToCartClick = async () => {
+    if (!product) return;
+
+    try {
+      await addToCart({
+        productId: product._id, // Assuming your product has _id field
+        quantity: quantity,
+      });
+      navigate(`/localproducts/cart`);
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+      // Optionally show error message to user
+    }
+  };
 
   // Scroll functions
   const scrollUp = () => {
@@ -36,10 +65,6 @@ const ProductPage = () => {
     if (galleryContainerRef.current) {
       galleryContainerRef.current.scrollBy({ top: 100, behavior: "smooth" });
     }
-  };
-
-  const handleAddToCartClick = () => {
-    navigate(`/localproducts/cart`);
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -167,6 +192,24 @@ const ProductPage = () => {
           <p className="my-3 w-full md:w-3/4 text-sm text-gray-600">
             <span dangerouslySetInnerHTML={{ __html: product.description }} />
           </p>
+          <div className="my-4 flex items-center">
+            <span className="mr-2 font-medium">Quantity:</span>
+            <div className="flex items-center border rounded-md">
+              <button
+                onClick={decreaseQuantity}
+                className={`px-3 py-1 ${
+                  quantity <= 1 ? "text-gray-400 cursor-not-allowed" : ""
+                }`}
+                disabled={quantity <= 1}
+              >
+                -
+              </button>
+              <span className="px-3 py-1 border-x">{quantity}</span>
+              <button onClick={increaseQuantity} className="px-3 py-1">
+                +
+              </button>
+            </div>
+          </div>
           <div className="border-2 my-2 py-2">
             <div className="border-y-2 p-2">
               <button

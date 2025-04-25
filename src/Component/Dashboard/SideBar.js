@@ -2,7 +2,9 @@ import React from "react";
 import { FaClock } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
-import { logout } from "../../../Features/slice/authSlice";
+import { logout } from "../../Features/slice/authSlice";
+import { useFetchUserProfileQuery } from "../../Services/userApiSlice";
+import LoadingSpinner from "../LoadingSpinner";
 
 const SideBar = ({ isSidebarOpen, onClose }) => {
   const navigate = useNavigate();
@@ -15,11 +17,22 @@ const SideBar = ({ isSidebarOpen, onClose }) => {
         : "text-gray-700 hover:bg-gray-200 hover:text-red-500"
     }`;
 
+  const { data, isLoading } = useFetchUserProfileQuery();
+  const role = data?.user?.role; 
+
   const handleLogout = () => {
     localStorage.removeItem("accessToken", "refreshToken");
     dispatch(logout());
     navigate(`/login`);
   };
+
+  if (isLoading) return <LoadingSpinner />;
+
+  // Role-specific visibility logic
+  const isAdmin = role === "admin";
+  const isSeller = role === "seller";
+  const isHost = role === "host";
+  const isTravelAgency = role === "travelAgency";
 
   return (
     <div
@@ -50,12 +63,14 @@ const SideBar = ({ isSidebarOpen, onClose }) => {
           >
             <FaClock className="text-lg" /> Overview
           </NavLink>
-          <NavLink
-            to="/dashboard/site-settings"
-            className={({ isActive }) => getLinkClasses(isActive)}
-          >
-            Site Settings
-          </NavLink>
+          {isAdmin && (
+            <NavLink
+              to="/dashboard/site-settings"
+              className={({ isActive }) => getLinkClasses(isActive)}
+            >
+              Site Settings
+            </NavLink>
+          )}
         </div>
       </div>
       <hr className="bg-gray-300 my-4 -mx-2" />
@@ -64,30 +79,38 @@ const SideBar = ({ isSidebarOpen, onClose }) => {
           Web Content
         </h3>
         <div className="py-1">
-          <NavLink
-            to="/dashboard/category"
-            className={({ isActive }) => getLinkClasses(isActive)}
-          >
-            Category
-          </NavLink>
-          <NavLink
-            to="/dashboard/product"
-            className={({ isActive }) => getLinkClasses(isActive)}
-          >
-            Products
-          </NavLink>
-          <NavLink
-            to="/dashboard/general"
-            className={({ isActive }) => getLinkClasses(isActive)}
-          >
-            General
-          </NavLink>
-          <NavLink
-            to="/dashboard/contact"
-            className={({ isActive }) => getLinkClasses(isActive)}
-          >
-            Contact
-          </NavLink>
+          {isAdmin && (
+            <NavLink
+              to="/dashboard/category"
+              className={({ isActive }) => getLinkClasses(isActive)}
+            >
+              Category
+            </NavLink>
+          )}
+          {(isAdmin || isSeller) && (
+            <NavLink
+              to="/dashboard/product"
+              className={({ isActive }) => getLinkClasses(isActive)}
+            >
+              Products
+            </NavLink>
+          )}
+          {(isAdmin || isHost) && (
+            <NavLink
+              to="/dashboard/general"
+              className={({ isActive }) => getLinkClasses(isActive)}
+            >
+              General
+            </NavLink>
+          )}
+          {(isAdmin || isTravelAgency) && (
+            <NavLink
+              to="/dashboard/contact"
+              className={({ isActive }) => getLinkClasses(isActive)}
+            >
+              Contact
+            </NavLink>
+          )}
         </div>
       </div>
       <hr className="bg-gray-300 my-4 -mx-2" />

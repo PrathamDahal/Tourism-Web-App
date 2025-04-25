@@ -1,7 +1,11 @@
 import React from "react";
 
-const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, items }) => {
+const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, items = [] }) => {
   if (!isOpen) return null;
+  
+  // Use the provided items or default to empty array
+  const itemsToDisplay = items || [];
+  const itemCount = itemsToDisplay.length;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
@@ -10,15 +14,22 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, items }) => {
           Confirm Deletion
         </h3>
         <p className="font-poppins font-medium mb-3">
-          Are you sure you want to delete the following {items.length} item(s)?
+          Are you sure you want to delete {itemCount} item{itemCount !== 1 ? 's' : ''}?
+          {/* Safer message that handles 0, 1, or multiple items */}
         </p>
-        <ul className="my-3 pl-5 max-h-40 overflow-y-auto">
-          {items.map((item, index) => (
-            <li key={index} className="list-disc py-1">
-              {item.name}
-            </li>
-          ))}
-        </ul>
+        
+        {/* Only show the list if there are items */}
+        {itemCount > 0 && (
+          <ul className="my-3 pl-5 max-h-40 overflow-y-auto">
+            {itemsToDisplay.map((item, index) => (
+              <li key={index} className="list-disc py-1">
+                {item.name || 'Unnamed Item'}
+                {/* Fallback for item name */}
+              </li>
+            ))}
+          </ul>
+        )}
+
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}

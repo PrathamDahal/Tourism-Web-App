@@ -3,7 +3,6 @@ import { Outlet, Route, Routes } from "react-router-dom";
 import WhereToGo from "../Pages/WhereToGo/WhereToGo";
 import WhereToStay from "../Pages/WhereToStay/WhereToStay";
 import ContactUs from "../Pages/ContactUs/ContactUs";
-import SignUp from "../Pages/Sign Up/SignUp";
 import Login from "../Pages/Login/Login";
 import ResetPassword from "../Pages/Reset Password/ResetPassword";
 import Home from "./../Pages/Home/Home";
@@ -15,6 +14,7 @@ import AccomodationPage from "../Pages/WhereToStay/Accomodations/AccomodationPag
 import TravelPackages from "../Pages/Travel Packages/TravelPackages";
 import TravelDeals from "../Pages/Travel Packages/Travel Deals/TravelDeals";
 import AddToCart from "../Pages/Cart Page/AddToCart";
+import RegisterPage from "../Pages/Sign Up/SignUp";
 
 const WebContentRoute = () => {
   return (
@@ -38,7 +38,7 @@ const WebContentRoute = () => {
         </Route>
 
         <Route path="contactus" element={<ContactUs />} />
-        <Route path="signup" element={<SignUp />} />
+        <Route path="signup" element={<RegisterPage />} />
         <Route path="login" element={<Login />} />
 
         <Route path="reset-password/:token" element={<ResetPassword />} />
@@ -46,7 +46,7 @@ const WebContentRoute = () => {
         <Route path="localproducts" element={<Outlet />}>
           <Route index element={<LocalProducts />} />
           <Route path="category/:id" element={<CategoryPage />} />
-          <Route path="product/:id" element={<ProductPage />} />
+          <Route path="product/:slug" element={<ProductPage />} />
           <Route path="cart" element={<AddToCart />} />
         </Route>
       </Route>

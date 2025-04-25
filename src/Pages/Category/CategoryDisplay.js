@@ -1,20 +1,28 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ProductCard from "./../../Component/WebContent/Product/ProductCardDisplay";
 import FilterComponent from "./../../Component/WebContent/Category/FilterComponent";
 import PaginationControls from "./../../Component/PaginationControls";
-import products from "./../../Data/Products";
+import { useGetProductsByCategoryQuery } from "../../Services/productApiSlice";
+import LoadingSpinner from "../../Component/LoadingSpinner";
+import ErrorMessage from "../../Component/ErrorMessage";
 
 const CategoryPage = () => {
   const { id } = useParams();
-  const categoryId = parseInt(id, 10);
   const navigate = useNavigate();
 
-  // Filter products based on categoryId
-  const categoryProducts = products.filter(
-    (product) => product.category.id === categoryId
-  );
+  // Fetch products by category ID
+  const {
+    data: categoryProduct,
+    isLoading,
+    isError,
+    error,
+  } = useGetProductsByCategoryQuery(id);
 
+  // Get products from response or empty array if not available
+  const categoryProducts = useMemo(() => {
+    return categoryProduct?.data || [];
+  }, [categoryProduct?.data]);
   // State for filtered products
   const [filteredProducts, setFilteredProducts] = useState(categoryProducts);
 
@@ -34,6 +42,11 @@ const CategoryPage = () => {
   const [productsPerPage, setProductsPerPage] = useState(9);
   const [displayedProducts, setDisplayedProducts] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
+
+  // Update filtered products when category products change
+  useEffect(() => {
+    setFilteredProducts(categoryProducts);
+  }, [categoryProducts]);
 
   const updateDisplayedProducts = useCallback(
     (page) => {
@@ -118,7 +131,7 @@ const CategoryPage = () => {
   };
 
   const handleProductClick = (product) => {
-    navigate(`/localproducts/product/${product.id}`);
+    navigate(`/localproducts/product/${product.slug}`); // Changed from product.id to product._id
   };
 
   // Filtering logic
@@ -169,11 +182,11 @@ const CategoryPage = () => {
       sortedProducts.sort((a, b) => b.price - a.price);
     } else if (sortType === "newest") {
       sortedProducts.sort(
-        (a, b) => new Date(b.dateAdded) - new Date(a.dateAdded)
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt) // Changed from dateAdded to createdAt
       );
     } else if (sortType === "oldest") {
       sortedProducts.sort(
-        (a, b) => new Date(a.dateAdded) - new Date(b.dateAdded)
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt) // Changed from dateAdded to createdAt
       );
     }
 
@@ -185,7 +198,9 @@ const CategoryPage = () => {
     setIsFilterOpen(!isFilterOpen);
   };
 
-  // Render the component
+  if (isLoading) return <LoadingSpinner fullScreen />;
+  if (isError) return <ErrorMessage message={error?.message || "Error loading products"} />;
+
   return (
     <div className="w-full px-4 py-2">
       {/* Mobile Filter Toggle Button */}
@@ -289,9 +304,9 @@ const CategoryPage = () => {
               {displayedProducts.length > 0 ? (
                 displayedProducts.map((product) => (
                   <ProductCard
-                    key={product.id}
+                    key={product._id} // Changed from product.id to product._id
                     product={product}
-                    onProductClick={handleProductClick}
+                    handleProductClick={handleProductClick}
                   />
                 ))
               ) : (

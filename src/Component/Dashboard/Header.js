@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { useFetchUserProfileQuery } from "../../../Services/auth/userApiSlice";
 import { FiMenu } from "react-icons/fi";
+import { useFetchUserProfileQuery } from "../../Services/userApiSlice";
 
 const Header = ({ onMenuToggle }) => {
   const location = useLocation();

@@ -1,12 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { authApiSlice } from "../Services/auth/authApiSlice";
-import { userApi } from '../Services/auth/userApiSlice';
-import { resetPasswordApi } from "../Services/auth/resetPasswordApi";
+import { userApi } from '../Services/userApiSlice';
+import { resetPasswordApi } from "../Services/resetPasswordApi";
 import { protectedApi } from "../Services/auth/admin-authApi";
 import authReducer from "../Features/slice/authSlice";
-import { siteSettingsApi } from './../Services/auth/SiteSettingApi';
-import { categoryApi } from "../Services/auth/categoryApiSlice";
-import { productApi } from "../Services/auth/productApiSlice";
+import { siteSettingsApi } from '../Services/SiteSettingApi';
+import { categoryApi } from "../Services/categoryApiSlice";
+import { productApi } from "../Services/productApiSlice";
+import { registerApiSlice } from "../Services/registerApiSlice";
+import { cartApi } from "../Services/cartSlice";
 
 export const store = configureStore({
   reducer: {
@@ -17,6 +19,8 @@ export const store = configureStore({
     [siteSettingsApi.reducerPath]: siteSettingsApi.reducer,
     [categoryApi.reducerPath]: categoryApi.reducer,
     [productApi.reducerPath]: productApi.reducer,
+    [registerApiSlice.reducerPath]: registerApiSlice.reducer,
+    [cartApi.reducerPath]: cartApi.reducer,
     auth: authReducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -27,7 +31,9 @@ export const store = configureStore({
       resetPasswordApi.middleware,
       siteSettingsApi.middleware,
       categoryApi.middleware,
-      productApi.middleware
+      productApi.middleware,
+      registerApiSlice.middleware,
+      cartApi.middleware
     ),
 });
 

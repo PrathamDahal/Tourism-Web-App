@@ -4,7 +4,7 @@ import { FaBell, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
 import { MdTranslate } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { logout, setCredentials } from "./../../../Features/slice/authSlice";
-import { useFetchUserProfileQuery } from "./../../../Services/auth/userApiSlice";
+import { useFetchUserProfileQuery } from "../../../Services/userApiSlice";
 
 const MainNavBar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -53,6 +53,8 @@ const MainNavBar = () => {
   };
 
   if (isLoading) return <div>Loading...</div>;
+
+  const normal = data?.user?.role;
 
   return (
     <nav
@@ -154,7 +156,7 @@ const MainNavBar = () => {
                 />
                 <div className="hidden md:block text-left">
                   <p className="font-medium text-sm">
-                    {data?.user?.name || "Username"}
+                    {data?.user?.username || "Username"}
                   </p>
                   <p className="text-xs text-gray-500">
                     {data?.user?.email || "user@example.com"}
@@ -198,7 +200,7 @@ const MainNavBar = () => {
                       />
                       <div className="ml-3">
                         <p className="font-semibold">
-                          {data?.user?.name || "Username"}
+                          {data?.user?.username || "Username"}
                         </p>
                         <p className="text-xs text-gray-500">
                           {data?.user?.email || "user@example.com"}
@@ -254,7 +256,7 @@ const MainNavBar = () => {
                     </button>
 
                     {/* Dashboard Option - Only for Admins */}
-                    {data?.user?.role === "admin" && (
+                    {["admin", "seller", "host", "travelAgency"].includes(normal) && (
                       <button
                         onClick={() => navigate("/dashboard/home")}
                         className="w-full text-left px-4 py-2 flex items-center hover:bg-gray-50 transition-colors"

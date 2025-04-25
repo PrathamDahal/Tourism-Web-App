@@ -5,7 +5,7 @@ import {
   useCreateCategoryMutation,
   useDeleteCategoryMutation,
   useGetCategoriesQuery,
-} from "../../../../Services/auth/categoryApiSlice";
+} from "../../../../Services/categoryApiSlice";
 import CreateCategoryModal from "./CreateCategoryModal";
 import UpdateCategoryModal from "./UpdateCategoryModal";
 import SuccessToast from "../../../SuccessToast";
@@ -162,9 +162,6 @@ const CategoryType = () => {
                   Description
                 </th>
                 <th className="px-4 md:px-6 py-2 text-center text-xs font-medium tracking-wider">
-                  Total Products
-                </th>
-                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -185,9 +182,6 @@ const CategoryType = () => {
                       title={category.description}
                     >
                       {category.description}
-                    </td>
-                    <td className="px-4 md:px-6 py-3 text-gray-800">
-                      {category.totalProducts}
                     </td>
                     <td className="px-4 md:px-6 py-3">
                       <div className="flex space-x-2 justify-center">

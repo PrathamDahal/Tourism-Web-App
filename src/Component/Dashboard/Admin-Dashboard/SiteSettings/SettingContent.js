@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import {
   useUpdateSiteSettingMutation,
   useGetSiteSettingsQuery,
-} from "../../../../Services/auth/SiteSettingApi.js";
+} from "../../../../Services/SiteSettingApi.js";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 

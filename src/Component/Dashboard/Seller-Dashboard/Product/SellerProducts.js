@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import {
   useCreateProductMutation,
   useDeleteProductMutation,
-  useGetProductsQuery,
+  useGetProductsByUserIdQuery,
 } from "../../../../Services/productApiSlice";
+import { useFetchUserProfileQuery } from "../../../../Services/authApiSlice"; // Import the user profile query
 import { BiFilterAlt, BiSearch } from "react-icons/bi";
 import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
 import CreateProductModal from "./CreateProductModal";
@@ -15,7 +16,7 @@ import UpdateProductModal from "./UpdateProductModal";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
-const MyProducts = () => {
+const SellerProducts = () => {
   // State management
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,31 +28,35 @@ const MyProducts = () => {
     type: "",
   });
 
-  // API hooks
+  // Fetch user profile to get the user ID
+  const { data: userProfile } = useFetchUserProfileQuery();
+  const userId = userProfile?._id;
+
+  // API hooks - now using useGetProductsByUserIdQuery with the userId
   const {
     data: response,
     isLoading,
     isError,
     error,
     refetch,
-  } = useGetProductsQuery();
+  } = useGetProductsByUserIdQuery(userId, {
+    skip: !userId, // Skip the query if userId is not available
+  });
+  
   const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
-  // Derived data
-  const products = response?.data || [];
+  // Derived data - now accessing products from the nested structure
+  const products = response?.products || [];
   const filteredProducts = products.filter((product) => {
-    // Handle cases where product or product.name might be undefined/null
     const productName = product?.name || "";
     const searchText = searchTerm || "";
-
     return productName.toLowerCase().includes(searchText.toLowerCase());
   });
 
   // Cleanup effect for object URLs
   useEffect(() => {
     return () => {
-      // Cleanup any object URLs when component unmounts
       document.querySelectorAll("img[src^='blob:']").forEach((img) => {
         URL.revokeObjectURL(img.src);
       });
@@ -60,14 +65,8 @@ const MyProducts = () => {
 
   const handleCreateProduct = async (newProduct) => {
     try {
-      // Validation - include unit in required fields
-      const requiredFields = [
-        "name",
-        "price",
-        "category",
-        "description",
-        "unit",
-      ];
+      // Validation
+      const requiredFields = ["name", "price", "category", "description","unit"];
       const missingFields = requiredFields.filter(
         (field) => !newProduct[field] && newProduct[field] !== 0
       );
@@ -86,25 +85,17 @@ const MyProducts = () => {
       formData.append("price", price.toString());
       formData.append("category", newProduct.category);
       formData.append("description", newProduct.description);
-      formData.append("unit", newProduct.unit); // Add unit to FormData
 
       // Optional fields
       if (newProduct.tags) {
-        // Check if tags is already an array
         const tagsArray = Array.isArray(newProduct.tags)
           ? newProduct.tags
           : JSON.parse(newProduct.tags);
-
         formData.append("tags", JSON.stringify(tagsArray));
       }
       if (newProduct.stock) {
         const stock = Number(newProduct.stock);
         if (!isNaN(stock)) formData.append("stock", stock.toString());
-      }
-
-      // Seller information
-      if (newProduct.seller) {
-        formData.append("seller", JSON.stringify(newProduct.seller));
       }
 
       // Image validation and handling
@@ -146,6 +137,7 @@ const MyProducts = () => {
       throw error;
     }
   };
+
   const handleUpdateProduct = (productId) => {
     setSelectedProductId(productId);
     setIsUpdateModalOpen(true);
@@ -175,6 +167,7 @@ const MyProducts = () => {
     }
   };
 
+  if (!userId) return <LoadingSpinner fullScreen />;
   if (isLoading) return <LoadingSpinner fullScreen />;
 
   if (isError)
@@ -281,6 +274,7 @@ const MyProducts = () => {
                           className="w-14 h-14 rounded-sm object-contain"
                           onError={(e) => {
                             e.target.onerror = null;
+                            e.target.src = `${API_BASE_URL}/public/product/default-avatar-image.jpg`;
                           }}
                         />
                       ) : (
@@ -367,4 +361,4 @@ const MyProducts = () => {
   );
 };
 
-export default MyProducts;
+export default SellerProducts;

@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import {
   useGetCategoryByIdQuery,
   useUpdateCategoryMutation,
-} from "../../../../Services/auth/categoryApiSlice";
+} from "../../../../Services/categoryApiSlice";
 
 const UpdateCategoryModal = ({
   isOpen,
