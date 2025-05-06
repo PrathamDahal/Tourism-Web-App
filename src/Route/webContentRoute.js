@@ -6,15 +6,17 @@ import ContactUs from "../Pages/ContactUs/ContactUs";
 import Login from "../Pages/Login/Login";
 import ResetPassword from "../Pages/Reset Password/ResetPassword";
 import Home from "./../Pages/Home/Home";
-import CategoryPage from './../Pages/Category/CategoryDisplay';
-import ProductPage from './../Pages/Products/ProductDisplay';
-import LocalProducts from './../Pages/Local Products/LocalProducts';
+import CategoryPage from "./../Pages/Category/CategoryDisplay";
+import ProductPage from "./../Pages/Products/ProductDisplay";
+import LocalProducts from "./../Pages/Local Products/LocalProducts";
 import DestinationPage from "../Pages/WhereToGo/Destinations/Destinations";
 import AccomodationPage from "../Pages/WhereToStay/Accomodations/AccomodationPage";
 import TravelPackages from "../Pages/Travel Packages/TravelPackages";
 import TravelDeals from "../Pages/Travel Packages/Travel Deals/TravelDeals";
-import AddToCart from "../Pages/Cart Page/AddToCart";
 import RegisterPage from "../Pages/Sign Up/SignUp";
+import AddToCart from "../Pages/Cart Page/AddToCart";
+// import ProtectedRoute from "./ProtectedRoute";
+// import AddToCart from "./../Pages/Cart Page/AddToCart";
 
 const WebContentRoute = () => {
   return (

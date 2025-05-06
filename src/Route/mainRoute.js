@@ -8,12 +8,17 @@ import NoPage from './../NoPage';
 import Category from "../Pages/Dashboard/Category/Category";
 import Product from "../Pages/Dashboard/Products/Product";
 import Profile from './../Pages/Profile/Profile';
+import AddToCart from "../Pages/Cart Page/AddToCart";
 
 function MainRoute() {
   return (
     <Routes>
       <Route element={<Layout />}>
         <Route path="/*" element={<WebContentRoute />} />
+
+        <Route path="cart" element={<ProtectedRoute />}>
+          <Route index element={<AddToCart />} />
+        </Route>
       </Route>
 
       {/* Dashboard Routes */}

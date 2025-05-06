@@ -164,7 +164,7 @@ const AccomodationPage = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-32 px-4 py-4">
+    <div className="md:mx-32 items-center justify-center  px-4 py-4">
       {/* Header with Title and Reserve Button */}
       <div className="flex justify-between items-center mb-8 font-Playfair">
         <h1 className="text-3xl font-bold">

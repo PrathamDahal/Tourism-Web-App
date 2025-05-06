@@ -3,7 +3,7 @@ import { MdSearch } from "react-icons/md";
 
 const LocalDetails = () => {
   return (
-    <div className="absolute flex flex-col p-2 items-center justify-center w-auto h-auto xl:top-[230px] lg:top-[180px] md:top-[150px] top-[100px] left-1/3">
+    <div className="absolute flex flex-col p-2 items-center justify-center w-auto h-auto xl:top-[230px] 2xl:left-[700px] xl:left-[400px] lg:top-[180px] md:top-[150px] top-[100px] left-1/3">
       <div className="flex items-center justify-between gap-1 px-4 mx-auto w-[120px] md:w-[220px] lg:w-[320px] xl:w-[420px] bg-gray-50 rounded-3xl overflow-hidden">
         <input
           type="text"

@@ -7,15 +7,18 @@ import {
   useClearCartMutation,
   useGetCartQuery,
   useRemoveFromCartMutation,
-  useAddToCartMutation,
+  useUpdateCartMutation,
 } from "../../../Services/cartSlice";
+import ErrorMessage from "../../ErrorMessage";
+import { useNavigate } from "react-router-dom";
 
 const ShoppingCartPage = () => {
+  const navigate = useNavigate();
   // RTK Query hooks
   const { data: cartData, isLoading, isError, refetch } = useGetCartQuery();
   const [removeFromCart] = useRemoveFromCartMutation();
   const [clearCart] = useClearCartMutation();
-  const [addToCart] = useAddToCartMutation();
+  const [updateCart] = useUpdateCartMutation();
 
   const [products, setProducts] = useState([]);
   const [hasCheckedItems, setHasCheckedItems] = useState(false);
@@ -25,6 +28,9 @@ const ShoppingCartPage = () => {
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [isClearCartModalOpen, setIsClearCartModalOpen] = useState(false);
+  // We no longer need this state since we're using vendor-specific checkout
+  // const [hasSelectedItems, setHasSelectedItems] = useState(false);
+  const [currentVendorCheckout, setCurrentVendorCheckout] = useState(null);
 
   // Transform API data to match component's structure
   useEffect(() => {
@@ -42,14 +48,8 @@ const ShoppingCartPage = () => {
       return [];
     }
 
-    // Group items by vendor (since vendor is missing in this data structure,
-    // we'll create a default vendor)
-    const defaultVendor = {
-      vendorId: "default",
-      vendor: "Store",
-      items: [],
-      checked: false,
-    };
+    // Create vendor groups (even though we might have single vendor)
+    const vendorMap = new Map();
 
     // Process each item in the items array
     apiData.items.forEach((item) => {
@@ -58,31 +58,54 @@ const ShoppingCartPage = () => {
         return;
       }
 
-      defaultVendor.items.push({
+      const product = item.product;
+      const sellerId = product.seller?._id || "default";
+      const sellerName = product.seller
+        ? `${product.seller.firstName} ${product.seller.lastName}`
+        : "Store";
+
+      if (!vendorMap.has(sellerId)) {
+        vendorMap.set(sellerId, {
+          vendorId: sellerId,
+          vendor: sellerName,
+          items: [],
+          checked: false,
+        });
+      }
+
+      const vendor = vendorMap.get(sellerId);
+
+      // Ensure quantity doesn't exceed stock
+      const safeQuantity = Math.min(item.quantity, product.stock || 0);
+
+      vendor.items.push({
         id: item._id,
-        productId: item.product._id,
-        name: item.product.name,
-        color: item.product.color || "N/A",
-        quantity: item.quantity,
-        price: item.product.price,
-        initialStock: item.product.stock || 10,
+        productId: product._id,
+        name: product.name,
+        color: product.color || "N/A",
+        quantity: safeQuantity,
+        price: product.price,
+        stock: product.stock || 0,
         checked: false,
+        image: product.images?.[0] || null,
       });
     });
 
-    return defaultVendor.items.length > 0 ? [defaultVendor] : [];
+    return Array.from(vendorMap.values());
   };
 
   // Calculate total and checked items
   useEffect(() => {
-    const calculatedTotal = products.reduce((sum, vendor) => {
-      return (
-        sum +
-        vendor.items.reduce((vendorSum, item) => {
-          return vendorSum + item.quantity * item.price;
-        }, 0)
-      );
-    }, 0);
+    let calculatedTotal = 0;
+    // Removed unused variable anyItemSelected
+
+    products.forEach((vendor) => {
+      vendor.items.forEach((item) => {
+        if (item.checked) {
+          calculatedTotal += item.quantity * item.price;
+        }
+      });
+    });
 
     setTotal(calculatedTotal);
 
@@ -97,6 +120,26 @@ const ShoppingCartPage = () => {
     return (item.quantity * item.price).toFixed(2);
   };
 
+  // Calculate vendor total (for checked items only)
+  const calculateVendorTotal = (vendorIndex) => {
+    let vendorTotal = 0;
+    const vendor = products[vendorIndex];
+
+    vendor.items.forEach((item) => {
+      if (item.checked) {
+        vendorTotal += item.quantity * item.price;
+      }
+    });
+
+    return vendorTotal;
+  };
+
+  // Check if vendor has any checked items
+  const hasVendorCheckedItems = (vendorIndex) => {
+    const vendor = products[vendorIndex];
+    return vendor.items.some((item) => item.checked);
+  };
+
   // Update quantity of an item
   const updateQuantity = async (vendorIndex, itemIndex, newQuantity) => {
     // Create a deep copy of the products array
@@ -106,13 +149,17 @@ const ShoppingCartPage = () => {
     // Convert to number in case it's a string
     newQuantity = Number(newQuantity);
 
-    // Validate new quantity - this is the crucial fix
-    if (
-      isNaN(newQuantity) ||
-      newQuantity < 1 ||
-      newQuantity > item.initialStock
-    ) {
+    // Validate new quantity
+    if (isNaN(newQuantity) || newQuantity < 1) {
       return; // Exit if invalid
+    }
+
+    // Ensure quantity doesn't exceed stock
+    newQuantity = Math.min(newQuantity, item.stock);
+
+    // Don't make API call if quantity didn't change
+    if (newQuantity === item.quantity) {
+      return;
     }
 
     // Optimistic UI update
@@ -120,7 +167,8 @@ const ShoppingCartPage = () => {
     setProducts(updatedProducts);
 
     try {
-      await addToCart({
+      // Use updateCart mutation
+      await updateCart({
         productId: item.productId,
         quantity: newQuantity,
       });
@@ -201,11 +249,54 @@ const ShoppingCartPage = () => {
     return `$${price.toFixed(2)}`;
   };
 
-  if (isLoading) return <div>Loading cart...</div>;
+  // Handle checkout for a specific vendor
+  const handleVendorCheckout = (vendorIndex) => {
+    setCurrentVendorCheckout(vendorIndex);
+    setIsPurchaseModalOpen(true);
+  };
 
-  if (isError) return <div>Error loading cart data</div>;
+  // Get filtered cart items for the current vendor checkout
+  const getCurrentVendorItems = () => {
+    if (currentVendorCheckout === null) return products;
 
-  if (!cartData) return <div>No cart data available</div>;
+    // Return only the current vendor being checked out with only checked items
+    const vendor = products[currentVendorCheckout];
+    if (!vendor) return products;
+
+    const filteredVendor = {
+      ...vendor,
+      items: vendor.items.filter((item) => item.checked),
+    };
+
+    return [filteredVendor];
+  };
+
+  // Get total for the current vendor checkout
+  const getCurrentVendorTotal = () => {
+    if (currentVendorCheckout === null) return total;
+    return calculateVendorTotal(currentVendorCheckout);
+  };
+
+  // Check if cart is empty
+  const isCartEmpty =
+    !products ||
+    products.length === 0 ||
+    products.every((vendor) => vendor.items.length === 0);
+
+  if (isLoading)
+    return <div className="text-center py-10">Loading cart...</div>;
+
+  if (isError) {
+    return (
+      <div className="container mx-auto px-4 py-10">
+        <ErrorMessage
+          message={isError?.data?.message || "Please log in to gain access !!!"}
+          onRetry={() => navigate("/login")}
+          className="max-w-2xl mx-auto"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
@@ -213,38 +304,40 @@ const ShoppingCartPage = () => {
         {/* Cart Items Section */}
         <div className="flex-grow">
           <div className="mb-8">
-            <div className="hidden md:grid grid-cols-12 gap-4 border-black border-b pb-2 items-center mb-4">
-              <div className="col-span-5 font-medium py-3">Product</div>
-              <div className="col-span-2 font-medium text-center py-3">
-                Quantity
+            {!isCartEmpty && (
+              <div className="hidden md:grid grid-cols-12 gap-4 border-black border-b pb-2 items-center mb-4">
+                <div className="col-span-5 font-medium py-3">Product</div>
+                <div className="col-span-2 font-medium text-center py-3">
+                  Quantity
+                </div>
+                <div className="col-span-2 font-medium text-center py-3">
+                  Price
+                </div>
+                <div className="col-span-2 font-medium text-center py-3">
+                  Subtotal
+                </div>
+                <div className="col-span-1">
+                  {hasCheckedItems && (
+                    <button
+                      onClick={prepareDeleteCheckedItems}
+                      className="flex p-2 text-lg items-center gap-1 text-white rounded hover:ring-1 hover:ring-red-600"
+                      title="Delete selected items"
+                    >
+                      <FaTrashAlt className="text-red-500" />
+                    </button>
+                  )}
+                  {!isCartEmpty && (
+                    <button
+                      onClick={() => setIsClearCartModalOpen(true)}
+                      className="flex p-2 text-lg items-center gap-1 text-white rounded hover:ring-1 hover:ring-red-600 mt-2"
+                      title="Clear entire cart"
+                    >
+                      <FaShoppingCart className="text-red-500" />
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="col-span-2 font-medium text-center py-3">
-                Price
-              </div>
-              <div className="col-span-2 font-medium text-center py-3">
-                Subtotal
-              </div>
-              <div className="col-span-1">
-                {hasCheckedItems && (
-                  <button
-                    onClick={prepareDeleteCheckedItems}
-                    className="flex p-2 text-lg items-center gap-1 text-white rounded hover:ring-1 hover:ring-red-600"
-                    title="Delete selected items"
-                  >
-                    <FaTrashAlt className="text-red-500" />
-                  </button>
-                )}
-                {products.length > 0 && (
-                  <button
-                    onClick={() => setIsClearCartModalOpen(true)}
-                    className="flex p-2 text-lg items-center gap-1 text-white rounded hover:ring-1 hover:ring-red-600 mt-2"
-                    title="Clear entire cart"
-                  >
-                    <FaShoppingCart className="text-red-500" />
-                  </button>
-                )}
-              </div>
-            </div>
+            )}
 
             <DeleteConfirmationModal
               isOpen={isDeleteModalOpen}
@@ -263,9 +356,12 @@ const ShoppingCartPage = () => {
               action="clear"
             />
 
-            {products.length > 0 ? (
+            {!isCartEmpty ? (
               products.map((vendorGroup, vendorIndex) => (
-                <div key={vendorGroup.vendorId} className="mb-8">
+                <div
+                  key={vendorGroup.vendorId}
+                  className="mb-8 border rounded-lg p-4 shadow"
+                >
                   <div className="flex items-center mb-4">
                     <input
                       type="checkbox"
@@ -296,8 +392,13 @@ const ShoppingCartPage = () => {
                           <p className="font-medium">{item.name}</p>
                           <p className="text-gray-500">Color: {item.color}</p>
                           <p className="text-gray-500 text-sm">
-                            Available: {item.initialStock}
+                            Available: {item.stock}
                           </p>
+                          {item.quantity > item.stock && (
+                            <p className="text-red-500 text-sm">
+                              Quantity exceeds available stock!
+                            </p>
+                          )}
                         </div>
                       </div>
 
@@ -311,7 +412,6 @@ const ShoppingCartPage = () => {
                             }`}
                             onClick={() => {
                               if (item.quantity > 1) {
-                                // Additional client-side check
                                 updateQuantity(
                                   vendorIndex,
                                   itemIndex,
@@ -330,13 +430,12 @@ const ShoppingCartPage = () => {
 
                           <button
                             className={`px-3 py-1 text-lg ${
-                              item.quantity >= item.initialStock
+                              item.quantity >= item.stock
                                 ? "text-gray-400 cursor-not-allowed"
                                 : ""
                             }`}
                             onClick={() => {
-                              if (item.quantity < item.initialStock) {
-                                // Additional client-side check
+                              if (item.quantity < item.stock) {
                                 updateQuantity(
                                   vendorIndex,
                                   itemIndex,
@@ -344,7 +443,7 @@ const ShoppingCartPage = () => {
                                 );
                               }
                             }}
-                            disabled={item.quantity >= item.initialStock}
+                            disabled={item.quantity >= item.stock}
                           >
                             +
                           </button>
@@ -359,6 +458,60 @@ const ShoppingCartPage = () => {
                       </div>
                     </div>
                   ))}
+
+                  {/* Vendor checkout section */}
+                  <div className="mt-6 flex flex-col md:flex-row justify-between items-center">
+                    <div className="flex items-center mb-4 md:mb-0">
+                      <div className="flex items-center space-x-3 border-gray-200 p-2 rounded">
+                        <div className="flex items-center p-2 border border-gray-300 rounded-md hover:ring-1 hover:ring-gray-900">
+                          <input
+                            type="radio"
+                            id={`cod-${vendorIndex}`}
+                            name={`payment-${vendorIndex}`}
+                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
+                            onChange={() => setSelectedPayment("cod")}
+                            checked={selectedPayment === "cod"}
+                          />
+                          <label
+                            htmlFor={`cod-${vendorIndex}`}
+                            className="ml-2"
+                          >
+                            Cash on delivery
+                          </label>
+                        </div>
+
+                        <div className="flex items-center p-2 border border-gray-300 rounded-md hover:ring-1 hover:ring-gray-900">
+                          <input
+                            type="radio"
+                            id={`payNow-${vendorIndex}`}
+                            name={`payment-${vendorIndex}`}
+                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
+                            onChange={() => setSelectedPayment("payNow")}
+                            checked={selectedPayment === "payNow"}
+                          />
+                          <label
+                            htmlFor={`payNow-${vendorIndex}`}
+                            className="ml-2"
+                          >
+                            Pay Now Through Qr
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="items-center">
+                      <button
+                        onClick={() => handleVendorCheckout(vendorIndex)}
+                        className="bg-red-500 text-white py-2 px-8 rounded-md hover:bg-red-700 transition-colors font-medium font-Open disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={
+                          !selectedPayment ||
+                          !hasVendorCheckedItems(vendorIndex)
+                        }
+                      >
+                        Checkout
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ))
             ) : (
@@ -369,41 +522,30 @@ const ShoppingCartPage = () => {
           </div>
         </div>
 
-        {/* Cart Summary Section */}
+        {/* Cart Summary Section - No checkout button */}
         <div className="lg:w-80">
           <div className="h-fit w-full p-6 border-gray-500 border rounded-lg shadow-xl bg-white">
             <h2 className="text-xl font-medium font-poppins mb-4">
               Cart summary
             </h2>
 
-            <div className="space-y-3 mb-6 py-4">
-              <div className="flex items-center p-2 border border-gray-300 rounded-md active:bg-gray-500 hover:ring-1 hover:ring-gray-900">
-                <input
-                  type="radio"
-                  id="cod"
-                  name="payment"
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
-                  onChange={() => setSelectedPayment("cod")}
-                  checked={selectedPayment === "cod"}
-                />
-                <label htmlFor="cod" className="ml-2">
-                  Cash on delivery
-                </label>
-              </div>
-
-              <div className="flex items-center p-2 border border-gray-300 rounded-md active:bg-gray-500 hover:ring-1 hover:ring-gray-900">
-                <input
-                  type="radio"
-                  id="payNow"
-                  name="payment"
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
-                  onChange={() => setSelectedPayment("payNow")}
-                  checked={selectedPayment === "payNow"}
-                />
-                <label htmlFor="payNow" className="ml-2">
-                  Pay Now Through Qr
-                </label>
-              </div>
+            {/* Selected items list */}
+            <div className="max-h-60 overflow-y-auto mb-4">
+              {products.map((vendorGroup) =>
+                vendorGroup.items
+                  .filter((item) => item.checked)
+                  .map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex justify-between items-center py-2 border-b"
+                    >
+                      <span className="text-gray-700 truncate max-w-[180px]">
+                        {item.name} × {item.quantity}
+                      </span>
+                      <span className="text-gray-500">{item.price}</span>
+                    </div>
+                  ))
+              )}
             </div>
 
             <div className="border-t py-4 my-4">
@@ -414,33 +556,31 @@ const ShoppingCartPage = () => {
                 </span>
               </div>
             </div>
-
-            <button
-              onClick={() => setIsPurchaseModalOpen(true)}
-              className="w-full bg-red-500 text-white py-3 px-4 rounded-md hover:bg-red-700 transition-colors font-medium disabled:opacity-85 disabled:cursor-not-allowed"
-              disabled={products.length === 0 || !selectedPayment}
-            >
-              Checkout
-            </button>
-
-            {selectedPayment === "cod" ? (
-              <CODPurchaseModal
-                isOpen={isPurchaseModalOpen}
-                onClose={() => setIsPurchaseModalOpen(false)}
-                cartItems={products}
-                total={total}
-              />
-            ) : (
-              <PurchaseModal
-                isOpen={isPurchaseModalOpen}
-                onClose={() => setIsPurchaseModalOpen(false)}
-                cartItems={products}
-                total={total}
-              />
-            )}
           </div>
         </div>
       </div>
+
+      {selectedPayment === "cod" ? (
+        <CODPurchaseModal
+          isOpen={isPurchaseModalOpen}
+          onClose={() => {
+            setIsPurchaseModalOpen(false);
+            setCurrentVendorCheckout(null);
+          }}
+          cartItems={getCurrentVendorItems()}
+          total={getCurrentVendorTotal()}
+        />
+      ) : (
+        <PurchaseModal
+          isOpen={isPurchaseModalOpen}
+          onClose={() => {
+            setIsPurchaseModalOpen(false);
+            setCurrentVendorCheckout(null);
+          }}
+          cartItems={getCurrentVendorItems()}
+          total={getCurrentVendorTotal()}
+        />
+      )}
     </div>
   );
 };

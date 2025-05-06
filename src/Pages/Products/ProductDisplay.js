@@ -12,6 +12,7 @@ import { customerFeedback } from "./../../Data/CustomerFeedback";
 import RatingStars from "./../../Component/RatingStars";
 import { useGetProductBySlugQuery } from "../../Services/productApiSlice";
 import { useAddToCartMutation } from "../../Services/cartSlice";
+import ErrorToast from "../../Component/ErrorToast";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -27,10 +28,15 @@ const ProductPage = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
   const galleryContainerRef = useRef(null);
+  const [showErrorToast, setShowErrorToast] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Quantity handlers
+  // Updated quantity handlers with stock validation
   const increaseQuantity = () => {
-    setQuantity((prev) => prev + 1);
+    if (product && product.stock && quantity < product.stock) {
+      setQuantity((prev) => prev + 1);
+    }
   };
 
   const decreaseQuantity = () => {
@@ -42,15 +48,25 @@ const ProductPage = () => {
   const handleAddToCartClick = async () => {
     if (!product) return;
 
+    // Additional validation to prevent adding more than available stock
+    if (product.stock && quantity > product.stock) {
+      setErrorMessage(
+        `Cannot add more than available stock (${product.stock})`
+      );
+      setShowErrorToast(true);
+      return;
+    }
+
     try {
       await addToCart({
-        productId: product._id, // Assuming your product has _id field
+        productId: product._id,
         quantity: quantity,
       });
       navigate(`/localproducts/cart`);
     } catch (error) {
       console.error("Failed to add to cart:", error);
-      // Optionally show error message to user
+      setErrorMessage("Failed to add item to cart");
+      setShowErrorToast(true);
     }
   };
 
@@ -160,7 +176,7 @@ const ProductPage = () => {
             <img
               src={selectedImage || `${API_BASE_URL}/${images[0]}`}
               alt={product.name || "No Image"}
-              className="w-64 h-64 md:w-96 md:h-96 lg:object-cover object-contain"
+              className="lg:w-full w-64 h-64 md:w-96 md:h-96 object-contain"
             />
           </div>
         </div>
@@ -205,11 +221,26 @@ const ProductPage = () => {
                 -
               </button>
               <span className="px-3 py-1 border-x">{quantity}</span>
-              <button onClick={increaseQuantity} className="px-3 py-1">
+              <button
+                onClick={increaseQuantity}
+                className={`px-3 py-1 ${
+                  product?.stock && quantity >= product.stock
+                    ? "text-gray-400 cursor-not-allowed"
+                    : ""
+                }`}
+                disabled={product?.stock && quantity >= product.stock}
+              >
                 +
               </button>
             </div>
+            {product?.stock && (
+              <span className="ml-2 text-sm text-gray-500">
+                Available: {product.stock}
+              </span>
+            )}
           </div>
+
+          {/* Add to Cart */}
           <div className="border-2 my-2 py-2">
             <div className="border-y-2 p-2">
               <button
@@ -220,6 +251,7 @@ const ProductPage = () => {
               </button>
             </div>
           </div>
+          
           <hr className="my-2 border-t-2" />
           <p className="mt-4 text-gray-600 text-sm">
             <span className="font-bold">Category:</span>{" "}
@@ -266,6 +298,17 @@ const ProductPage = () => {
           <CustomerFeedback feedback={customerFeedback} />
         )}
       </div>
+
+      {/* Error Toast */}
+      {showErrorToast && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <ErrorToast
+            message={errorMessage}
+            onClose={() => setShowErrorToast(false)}
+            duration={5000}
+          />
+        </div>
+      )}
     </div>
   );
 };
