@@ -6,6 +6,8 @@ import { AiFillStar } from "react-icons/ai";
 import { FaWifi, FaParking } from "react-icons/fa";
 import { MdPets, MdAcUnit } from "react-icons/md";
 import ImageCarousel from "./../../../Component/WebContent/WhereToStay/ImageCarousel";
+import BookingConfirmationModal from "../../../Component/WebContent/Accomodations/BookingModal";
+import SuccessToast from "../../../Component/SuccessToast";
 
 const AccomodationPage = () => {
   const { id } = useParams();
@@ -23,6 +25,33 @@ const AccomodationPage = () => {
 
   const handleLoadLess = () => {
     setVisibleReviewsCount(4);
+  };
+
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+
+  const handleReserve = () => {
+    // Validate required fields before showing modal
+    if (!checkInDate || !checkOutDate) {
+      alert("Please select check-in and check-out dates");
+      return;
+    }
+    setShowConfirmationModal(true);
+  };
+
+  const handleConfirmBooking = () => {
+    // Here you would typically send the booking data to your backend
+    console.log("Booking confirmed with details:", {
+      stayId: stay.id,
+      checkInDate,
+      checkOutDate,
+      roomCount,
+      guestCount,
+    });
+
+    // Close the modal and show success message or redirect
+    setShowConfirmationModal(false);
+    setShowSuccessToast(true);
   };
 
   // Mock review data
@@ -314,7 +343,9 @@ const AccomodationPage = () => {
 
             {/* Price Details */}
             <div className="bg-gray-50 border border-gray-200 mb-4 rounded">
-              <h4 className="font-medium mb-2 bg-gray-200 p-2">Price Details</h4>
+              <h4 className="font-medium mb-2 bg-gray-200 p-2">
+                Price Details
+              </h4>
               <div className="flex justify-between mb-1 p-2">
                 <span>1 room × 2 nights</span>
                 <span>$ 120.32</span>
@@ -330,9 +361,36 @@ const AccomodationPage = () => {
             </div>
 
             {/* Reserve Button */}
-            <button className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-md mb-2">
+            <button
+              onClick={handleReserve}
+              className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-md mb-2"
+            >
               Reserve
             </button>
+
+            {/* Booking Confirmation Modal */}
+            <BookingConfirmationModal
+              isOpen={showConfirmationModal}
+              onClose={() => setShowConfirmationModal(false)}
+              onConfirm={handleConfirmBooking}
+              stay={stay}
+              checkInDate={checkInDate}
+              checkOutDate={checkOutDate}
+              roomCount={roomCount}
+              guestCount={guestCount}
+            />
+
+            {/* Success Toast */}
+            {showSuccessToast && (
+              <div className="fixed top-4 right-4 z-50">
+                <SuccessToast
+                  message="Your booking has been confirmed! The host will contact you soon."
+                  onClose={() => setShowSuccessToast(false)}
+                  duration={5000}
+                />
+              </div>
+            )}
+            
             <p className="text-center text-sm text-gray-500">
               Host will contact you soon
             </p>

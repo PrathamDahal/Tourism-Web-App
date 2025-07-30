@@ -1,5 +1,5 @@
 // EmailModal.js
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const ForgetPasswordModal = ({ showModal, closeModal }) => {
   const [email, setEmail] = useState('');

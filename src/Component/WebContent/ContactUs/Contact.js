@@ -1,4 +1,3 @@
-import React from "react";
 import { BiSolidMessage, BiSolidPhoneCall } from "react-icons/bi";
 import { FaMapMarkerAlt } from "react-icons/fa";
 

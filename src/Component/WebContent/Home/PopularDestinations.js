@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import DestinationCarousel from "./Carousel/DestinationCarousel";
 import { destinations } from "./../../../Data/DestinationCarousel";
 import { useNavigate } from "react-router-dom"; // Import useNavigate

@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams } from "react-router-dom";
 import { destinations } from "../../../Data/DestinationCarousel";
 import { Activities } from "../../../Data/Activities";

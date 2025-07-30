@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { explore } from "./../../../Data/ExplorePanchpokhari";
 import DestinationCarousel from './../Home/Carousel/DestinationCarousel';
 

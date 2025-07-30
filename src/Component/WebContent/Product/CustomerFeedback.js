@@ -1,4 +1,3 @@
-import React from 'react';
 import RatingStars from './../../RatingStars';
 
 // CustomerFeedback Component
