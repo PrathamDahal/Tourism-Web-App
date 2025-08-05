@@ -8,19 +8,19 @@ export const categoryApi = createApi({
   endpoints: (builder) => ({
     // GET all categories
     getCategories: builder.query({
-      query: () => '/seller-categories',
+      query: () => '/productcategories',
       providesTags: ['Category'], 
     }),
 
     // GET a specific category by ID
     getCategoryById: builder.query({
-      query: (id) => `/seller-categories/${id}`,
+      query: (id) => `/productcategories/${id}`,
       providesTags: (result, error, id) => [{ type: 'Category', id }],
     }),
 
     // GET all products inside a specific category
     getCategoryProducts: builder.query({
-      query: (categoryId) => `/seller-categories/${categoryId}`,
+      query: (categoryId) => `/productcategories/${categoryId}`,
       providesTags: (result, error, categoryId) => [
         { type: 'CategoryProducts', id: categoryId },
         ...(result?.products?.map(({ id }) => ({ type: 'CategoryProducts', id })) || []),
@@ -34,7 +34,7 @@ export const categoryApi = createApi({
     // CREATE a new category
     createCategory: builder.mutation({
       query: (newCategory) => ({
-        url: '/seller-categories',
+        url: '/productcategories',
         method: 'POST',
         body: newCategory,
       }),
@@ -44,7 +44,7 @@ export const categoryApi = createApi({
     // UPDATE a category
     updateCategory: builder.mutation({
       query: ({ id, ...updatedCategory }) => ({
-        url: `/seller-categories/${id}`,
+        url: `/productcategories/${id}`,
         method: 'PATCH',
         body: updatedCategory,
       }),
@@ -54,7 +54,7 @@ export const categoryApi = createApi({
     // DELETE a category
     deleteCategory: builder.mutation({
       query: (id) => ({
-        url: `/seller-categories/${id}`,
+        url: `/productcategories/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Category'],

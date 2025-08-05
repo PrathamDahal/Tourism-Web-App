@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FaShoppingCart, FaTrashAlt } from "react-icons/fa";
 import DeleteConfirmationModal from "../../DeleteModal";
 import PurchaseModal from "./QrPurchaseModal";
@@ -42,16 +42,13 @@ const ShoppingCartPage = () => {
 
   // Helper function to transform API data
   const transformCartData = (apiData) => {
-    // Check if apiData exists and has an items array
     if (!apiData || !apiData.items || !Array.isArray(apiData.items)) {
       console.error("Invalid cart data structure:", apiData);
       return [];
     }
 
-    // Create vendor groups (even though we might have single vendor)
     const vendorMap = new Map();
 
-    // Process each item in the items array
     apiData.items.forEach((item) => {
       if (!item || !item.product) {
         console.warn("Skipping invalid cart item:", item);
@@ -59,9 +56,11 @@ const ShoppingCartPage = () => {
       }
 
       const product = item.product;
-      const sellerId = product.seller?._id || "default";
-      const sellerName = product.seller
-        ? `${product.seller.firstName} ${product.seller.lastName}`
+      const seller = item.seller;
+
+      const sellerId = seller?.id || "default";
+      const sellerName = seller
+        ? `${seller.firstName} ${seller.lastName}`
         : "Store";
 
       if (!vendorMap.has(sellerId)) {
@@ -75,16 +74,15 @@ const ShoppingCartPage = () => {
 
       const vendor = vendorMap.get(sellerId);
 
-      // Ensure quantity doesn't exceed stock
       const safeQuantity = Math.min(item.quantity, product.stock || 0);
 
       vendor.items.push({
-        id: item._id,
-        productId: product._id,
+        id: item.id,
+        productId: product.id,
         name: product.name,
         color: product.color || "N/A",
         quantity: safeQuantity,
-        price: product.price,
+        price: parseFloat(product.price),
         stock: product.stock || 0,
         checked: false,
         image: product.images?.[0] || null,

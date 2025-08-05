@@ -7,13 +7,13 @@ export const siteSettingsApi = createApi({
   endpoints: (builder) => ({
     // Existing query to fetch site settings
     getSiteSettings: builder.query({
-      query: () => 'site-settings',
+      query: () => '/site-settings',
     }),
 
     // New mutation to update site settings
     updateSiteSetting: builder.mutation({
       query: (siteSettings) => ({
-        url: 'site-settings', 
+        url: '/site-settings', 
         method: 'PATCH', 
         body: siteSettings, 
       }),

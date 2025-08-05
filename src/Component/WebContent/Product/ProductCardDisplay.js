@@ -1,4 +1,3 @@
-import React from "react";
 import { HiOutlineShoppingBag } from "react-icons/hi";
 import RatingStars from "./../../RatingStars";
 import { useNavigate } from "react-router-dom";

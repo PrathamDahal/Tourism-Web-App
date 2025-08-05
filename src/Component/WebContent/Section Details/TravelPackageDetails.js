@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { MdSearch } from "react-icons/md";
 

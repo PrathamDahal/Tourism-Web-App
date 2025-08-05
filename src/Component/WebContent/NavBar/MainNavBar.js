@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaBell, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
 import { MdTranslate } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { logout, setCredentials } from "./../../../Features/slice/authSlice";
 import { useFetchUserProfileQuery } from "../../../Services/userApiSlice";
+
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const MainNavBar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -37,7 +39,7 @@ const MainNavBar = () => {
 
   useEffect(() => {
     if (accessToken && data) {
-      dispatch(setCredentials({ user: data.user }));
+      dispatch(setCredentials({ user: data }));
       setIsLoggedIn(true);
     } else {
       setIsLoggedIn(false);
@@ -54,7 +56,8 @@ const MainNavBar = () => {
 
   if (isLoading) return <div>Loading...</div>;
 
-  const normal = data?.user?.role;
+  const normal = data?.role;
+  const images = data?.images;
 
   return (
     <nav
@@ -83,6 +86,7 @@ const MainNavBar = () => {
           { name: "Where To Go", path: "/WhereToGo" },
           { name: "Where To Stay", path: "/WhereToStay" },
           { name: "Local Products", path: "/LocalProducts" },
+          { name: "Travel Pack", path: "/travel-packages" },
           { name: "Contact Us", path: "/ContactUs" },
         ].map((item) => (
           <li key={item.path} className="text-center md:text-left">
@@ -148,7 +152,7 @@ const MainNavBar = () => {
                 {/* User Image */}
                 <img
                   src={
-                    data?.user?.images ||
+                    `${API_BASE_URL}/${images}` ||
                     "/assets/Images/default-avatar-image.jpg"
                   }
                   alt="User"
@@ -156,10 +160,10 @@ const MainNavBar = () => {
                 />
                 <div className="hidden md:block text-left">
                   <p className="font-medium text-sm">
-                    {data?.user?.username || "Username"}
+                    {data?.username || "Username"}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {data?.user?.email || "user@example.com"}
+                    {data?.email || "user@example.com"}
                   </p>
                 </div>
                 {/* Dropdown Icon */}
@@ -192,7 +196,7 @@ const MainNavBar = () => {
                     <div className="flex items-center">
                       <img
                         src={
-                          data?.user?.images ||
+                          `${API_BASE_URL}/${images}` ||
                           "/assets/Images/default-avatar-image.jpg"
                         }
                         alt="User"
@@ -200,10 +204,10 @@ const MainNavBar = () => {
                       />
                       <div className="ml-3">
                         <p className="font-semibold">
-                          {data?.user?.username || "Username"}
+                          {data?.username || "Username"}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {data?.user?.email || "user@example.com"}
+                          {data?.email || "user@example.com"}
                         </p>
                       </div>
                     </div>
@@ -256,7 +260,9 @@ const MainNavBar = () => {
                     </button>
 
                     {/* Dashboard Option - Only for Admins */}
-                    {["admin", "seller", "host", "travelAgency"].includes(normal) && (
+                    {["ADMIN", "SELLER", "HOST", "TRAVELAGENCY"].includes(
+                      normal
+                    ) && (
                       <button
                         onClick={() => navigate("/dashboard/home")}
                         className="w-full text-left px-4 py-2 flex items-center hover:bg-gray-50 transition-colors"

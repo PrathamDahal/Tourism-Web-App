@@ -6,6 +6,8 @@ import ProductCard from "./../Product/ProductCardDisplay";
 import { useGetCategoriesQuery } from "../../../Services/categoryApiSlice";
 import { useGetProductsQuery } from "../../../Services/productApiSlice";
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const LocalProductPage = () => {
   const [showMoreCategories, setShowMoreCategories] = useState(false);
   const [visibleCategoryItems, setVisibleCategoryItems] = useState(5);
@@ -39,7 +41,7 @@ const LocalProductPage = () => {
   const totalPages = Math.ceil(totalProducts / productsPerPage);
 
   const handleCategoryClick = (category) => {
-    navigate(`/localproducts/category/${category._id}`);
+    navigate(`/localproducts/category/${category.slug}`);
   };
 
   const handleProductClick = (product) => {
@@ -61,17 +63,24 @@ const LocalProductPage = () => {
       return 8;
     };
 
-    setVisibleCategoryItems(getVisibleCategoryItems());
-    setProductsPerPage(getVisibleProductItems());
-
     const handleResize = () => {
-      setVisibleCategoryItems(getVisibleCategoryItems());
+      const newVisibleCategoryItems = getVisibleCategoryItems();
       const newProductsPerPage = getVisibleProductItems();
-      setProductsPerPage(newProductsPerPage);
+
+      // Only update if values have changed
+      setVisibleCategoryItems((prev) =>
+        prev !== newVisibleCategoryItems ? newVisibleCategoryItems : prev
+      );
+      setProductsPerPage((prev) =>
+        prev !== newProductsPerPage ? newProductsPerPage : prev
+      );
+
       setShowMoreCategories(false);
-      // Reset to first page when changing items per page
       setCurrentPage(1);
     };
+
+    // Initial setup
+    handleResize();
 
     window.addEventListener("resize", handleResize);
     return () => {
@@ -108,17 +117,19 @@ const LocalProductPage = () => {
           )
           .map((category) => (
             <div
-              key={category._id}
+              key={category.id}
               className="border p-2 rounded-md cursor-pointer hover:border hover:text-blue-400 hover:border-blue-400 hover:shadow-md"
               onClick={() => handleCategoryClick(category)}
             >
-              {category.categoryImage && (
-                <img
-                  src={category.categoryImage}
-                  alt={category.name}
-                  className="w-full h-36 object-cover rounded-sm mb-2"
-                />
-              )}
+              <img
+                src={
+                  category.imageUrl
+                    ? `${API_BASE_URL}/${category.imageUrl}`
+                    : "/assets/Images/default-avatar-image.jpg" // assuming public folder
+                }
+                alt={category.name}
+                className="w-full h-36 object-cover rounded-sm mb-2"
+              />
               <h2 className="text-lg font-medium font-poppins text-center">
                 {category.name}
               </h2>
@@ -135,7 +146,8 @@ const LocalProductPage = () => {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {products.map((product) => {
-            return <ProductCard
+          return (
+            <ProductCard
               key={product._id}
               product={{
                 ...product,
@@ -147,7 +159,8 @@ const LocalProductPage = () => {
               }}
               handleProductClick={() => handleProductClick(product)}
             />
-            })}
+          );
+        })}
       </div>
 
       {/* Pagination Controls */}

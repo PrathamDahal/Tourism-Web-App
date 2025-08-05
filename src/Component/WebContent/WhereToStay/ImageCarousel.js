@@ -35,7 +35,7 @@ const ImageCarousel = ({ images, stayType, getStayTypeColor }) => {
           <img
             src={images[currentIndex].url}
             alt={`Slide ${currentIndex + 1}`}
-            className="w-full h-64 object-cover"
+            className="w-full h-80 object-fit"
           />
         ) : (
           <div className="w-full h-48 flex items-center justify-center text-gray-500">

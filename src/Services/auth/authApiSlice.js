@@ -9,24 +9,28 @@ export const authApiSlice = createApi({
     // Login endpoint
     login: builder.mutation({
       query: (credentials) => ({
-        url: "/auth/login", // Specific endpoint for login
+        url: "/auth/login",
         method: "POST",
         body: credentials,
       }),
       transformResponse: (response) => {
-        const { accessToken, refreshToken } = response.data;
-        return { accessToken, refreshToken };
+        // Assume response includes accessToken, refreshToken, and user
+        const { accessToken, refreshToken, user } = response;
+        return { accessToken, refreshToken, user };
       },
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          // Dispatch the setCredentials action to update the Redux store
+          // Save tokens + user in redux
           dispatch(
             setCredentials({
               accessToken: data.accessToken,
               refreshToken: data.refreshToken,
+              user: data.user,
             })
           );
+          // Save user data to localStorage
+          localStorage.setItem("user", JSON.stringify(data.user));
         } catch (error) {
           console.error("Login error:", error.message || error);
         }

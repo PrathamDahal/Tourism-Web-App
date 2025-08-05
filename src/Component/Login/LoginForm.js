@@ -7,7 +7,7 @@ import ForgetPasswordModal from "./ForgetPassword";
 // import { useFetchUserProfileQuery } from "../../Services/auth/userApiSlice";
 
 const LoginForm = () => {
-  const [username, setUsername] = useState("");
+  const [email, setemail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false); // For "Remember Me" functionality
   const [login, { isLoading, isError, error }] = useLoginMutation();
@@ -29,7 +29,7 @@ const LoginForm = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const credentials = { username, password };
+      const credentials = { email, password };
       const { accessToken, refreshToken } = await login(credentials).unwrap();
 
       dispatch(setCredentials({ accessToken, refreshToken }));
@@ -57,13 +57,13 @@ const LoginForm = () => {
       <form onSubmit={handleLogin}>
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Username
+            email
           </label>
           <input
             type="text"
-            placeholder="Enter your username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setemail(e.target.value)}
             className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-300"
             required
           />

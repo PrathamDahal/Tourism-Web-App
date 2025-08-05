@@ -143,9 +143,9 @@ const CategoryType = () => {
           className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 w-full md:w-auto disabled:opacity-50"
           onClick={() => setIsModalOpen(true)}
           disabled={isCreating}
-          aria-label="Add new product"
+          aria-label="Add new Category"
         >
-          {isCreating ? <LoadingSpinner size="small" /> : "+ Add Product"}
+          {isCreating ? <LoadingSpinner size="small" /> : "+ Add Category"}
         </button>
       </div>
 

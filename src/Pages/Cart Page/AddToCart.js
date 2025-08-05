@@ -1,4 +1,3 @@
-import React from "react";
 import ShoppingCartPage from './../../Component/WebContent/Cart Page/ShoppingCart';
 
 const AddToCart = () => {

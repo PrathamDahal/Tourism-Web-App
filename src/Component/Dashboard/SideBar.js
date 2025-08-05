@@ -29,10 +29,10 @@ const SideBar = ({ isSidebarOpen, onClose }) => {
   if (isLoading) return <LoadingSpinner />;
 
   // Role-specific visibility logic
-  const isAdmin = role === "admin";
-  const isSeller = role === "seller";
-  const isHost = role === "host";
-  const isTravelAgency = role === "travelAgency";
+  const isAdmin = role === "ADMIN";
+  const isSeller = role === "SELLER";
+  const isHost = role === "HOST";
+  const isTravelAgency = role === "TRAVELAGENCY";
 
   return (
     <div

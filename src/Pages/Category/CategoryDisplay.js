@@ -1,23 +1,22 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ProductCard from "./../../Component/WebContent/Product/ProductCardDisplay";
 import FilterComponent from "./../../Component/WebContent/Category/FilterComponent";
 import PaginationControls from "./../../Component/PaginationControls";
-import { useGetProductsByCategoryQuery } from "../../Services/productApiSlice";
+import { useGetProductsByCategorySlugQuery } from "../../Services/productApiSlice";
 import LoadingSpinner from "../../Component/LoadingSpinner";
 import ErrorMessage from "../../Component/ErrorMessage";
 
 const CategoryPage = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
 
-  // Fetch products by category ID
   const {
     data: categoryProduct,
     isLoading,
     isError,
     error,
-  } = useGetProductsByCategoryQuery(id);
+  } = useGetProductsByCategorySlugQuery(slug);
 
   // Get products from response or empty array if not available
   const categoryProducts = useMemo(() => {
@@ -138,26 +137,28 @@ const CategoryPage = () => {
   const handleFilterApply = () => {
     let filtered = categoryProducts;
 
-    // Filter by price range
+    // Price range filter
     filtered = filtered.filter(
       (product) =>
-        product.price >= filters.priceRange[0] &&
-        product.price <= filters.priceRange[1]
+        parseFloat(product.price) >= filters.priceRange[0] &&
+        parseFloat(product.price) <= filters.priceRange[1]
     );
 
-    // Filter by subcategories
+    // Subcategory filter (only if exists)
     if (filters.selectedSubCategories.length > 0) {
-      filtered = filtered.filter((product) =>
-        filters.selectedSubCategories.includes(product.subcategory)
+      filtered = filtered.filter(
+        (product) =>
+          product.subcategory &&
+          filters.selectedSubCategories.includes(product.subcategory)
       );
     }
 
-    // Filter by rating
+    // Rating filter
     filtered = filtered.filter(
-      (product) => product.reviews >= filters.minRating
+      (product) => (product.averageRating || 0) >= filters.minRating
     );
 
-    // Filter by tags
+    // Tags filter
     if (filters.selectedTags.length > 0) {
       filtered = filtered.filter((product) =>
         (product.tags || []).some((tag) => filters.selectedTags.includes(tag))
@@ -166,7 +167,6 @@ const CategoryPage = () => {
 
     setFilteredProducts(filtered);
 
-    // Close filter panel on mobile after applying
     if (window.innerWidth < 768) {
       setIsFilterOpen(false);
     }
@@ -177,16 +177,16 @@ const CategoryPage = () => {
     let sortedProducts = [...filteredProducts];
 
     if (sortType === "lowToHigh") {
-      sortedProducts.sort((a, b) => a.price - b.price);
+      sortedProducts.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
     } else if (sortType === "highToLow") {
-      sortedProducts.sort((a, b) => b.price - a.price);
+      sortedProducts.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
     } else if (sortType === "newest") {
       sortedProducts.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt) // Changed from dateAdded to createdAt
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
     } else if (sortType === "oldest") {
       sortedProducts.sort(
-        (a, b) => new Date(a.createdAt) - new Date(b.createdAt) // Changed from dateAdded to createdAt
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
       );
     }
 
@@ -199,7 +199,10 @@ const CategoryPage = () => {
   };
 
   if (isLoading) return <LoadingSpinner fullScreen />;
-  if (isError) return <ErrorMessage message={error?.message || "Error loading products"} />;
+  if (isError)
+    return (
+      <ErrorMessage message={error?.message || "Error loading products"} />
+    );
 
   return (
     <div className="w-full px-4 py-2">

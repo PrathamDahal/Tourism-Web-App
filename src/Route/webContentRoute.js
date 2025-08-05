@@ -47,7 +47,7 @@ const WebContentRoute = () => {
 
         <Route path="localproducts" element={<Outlet />}>
           <Route index element={<LocalProducts />} />
-          <Route path="category/:id" element={<CategoryPage />} />
+          <Route path="category/:slug" element={<CategoryPage />} />
           <Route path="product/:slug" element={<ProductPage />} />
           <Route path="cart" element={<AddToCart />} />
         </Route>

@@ -1,13 +1,27 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { stays } from "../../../Data/stayOptions";
 import { stayOptions } from "../../../Data/stayOptions";
-import { AiFillStar } from "react-icons/ai";
 import { FaWifi, FaParking } from "react-icons/fa";
 import { MdPets, MdAcUnit } from "react-icons/md";
 import ImageCarousel from "./../../../Component/WebContent/WhereToStay/ImageCarousel";
 import BookingConfirmationModal from "../../../Component/WebContent/Accomodations/BookingModal";
 import SuccessToast from "../../../Component/SuccessToast";
+// import CustomerFeedbackContainer from "../../../Component/WebContent/Product/CustomerFeedbackContainer";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+// Fix for default icon issue in React Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+});
 
 const AccomodationPage = () => {
   const { id } = useParams();
@@ -17,18 +31,10 @@ const AccomodationPage = () => {
   const [guestCount, setGuestCount] = useState(2);
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
-  const [visibleReviewsCount, setVisibleReviewsCount] = useState(4);
-
-  const handleLoadMore = () => {
-    setVisibleReviewsCount((prev) => Math.min(prev + 4, reviews.length));
-  };
-
-  const handleLoadLess = () => {
-    setVisibleReviewsCount(4);
-  };
-
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+
+  const center = [27.7172, 85.324]; // Example: Kathmandu
 
   const handleReserve = () => {
     // Validate required fields before showing modal
@@ -53,54 +59,6 @@ const AccomodationPage = () => {
     setShowConfirmationModal(false);
     setShowSuccessToast(true);
   };
-
-  // Mock review data
-  const reviews = [
-    {
-      id: 1,
-      author: "Abhilash",
-      avatar: "/api/placeholder/40/40",
-      rating: 5,
-      text: "Great views, great food and great service! Highly recommend.",
-    },
-    {
-      id: 2,
-      author: "Abhilash",
-      avatar: "/api/placeholder/40/40",
-      rating: 5,
-      text: "Great views, great food and great service! Highly recommend.",
-    },
-    {
-      id: 3,
-      author: "Jaja Dharmesh",
-      avatar: "/api/placeholder/40/40",
-      rating: 3,
-      text: "Great views, great food and great service! Highly recommend.",
-    },
-    {
-      id: 4,
-      author: "Jaja Dharmesh",
-      avatar: "/api/placeholder/40/40",
-      rating: 3,
-      text: "Great views, great food and great service! Highly recommend.",
-    },
-    {
-      id: 5,
-      author: "Aayush Chaulagain",
-      avatar: "/api/placeholder/40/40",
-      rating: 4,
-      text: "Great views, great food and great service! Highly recommend.",
-    },
-    {
-      id: 6,
-      author: "Aayush Chaulagain",
-      avatar: "/api/placeholder/40/40",
-      rating: 4,
-      text: "Great views, great food and great service! Highly recommend.",
-    },
-  ];
-
-  const visibleReviews = reviews.slice(0, visibleReviewsCount);
 
   // Mock nearby attractions
   const nearbyAttractions = [
@@ -154,22 +112,6 @@ const AccomodationPage = () => {
     if (value > min) {
       setter((prev) => prev - 1);
     }
-  };
-
-  const renderStars = (rating) => {
-    return (
-      <div className="flex">
-        {[...Array(5)].map((_, i) => (
-          <AiFillStar
-            key={i}
-            className={`${
-              i < rating ? "text-yellow-400" : "text-gray-300"
-            } text-sm`}
-          />
-        ))}
-        <span className="text-xs text-gray-500 ml-1">({rating})</span>
-      </div>
-    );
   };
 
   const amenitiesList = [
@@ -390,7 +332,7 @@ const AccomodationPage = () => {
                 />
               </div>
             )}
-            
+
             <p className="text-center text-sm text-gray-500">
               Host will contact you soon
             </p>
@@ -401,14 +343,21 @@ const AccomodationPage = () => {
       <div>
         {/* Map and Nearby Attractions */}
         <div className="mb-8 flex flex-col md:flex-row gap-6">
-          <div className="md:w-7/12">
-            <div className="border rounded-lg overflow-hidden">
-              <img
-                src="/api/placeholder/460/300"
-                alt="Map location"
-                className="w-full h-full object-cover"
+          <div className="md:w-7/12 h-[300px] rounded-lg overflow-hidden">
+            <MapContainer
+              center={center}
+              zoom={13}
+              scrollWheelZoom={false}
+              style={{ height: "100%", width: "100%" }}
+            >
+              <TileLayer
+                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-            </div>
+              <Marker position={center}>
+                <Popup>We are here!</Popup>
+              </Marker>
+            </MapContainer>
           </div>
           <div className="md:w-5/12">
             <div className="border rounded-lg p-4">
@@ -434,53 +383,10 @@ const AccomodationPage = () => {
           </div>
         </div>
 
-        {/* Reviews Section */}
+        {/* Reviews Section
         <div className="mb-10 font-Playfair">
-          <h3 className="text-xl font-semibold mb-4">
-            {reviews.length} Reviews
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {visibleReviews.map((review) => (
-              <div
-                key={review.id}
-                className="border border-gray-200 p-4 rounded-lg shadow-sm bg-white"
-              >
-                <div className="flex items-center mb-2">
-                  <img
-                    src={review.avatar}
-                    alt={review.author}
-                    className="w-10 h-10 rounded-full mr-3"
-                  />
-                  <div>
-                    <p className="font-medium">{review.author}</p>
-                    {renderStars(review.rating)}
-                  </div>
-                </div>
-                <p className="text-gray-700 text-sm">{review.text}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Load More / Load Less Buttons */}
-          <div className="flex justify-center mt-6 space-x-4">
-            {visibleReviewsCount < reviews.length && (
-              <button
-                onClick={handleLoadMore}
-                className="text-yellow-600 border border-yellow-500 px-4 py-2 rounded-md"
-              >
-                Load More...
-              </button>
-            )}
-            {visibleReviewsCount > 4 && (
-              <button
-                onClick={handleLoadLess}
-                className="text-yellow-600 border border-yellow-500 px-4 py-2 rounded-md"
-              >
-                ...Load Less
-              </button>
-            )}
-          </div>
-        </div>
+          <CustomerFeedbackContainer type="product" id={product.id} />
+        </div> */}
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
 import { useNavigate, useParams } from "react-router-dom";
-import CustomerFeedback from "./../../Component/WebContent/Product/CustomerFeedback";
 import { useRef, useState } from "react";
 import {
   FaFacebookF,
@@ -8,11 +7,13 @@ import {
   FaTwitter,
 } from "react-icons/fa";
 import { HiOutlineShoppingBag } from "react-icons/hi";
-import { customerFeedback } from "./../../Data/CustomerFeedback";
 import RatingStars from "./../../Component/RatingStars";
 import { useGetProductBySlugQuery } from "../../Services/productApiSlice";
 import { useAddToCartMutation } from "../../Services/cartSlice";
 import ErrorToast from "../../Component/ErrorToast";
+import CustomerFeedbackContainer from "../../Component/WebContent/Product/CustomerFeedbackContainer";
+import { useGetAverageReviewQuery } from "../../Services/feedbackApiSlice";
+import { skipToken } from "@reduxjs/toolkit/query";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -23,7 +24,10 @@ const ProductPage = () => {
 
   const { data, isLoading, isError } = useGetProductBySlugQuery(slug);
   const [addToCart] = useAddToCartMutation(); // Initialize the mutation
-  const product = data?.product;
+  const product = data;
+  const { data: averageData, isLoading: avgLoading } = useGetAverageReviewQuery(
+    product?.id ? { type: "product", id: product.id } : skipToken // Prevents query until product.id exists
+  );
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [activeTab, setActiveTab] = useState("description");
@@ -59,7 +63,7 @@ const ProductPage = () => {
 
     try {
       await addToCart({
-        productId: product._id,
+        productId: product.id,
         quantity: quantity,
       });
       navigate(`/localproducts/cart`);
@@ -174,7 +178,12 @@ const ProductPage = () => {
           {/* Main Image */}
           <div className="w-full p-1">
             <img
-              src={selectedImage || `${API_BASE_URL}/${images[0]}`}
+              src={
+                selectedImage ||
+                (images.length > 0
+                  ? `${API_BASE_URL}/${images[0]}`
+                  : "/default-product.png")
+              }
               alt={product.name || "No Image"}
               className="lg:w-full w-64 h-64 md:w-96 md:h-96 object-contain"
             />
@@ -186,7 +195,16 @@ const ProductPage = () => {
           <h1 className="text-xl md:text-left text-center md:text-2xl font-semibold">
             {product.name}
           </h1>
-          <RatingStars rating={4} />{" "}
+          {avgLoading ? (
+            <p className="text-sm text-gray-500">Loading ratings...</p>
+          ) : (
+            <div className="flex items-center gap-2">
+              <RatingStars rating={averageData?.average || 0} />
+              <span className="text-sm text-gray-600">
+                ({averageData?.count || 0} reviews)
+              </span>
+            </div>
+          )}
           {/* Static or replace with real rating if available */}
           <p className="text-lg md:text-xl md:text-left text-center font-medium text-blue-500 my-3">
             Nrs {product.price}
@@ -195,7 +213,11 @@ const ProductPage = () => {
           <div className="flex flex-col md:flex-row items-center justify-between p-1">
             <p className="text-gray-700 text-sm">
               <span className="font-bold">Seller:</span>{" "}
-              {product.seller.name || "No seller info"}
+              {product.seller
+                ? `${product.seller.firstName || ""} ${
+                    product.seller.middleName || ""
+                  } ${product.seller.lastName || ""}`
+                : "No seller info"}
             </p>
             <div className="flex items-center text-sm gap-1 mt-2 md:mt-0">
               <span className="text-gray-600">Share item:</span>
@@ -206,7 +228,15 @@ const ProductPage = () => {
             </div>
           </div>
           <p className="my-3 w-full md:w-3/4 text-sm text-gray-600">
-            <span dangerouslySetInnerHTML={{ __html: product.description }} />
+            <span
+              dangerouslySetInnerHTML={{
+                __html: product.description
+                  ? product.description.length > 100
+                    ? product.description.slice(0, 100) + "..."
+                    : product.description
+                  : "No description available.",
+              }}
+            />
           </p>
           <div className="my-4 flex items-center">
             <span className="mr-2 font-medium">Quantity:</span>
@@ -239,7 +269,6 @@ const ProductPage = () => {
               </span>
             )}
           </div>
-
           {/* Add to Cart */}
           <div className="border-2 my-2 py-2">
             <div className="border-y-2 p-2">
@@ -251,7 +280,6 @@ const ProductPage = () => {
               </button>
             </div>
           </div>
-          
           <hr className="my-2 border-t-2" />
           <p className="mt-4 text-gray-600 text-sm">
             <span className="font-bold">Category:</span>{" "}
@@ -295,7 +323,7 @@ const ProductPage = () => {
             <span dangerouslySetInnerHTML={{ __html: product.description }} />
           </p>
         ) : (
-          <CustomerFeedback feedback={customerFeedback} />
+          <CustomerFeedbackContainer type="product" id={product.id} />
         )}
       </div>
 

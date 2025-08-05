@@ -24,7 +24,7 @@ export const userApi = createApi({
           },
         };
       },
-      transformResponse: (response) => response.data,
+      transformResponse: (response) => response,
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
