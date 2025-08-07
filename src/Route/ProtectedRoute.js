@@ -1,33 +1,25 @@
-import { useState, useEffect } from "react";
 import { Outlet, Navigate } from "react-router-dom";
-import { useCheckAdminAuthQuery } from "../Services/auth/admin-authApi";
+import { useFetchUserProfileQuery } from "../Services/userApiSlice"; // adjust path if different
 
 const ProtectedRoute = () => {
-  const [ok, setOk] = useState(false);
-  const { data, isLoading, isError, error } = useCheckAdminAuthQuery();
   const token = localStorage.getItem("accessToken");
 
-  useEffect(() => {
-    if (data?.ok) {
-      setOk(true);
-    } else {
-      setOk(false);
-    }
-  }, [data, error]);
+  // Only call the query if token exists
+  const { data, isLoading, isError } = useFetchUserProfileQuery(undefined, {
+    skip: !token,
+  });
 
   if (isLoading) {
     return <h1>Loading...</h1>;
   }
 
-  if (isError) {
+  // If there's no token or error fetching user data, redirect to login
+  if (!token || isError || !data) {
     return <Navigate to="/login" replace />;
   }
 
-  if (token && ok) {
-    return <Outlet />;
-  } else {
-    <Navigate to="/login" replace />;
-  }
+  // If user data is successfully fetched, grant access
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

@@ -276,7 +276,11 @@ const MyProducts = () => {
                     <td className="px-4 md:px-6 py-3">
                       {product.images?.[0] ? (
                         <img
-                          src={`${API_BASE_URL}/${product.images[0]}`}
+                          src={
+                            product.images?.[0]
+                              ? `${API_BASE_URL}/${product.images[0]}`
+                              : "/public/assets/Images/product-default.png"
+                          }
                           alt={product.name || "Product image"}
                           className="w-14 h-14 rounded-sm object-contain"
                           onError={(e) => {
@@ -296,7 +300,10 @@ const MyProducts = () => {
                       {product.category?.name || product.category || "N/A"}
                     </td>
                     <td className="px-4 md:px-6 py-3 text-gray-800">
-                      ${product.price?.toFixed(2)}
+                      $
+                      {isNaN(Number(product.price))
+                        ? "0.00"
+                        : Number(product.price).toFixed(2)}
                     </td>
                     <td className="px-4 md:px-6 py-3 text-gray-800">
                       {product.stock ?? "N/A"}

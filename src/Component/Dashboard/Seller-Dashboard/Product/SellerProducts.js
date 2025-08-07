@@ -4,7 +4,6 @@ import {
   useDeleteProductMutation,
   useGetProductsByUserIdQuery,
 } from "../../../../Services/productApiSlice";
-import { useFetchUserProfileQuery } from "../../../../Services/authApiSlice"; // Import the user profile query
 import { BiFilterAlt, BiSearch } from "react-icons/bi";
 import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
 import CreateProductModal from "./CreateProductModal";
@@ -13,6 +12,7 @@ import ErrorMessage from "./../../../ErrorMessage";
 import SuccessToast from "./../../../SuccessToast";
 import ErrorToast from "./../../../ErrorToast";
 import UpdateProductModal from "./UpdateProductModal";
+import { useFetchUserProfileQuery } from "../../../../Services/userApiSlice";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -30,7 +30,7 @@ const SellerProducts = () => {
 
   // Fetch user profile to get the user ID
   const { data: userProfile } = useFetchUserProfileQuery();
-  const userId = userProfile?._id;
+  const userId = userProfile?.id;
 
   // API hooks - now using useGetProductsByUserIdQuery with the userId
   const {
@@ -42,7 +42,7 @@ const SellerProducts = () => {
   } = useGetProductsByUserIdQuery(userId, {
     skip: !userId, // Skip the query if userId is not available
   });
-  
+
   const [createProduct, { isLoading: isCreating }] = useCreateProductMutation();
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
@@ -66,7 +66,14 @@ const SellerProducts = () => {
   const handleCreateProduct = async (newProduct) => {
     try {
       // Validation
-      const requiredFields = ["name", "price", "category", "description","unit"];
+      const requiredFields = [
+        "name",
+        "price",
+        "category",
+        "description",
+        "stock",
+        "unit"
+      ];
       const missingFields = requiredFields.filter(
         (field) => !newProduct[field] && newProduct[field] !== 0
       );
@@ -83,8 +90,10 @@ const SellerProducts = () => {
       const formData = new FormData();
       formData.append("name", newProduct.name);
       formData.append("price", price.toString());
-      formData.append("category", newProduct.category);
+      formData.append("categoryId", newProduct.categoryId);
       formData.append("description", newProduct.description);
+      formData.append("stock", newProduct.stock);
+      formData.append("unit", newProduct.unit);
 
       // Optional fields
       if (newProduct.tags) {
@@ -92,10 +101,6 @@ const SellerProducts = () => {
           ? newProduct.tags
           : JSON.parse(newProduct.tags);
         formData.append("tags", JSON.stringify(tagsArray));
-      }
-      if (newProduct.stock) {
-        const stock = Number(newProduct.stock);
-        if (!isNaN(stock)) formData.append("stock", stock.toString());
       }
 
       // Image validation and handling
@@ -138,8 +143,8 @@ const SellerProducts = () => {
     }
   };
 
-  const handleUpdateProduct = (productId) => {
-    setSelectedProductId(productId);
+  const handleUpdateProduct = (slug) => {
+    setSelectedProductId(slug);
     setIsUpdateModalOpen(true);
   };
 
@@ -269,7 +274,11 @@ const SellerProducts = () => {
                     <td className="px-4 md:px-6 py-3">
                       {product.images?.[0] ? (
                         <img
-                          src={`${API_BASE_URL}/${product.images[0]}`}
+                          src={
+                            product.images?.[0]
+                              ? `${API_BASE_URL}/${product.images[0]}`
+                              : "/public/assets/Images/product-default.png"
+                          }
                           alt={product.name || "Product image"}
                           className="w-14 h-14 rounded-sm object-contain"
                           onError={(e) => {
@@ -290,7 +299,10 @@ const SellerProducts = () => {
                       {product.category?.name || product.category || "N/A"}
                     </td>
                     <td className="px-4 md:px-6 py-3 text-gray-800">
-                      ${product.price?.toFixed(2)}
+                      $
+                      {isNaN(Number(product.price))
+                        ? "0.00"
+                        : Number(product.price).toFixed(2)}
                     </td>
                     <td className="px-4 md:px-6 py-3 text-gray-800">
                       {product.stock ?? "N/A"}
@@ -302,7 +314,7 @@ const SellerProducts = () => {
                       <div className="flex space-x-2 justify-center">
                         <button
                           className="text-green-500 hover:text-green-600 focus:outline-none"
-                          onClick={() => handleUpdateProduct(product._id)}
+                          onClick={() => handleUpdateProduct(product.slug)}
                           aria-label={`Edit ${product.name}`}
                           disabled={isDeleting}
                         >
@@ -355,7 +367,7 @@ const SellerProducts = () => {
           setIsUpdateModalOpen(false);
           setSelectedProductId(null);
         }}
-        productId={selectedProductId}
+        slug={selectedProductId}
       />
     </div>
   );

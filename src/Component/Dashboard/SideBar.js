@@ -1,4 +1,3 @@
-import React from "react";
 import { FaClock } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -18,17 +17,19 @@ const SideBar = ({ isSidebarOpen, onClose }) => {
     }`;
 
   const { data, isLoading } = useFetchUserProfileQuery();
-  const role = data?.user?.role; 
+  const role = data?.role;
 
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken", "refreshToken");
-    dispatch(logout());
-    navigate(`/login`);
+  const confirmLogout = () => {
+    if (window.confirm("Are you sure you want to logout?")) {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      dispatch(logout());
+      navigate("/");
+    }
   };
 
   if (isLoading) return <LoadingSpinner />;
 
-  // Role-specific visibility logic
   const isAdmin = role === "ADMIN";
   const isSeller = role === "SELLER";
   const isHost = role === "HOST";
@@ -115,13 +116,15 @@ const SideBar = ({ isSidebarOpen, onClose }) => {
       </div>
       <hr className="bg-gray-300 my-4 -mx-2" />
 
-      <NavLink
-        to="/"
-        onClick={handleLogout}
-        className={({ isActive }) => getLinkClasses(isActive)}
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          confirmLogout();
+        }}
+        className={getLinkClasses(false)}
       >
         Logout
-      </NavLink>
+      </button>
     </div>
   );
 };

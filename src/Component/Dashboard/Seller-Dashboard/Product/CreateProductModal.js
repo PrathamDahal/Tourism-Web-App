@@ -17,6 +17,7 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
       category: "",
       tags: "",
       stock: "",
+      unit: "",
       images: [],
       description: "",
     },
@@ -32,9 +33,12 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
         .positive("Stock must be positive")
         .integer("Stock must be a whole number")
         .notRequired(),
+      unit: Yup.string().required("Unit is required"),
       images: Yup.array()
-        .test("fileSize", "File too large (max 5MB)", (values) =>
-          !values || values.every((file) => file.size <= 5_000_000)
+        .test(
+          "fileSize",
+          "File too large (max 5MB)",
+          (values) => !values || values.every((file) => file.size <= 5_000_000)
         )
         .notRequired(),
       description: Yup.string()
@@ -44,12 +48,17 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
     onSubmit: async (values) => {
       const payload = {
         ...values,
+        categoryId: values.category,
+        unit: values.unit || "",
         price: Number(values.price),
         stock: values.stock ? Number(values.stock) : undefined,
-        tags: Array.isArray(values.tags) 
-          ? values.tags 
-          : values.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-        images: values.images || []
+        tags: Array.isArray(values.tags)
+          ? values.tags
+          : values.tags
+              .split(",")
+              .map((tag) => tag.trim())
+              .filter((tag) => tag),
+        images: values.images || [],
       };
       await onCreate(payload);
     },
@@ -59,13 +68,13 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
   useEffect(() => {
     const editorInstance = editorRef.current;
     const imageUrls = formik.values.images
-      ?.filter(img => img instanceof Blob)
-      ?.map(img => URL.createObjectURL(img));
-    
+      ?.filter((img) => img instanceof Blob)
+      ?.map((img) => URL.createObjectURL(img));
+
     return () => {
       // Cleanup image preview URLs
-      imageUrls?.forEach(url => URL.revokeObjectURL(url));
-      
+      imageUrls?.forEach((url) => URL.revokeObjectURL(url));
+
       // Cleanup editor
       if (editorInstance?.destruct && !editorInstance?.isDestructed) {
         try {
@@ -84,9 +93,24 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
       height: 300,
       toolbarAdaptive: false,
       buttons: [
-        "bold", "italic", "underline", "strikethrough", "|",
-        "ul", "ol", "|", "font", "fontsize", "brush", "|",
-        "align", "|", "link", "|", "undo", "redo"
+        "bold",
+        "italic",
+        "underline",
+        "strikethrough",
+        "|",
+        "ul",
+        "ol",
+        "|",
+        "font",
+        "fontsize",
+        "brush",
+        "|",
+        "align",
+        "|",
+        "link",
+        "|",
+        "undo",
+        "redo",
       ],
       removeButtons: ["image", "video", "file"],
     }),
@@ -100,7 +124,12 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
 
   const handleNextStep = async () => {
     const fieldsToValidate = [
-      "name", "price", "category", "tags", "stock", "images"
+      "name",
+      "price",
+      "category",
+      "tags",
+      "stock",
+      "images",
     ];
     await Promise.all(
       fieldsToValidate.map((field) => formik.validateField(field))
@@ -118,7 +147,7 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
   const handleClose = () => {
     // Clear editor content safely
     if (editorRef.current?.value) {
-      editorRef.current.value = '';
+      editorRef.current.value = "";
     }
     formik.resetForm();
     onClose();
@@ -144,27 +173,35 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
         {/* Step indicator */}
         <div className="flex mb-6">
           <div className="flex items-center">
-            <div className={`rounded-full w-6 h-6 flex items-center justify-center ${
-              step === 1 ? "bg-red-600 text-white" : "bg-gray-500 text-white"
-            }`}>
+            <div
+              className={`rounded-full w-6 h-6 flex items-center justify-center ${
+                step === 1 ? "bg-red-600 text-white" : "bg-gray-500 text-white"
+              }`}
+            >
               1
             </div>
-            <span className={`ml-2 ${
-              step === 1 ? "text-red-600 font-medium" : "text-gray-500"
-            }`}>
+            <span
+              className={`ml-2 ${
+                step === 1 ? "text-red-600 font-medium" : "text-gray-500"
+              }`}
+            >
               Basic Information
             </span>
           </div>
           <div className="mx-4 text-xl text-gray-600">&gt;</div>
           <div className="flex items-center">
-            <div className={`rounded-full w-6 h-6 flex items-center justify-center ${
-              step === 2 ? "bg-red-600 text-white" : "bg-gray-500 text-white"
-            }`}>
+            <div
+              className={`rounded-full w-6 h-6 flex items-center justify-center ${
+                step === 2 ? "bg-red-600 text-white" : "bg-gray-500 text-white"
+              }`}
+            >
               2
             </div>
-            <span className={`ml-2 ${
-              step === 2 ? "text-red-600 font-medium" : "text-gray-500"
-            }`}>
+            <span
+              className={`ml-2 ${
+                step === 2 ? "text-red-600 font-medium" : "text-gray-500"
+              }`}
+            >
               Description
             </span>
           </div>
@@ -263,7 +300,7 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
                       <option value="">Error loading categories</option>
                     ) : (
                       categories?.map((category) => (
-                        <option key={category._id} value={category._id}>
+                        <option key={category.id} value={category.id}>
                           {category.name}
                         </option>
                       ))
@@ -308,6 +345,23 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
                   {formik.touched.stock && formik.errors.stock && (
                     <div className="text-red-500 text-sm mt-1">
                       {formik.errors.stock}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Unit
+                  </label>
+                  <input
+                    type="text"
+                    name="unit"
+                    placeholder="e.g., kg, piece"
+                    {...formik.getFieldProps("unit")}
+                    className="w-full p-2 border border-gray-300 rounded-lg"
+                  />
+                  {formik.touched.unit && formik.errors.unit && (
+                    <div className="text-red-500 text-sm mt-1">
+                      {formik.errors.unit}
                     </div>
                   )}
                 </div>
