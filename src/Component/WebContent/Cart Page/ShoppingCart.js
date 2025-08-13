@@ -341,7 +341,7 @@ const ShoppingCartPage = () => {
               isOpen={isDeleteModalOpen}
               onClose={() => setIsDeleteModalOpen(false)}
               onConfirm={handleConfirmDelete}
-              items={itemsToDelete || []} // Provide default empty array
+              items={itemsToDelete || []}
               action="delete"
             />
 
@@ -349,8 +349,6 @@ const ShoppingCartPage = () => {
               isOpen={isClearCartModalOpen}
               onClose={() => setIsClearCartModalOpen(false)}
               onConfirm={handleClearCart}
-              title="Clear Entire Cart"
-              message="Are you sure you want to remove all items from your cart?"
               action="clear"
             />
 

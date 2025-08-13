@@ -17,32 +17,30 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
       category: "",
       tags: "",
       stock: "",
-      unit: "pcs",
+      unit: "",
       images: [],
       description: "",
     },
     validationSchema: Yup.object({
-      name: Yup.string()
-        .required("Product name is required")
-        .min(2, "Product name must be at least 2 characters"),
+      name: Yup.string().required("Product name is required"),
       price: Yup.number()
         .required("Price is required")
         .positive("Price must be positive"),
       category: Yup.string().required("Category is required"),
-      tags: Yup.string(),
+      tags: Yup.string(), // No longer required since we'll convert to array
       stock: Yup.number()
-        .required("Stock is required")
         .typeError("Stock must be a number")
         .positive("Stock must be positive")
-        .integer("Stock must be a whole number"),
+        .integer("Stock must be a whole number")
+        .notRequired(),
       unit: Yup.string().required("Unit is required"),
       images: Yup.array()
-        .min(1, "At least one image is required")
         .test(
           "fileSize",
           "File too large (max 5MB)",
           (values) => !values || values.every((file) => file.size <= 5_000_000)
-        ),
+        )
+        .notRequired(),
       description: Yup.string()
         .required("Description is required")
         .min(20, "Description should be at least 20 characters"),
@@ -50,19 +48,23 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
     onSubmit: async (values) => {
       const payload = {
         ...values,
+        categoryId: values.category,
+        unit: values.unit || "",
         price: Number(values.price),
-        stock: Number(values.stock),
-        tags: values.tags
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter((tag) => tag),
-        images: values.images,
-        unit: values.unit, 
+        stock: values.stock ? Number(values.stock) : undefined,
+        tags: Array.isArray(values.tags)
+          ? values.tags
+          : values.tags
+              .split(",")
+              .map((tag) => tag.trim())
+              .filter((tag) => tag),
+        images: values.images || [],
       };
       await onCreate(payload);
     },
   });
 
+  // Cleanup effects
   useEffect(() => {
     const editorInstance = editorRef.current;
     const imageUrls = formik.values.images
@@ -70,8 +72,10 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
       ?.map((img) => URL.createObjectURL(img));
 
     return () => {
+      // Cleanup image preview URLs
       imageUrls?.forEach((url) => URL.revokeObjectURL(url));
 
+      // Cleanup editor
       if (editorInstance?.destruct && !editorInstance?.isDestructed) {
         try {
           editorInstance.destruct();
@@ -119,18 +123,20 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
   };
 
   const handleNextStep = async () => {
-    const fieldsToValidate =
-      step === 1
-        ? ["name", "price", "category", "tags", "stock", "unit", "images"]
-        : ["description"];
-
+    const fieldsToValidate = [
+      "name",
+      "price",
+      "category",
+      "tags",
+      "stock",
+      "images",
+    ];
     await Promise.all(
       fieldsToValidate.map((field) => formik.validateField(field))
     );
 
-    const hasErrors = fieldsToValidate.some((field) => formik.errors[field]);
-    if (!hasErrors) {
-      setStep(step === 1 ? 2 : 1);
+    if (fieldsToValidate.every((field) => !formik.errors[field])) {
+      setStep(2);
     }
   };
 
@@ -139,12 +145,9 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
   };
 
   const handleClose = () => {
-    if (editorRef.current && editorRef.current.value) {
-      try {
-        editorRef.current.value = "";
-      } catch (error) {
-        console.warn("Error clearing editor:", error);
-      }
+    // Clear editor content safely
+    if (editorRef.current?.value) {
+      editorRef.current.value = "";
     }
     formik.resetForm();
     onClose();
@@ -157,7 +160,7 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
     <div className="fixed inset-0 bg-gray-100 bg-opacity-20 flex items-center justify-center p-4 z-50">
       <div className="bg-white p-6 rounded-lg w-full md:w-1/2 relative shadow-2xl max-h-[80vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Create New Product</h2>
+          <h2 className="text-lg font-semibold">List Products</h2>
           <button
             onClick={handleClose}
             className="hover:text-gray-500"
@@ -233,7 +236,6 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
                   className="hidden"
                   id="image-upload"
                   accept="image/*"
-                  required
                 />
                 <label
                   htmlFor="image-upload"
@@ -247,11 +249,10 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
                   </div>
                 )}
               </div>
-
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Name*
+                    Name
                   </label>
                   <input
                     type="text"
@@ -266,15 +267,14 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
                     </div>
                   )}
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Price*
+                    Price
                   </label>
                   <input
                     type="number"
                     name="price"
-                    placeholder="Product Price"
+                    placeholder="Rate of product"
                     {...formik.getFieldProps("price")}
                     className="w-full p-2 border border-gray-300 rounded-lg"
                   />
@@ -284,10 +284,9 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
                     </div>
                   )}
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Category*
+                    Category
                   </label>
                   <select
                     name="category"
@@ -301,7 +300,7 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
                       <option value="">Error loading categories</option>
                     ) : (
                       categories?.map((category) => (
-                        <option key={category._id} value={category._id}>
+                        <option key={category.id} value={category.id}>
                           {category.name}
                         </option>
                       ))
@@ -313,7 +312,6 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
                     </div>
                   )}
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Tags (comma separated)
@@ -331,17 +329,16 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
                     </div>
                   )}
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Stock*
+                    Stock
                   </label>
                   <input
                     type="number"
                     name="stock"
                     min="0"
                     step="1"
-                    placeholder="Available quantity"
+                    placeholder="Amount of Products"
                     {...formik.getFieldProps("stock")}
                     className="w-full p-2 border border-gray-300 rounded-lg"
                   />
@@ -351,24 +348,17 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
                     </div>
                   )}
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Unit*
+                    Unit
                   </label>
-                  <select
+                  <input
+                    type="text"
                     name="unit"
-                    {...formik.getFieldProps("unit")} // This properly connects the field to Formik
+                    placeholder="e.g., kg, piece"
+                    {...formik.getFieldProps("unit")}
                     className="w-full p-2 border border-gray-300 rounded-lg"
-                  >
-                    <option value="pcs">Pieces (pcs)</option>
-                    <option value="kg">Kilogram (kg)</option>
-                    <option value="g">Gram (g)</option>
-                    <option value="l">Liter (l)</option>
-                    <option value="ml">Milliliter (ml)</option>
-                    <option value="box">Box</option>
-                    <option value="pack">Pack</option>
-                  </select>
+                  />
                   {formik.touched.unit && formik.errors.unit && (
                     <div className="text-red-500 text-sm mt-1">
                       {formik.errors.unit}
@@ -376,7 +366,6 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
                   )}
                 </div>
               </div>
-
               <div className="flex justify-end">
                 <button
                   type="button"
@@ -394,7 +383,7 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
               <div className="mb-4">
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700">
-                    Description*
+                    Description
                   </label>
                   <JoditEditor
                     ref={editorRef}
@@ -424,7 +413,7 @@ const CreateProductModal = ({ isOpen, onClose, onCreate }) => {
                   type="submit"
                   className="px-14 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                 >
-                  Create Product
+                  Submit
                 </button>
               </div>
             </>

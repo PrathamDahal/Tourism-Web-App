@@ -30,7 +30,6 @@ const UpdateProductModal = ({ isOpen, onClose, slug }) => {
   } = useGetProductBySlugQuery(slug, {
     skip: !slug, // Skip if no slug
   });
-  console.log(product);
 
   const [updateProduct] = useUpdateProductMutation();
 

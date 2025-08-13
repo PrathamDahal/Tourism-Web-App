@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { FiMenu } from "react-icons/fi";
 import { useFetchUserProfileQuery } from "../../Services/userApiSlice";
+import HomeButton from "../HomeButton";
 
 const Header = ({ onMenuToggle }) => {
   const location = useLocation();
@@ -37,21 +38,24 @@ const Header = ({ onMenuToggle }) => {
             {renderHeaderText()}
           </p>
         </div>
+
         {/* Menu Button for Mobile */}
         <button className="md:hidden p-2" onClick={onMenuToggle}>
           <FiMenu className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Notification and User Profile */}
+      {/* Notification, Home, and User Profile */}
       <div className="flex items-center gap-4">
+        {/* Home Button */}
+        <HomeButton />
         <img
           src="/assets/Images/carbon_notification.svg"
           alt="Notification"
           className="w-6 h-6"
         />
         <img
-          src={data?.user?.images || "/assets/Images/default-avatar-image.jpg"}
+          src={data?.images || "/assets/Images/default-avatar-image.jpg"}
           alt="User"
           className="w-8 h-8 md:w-10 md:h-10 rounded-full"
         />

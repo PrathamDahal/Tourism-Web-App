@@ -51,7 +51,7 @@ const SellerProducts = () => {
   const filteredProducts = products.filter((product) => {
     const productName = product?.name || "";
     const searchText = searchTerm || "";
-    return productName.toLowerCase().includes(searchText.toLowerCase());
+    return productName.toLowerCase().startsWith(searchText.toLowerCase());
   });
 
   // Cleanup effect for object URLs
@@ -72,7 +72,7 @@ const SellerProducts = () => {
         "category",
         "description",
         "stock",
-        "unit"
+        "unit",
       ];
       const missingFields = requiredFields.filter(
         (field) => !newProduct[field] && newProduct[field] !== 0
@@ -260,6 +260,9 @@ const SellerProducts = () => {
                   Units
                 </th>
                 <th className="px-4 md:px-6 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -299,7 +302,7 @@ const SellerProducts = () => {
                       {product.category?.name || product.category || "N/A"}
                     </td>
                     <td className="px-4 md:px-6 py-3 text-gray-800">
-                      $
+                      Rs
                       {isNaN(Number(product.price))
                         ? "0.00"
                         : Number(product.price).toFixed(2)}
@@ -309,6 +312,9 @@ const SellerProducts = () => {
                     </td>
                     <td className="px-4 md:px-6 py-3 text-gray-800">
                       {product.unit ?? "N/A"}
+                    </td>
+                    <td className="px-4 md:px-6 py-3 text-gray-800 capitalize">
+                      {product.status || "N/A"}
                     </td>
                     <td className="px-4 md:px-6 py-3">
                       <div className="flex space-x-2 justify-center">
@@ -322,7 +328,7 @@ const SellerProducts = () => {
                         </button>
                         <button
                           className="text-red-500 hover:text-red-600 focus:outline-none"
-                          onClick={() => handleDelete(product._id)}
+                          onClick={() => handleDelete(product.id)}
                           aria-label={`Delete ${product.name}`}
                           disabled={isDeleting}
                         >

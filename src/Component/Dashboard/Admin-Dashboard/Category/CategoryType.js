@@ -39,7 +39,7 @@ const CategoryType = () => {
     categories?.filter((category) => {
       const categoryName = category?.name || "";
       const searchText = searchTerm || "";
-      return categoryName.toLowerCase().includes(searchText.toLowerCase());
+      return categoryName.toLowerCase().startsWith(searchText.toLowerCase());
     }) || [];
 
   const handleCreateCategory = async (newCategory) => {
@@ -60,8 +60,8 @@ const CategoryType = () => {
     }
   };
 
-  const handleUpdate = (categoryId) => {
-    setSelectedCategoryId(categoryId);
+  const handleUpdate = (slug) => {
+    setSelectedCategoryId(slug); // Rename this state to selectedCategorySlug would be clearer
     setIsUpdateModalOpen(true);
   };
 
@@ -187,14 +187,14 @@ const CategoryType = () => {
                       <div className="flex space-x-2 justify-center">
                         <div
                           className="text-green-500 hover:text-green-600 cursor-pointer"
-                          onClick={() => handleUpdate(category._id)}
+                          onClick={() => handleUpdate(category.slug)}
                           title="Edit"
                         >
                           <FaPencilAlt className="w-4 h-4" />
                         </div>
                         <div
                           className="text-red-500 hover:text-red-600 cursor-pointer"
-                          onClick={() => handleDelete(category._id)}
+                          onClick={() => handleDelete(category.id)}
                           aria-label={`Delete ${category.name}`}
                           disabled={isDeleting}
                         >
@@ -236,13 +236,9 @@ const CategoryType = () => {
           setIsUpdateModalOpen(false);
           setSelectedCategoryId(null);
         }}
-        categoryId={selectedCategoryId}
+        slug={selectedCategoryId}
         onUpdateSuccess={(message, type = "success") => {
-          setNotification({
-            show: true,
-            message,
-            type,
-          });
+          setNotification({ show: true, message, type });
           refetch();
         }}
       />

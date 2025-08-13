@@ -1,7 +1,7 @@
 import SideBar from '../../../Component/Dashboard/SideBar';
 import Header from '../../../Component/Dashboard/Header';
 import LoadingSpinner from '../../../Component/LoadingSpinner';
-import MyProducts from './../../../Component/Dashboard/Admin-Dashboard/Product/MyProducts';
+import MyProducts from '../../../Component/Dashboard/Admin-Dashboard/Product/AllProducts';
 import SellerProducts from './../../../Component/Dashboard/Seller-Dashboard/Product/SellerProducts';
 import { useFetchUserProfileQuery } from '../../../Services/userApiSlice';
 

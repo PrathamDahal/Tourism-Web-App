@@ -1,30 +1,42 @@
-import React from "react";
-
-const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, items = [] }) => {
+const DeleteConfirmationModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  items = [],
+  action = "delete",
+  title,
+  message
+}) => {
   if (!isOpen) return null;
-  
-  // Use the provided items or default to empty array
+
   const itemsToDisplay = items || [];
   const itemCount = itemsToDisplay.length;
+
+  // Default titles/messages based on action if not provided
+  const modalTitle =
+    title || (action === "clear" ? "Clear Entire Cart" : "Confirm Deletion");
+  const modalMessage =
+    message ||
+    (action === "clear"
+      ? "Are you sure you want to remove all items from your cart?"
+      : `Are you sure you want to delete ${itemCount} item${
+          itemCount !== 1 ? "s" : ""
+        }?`);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
       <div className="bg-white p-5 rounded-lg max-w-md w-[90%]">
         <h3 className="border-b font-medium font-poppins text-lg mb-3 pb-2">
-          Confirm Deletion
+          {modalTitle}
         </h3>
-        <p className="font-poppins font-medium mb-3">
-          Are you sure you want to delete {itemCount} item{itemCount !== 1 ? 's' : ''}?
-          {/* Safer message that handles 0, 1, or multiple items */}
-        </p>
-        
-        {/* Only show the list if there are items */}
-        {itemCount > 0 && (
+        <p className="font-poppins font-medium mb-3">{modalMessage}</p>
+
+        {/* Show item list only for delete action and if there are items */}
+        {action === "delete" && itemCount > 0 && (
           <ul className="my-3 pl-5 max-h-40 overflow-y-auto">
             {itemsToDisplay.map((item, index) => (
               <li key={index} className="list-disc py-1">
-                {item.name || 'Unnamed Item'}
-                {/* Fallback for item name */}
+                {item.name || "Unnamed Item"}
               </li>
             ))}
           </ul>
@@ -39,9 +51,13 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, items = [] }) => 
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors"
+            className={`px-4 py-2 ${
+              action === "clear"
+                ? "bg-yellow-500 hover:bg-yellow-600"
+                : "bg-red-500 hover:bg-red-600"
+            } text-white rounded-md transition-colors`}
           >
-            Delete
+            {action === "clear" ? "Clear" : "Delete"}
           </button>
         </div>
       </div>

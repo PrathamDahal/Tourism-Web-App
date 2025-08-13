@@ -9,6 +9,8 @@ import Category from "../Pages/Dashboard/Category/Category";
 import Product from "../Pages/Dashboard/Products/Product";
 import Profile from './../Pages/Profile/Profile';
 import AddToCart from "../Pages/Cart Page/AddToCart";
+import Accomodations from "../Pages/Dashboard/Host/Accomodations";
+import TravelPackages from "../Pages/Dashboard/Travel Agency/TravelPackages";
 
 function MainRoute() {
   return (
@@ -28,6 +30,8 @@ function MainRoute() {
         <Route path="site-settings" element={<SiteSettings />} />
         <Route path="category" element={<Category />} />
         <Route path="product" element={<Product />} />
+        <Route path="accomodations" element={<Accomodations />} />
+        <Route path="travelpackages" element={<TravelPackages />} />
       </Route>
 
       {/* Profile */}

@@ -5,6 +5,7 @@ import PaginationControls from "./../../PaginationControls";
 import ProductCard from "./../Product/ProductCardDisplay";
 import { useGetCategoriesQuery } from "../../../Services/categoryApiSlice";
 import { useGetProductsQuery } from "../../../Services/productApiSlice";
+import LoadingSpinner from "../../LoadingSpinner";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -88,7 +89,12 @@ const LocalProductPage = () => {
     };
   }, []);
 
-  if (categoriesLoading || productsLoading) return <div>Loading...</div>;
+  if (categoriesLoading || productsLoading)
+    return (
+      <div>
+        <LoadingSpinner />
+      </div>
+    );
   if (categoriesError)
     return <div>Error loading categories: {categoriesErrorData.message}</div>;
   if (productsError)
@@ -115,9 +121,9 @@ const LocalProductPage = () => {
             0,
             showMoreCategories ? categories.length : visibleCategoryItems
           )
-          .map((category) => (
+          .map((category, index) => (
             <div
-              key={category.id}
+              key={category.id || category.slug || index}
               className="border p-2 rounded-md cursor-pointer hover:border hover:text-blue-400 hover:border-blue-400 hover:shadow-md"
               onClick={() => handleCategoryClick(category)}
             >
@@ -145,10 +151,10 @@ const LocalProductPage = () => {
         </span>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {products.map((product) => {
+        {products.map((product, index) => {
           return (
             <ProductCard
-              key={product._id}
+              key={product.id || product.slug || index}
               product={{
                 ...product,
                 images: product.images,

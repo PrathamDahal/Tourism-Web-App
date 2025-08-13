@@ -18,6 +18,11 @@ export const categoryApi = createApi({
       providesTags: (result, error, id) => [{ type: 'Category', id }],
     }),
 
+    getCategoryBySlug: builder.query({
+      query: (slug) => `/productcategories/${slug}`,
+      providesTags: (result, error, slug) => [{ type: 'Category', slug }],
+    }),
+
     // GET all products inside a specific category
     getCategoryProducts: builder.query({
       query: (categoryId) => `/productcategories/${categoryId}`,
@@ -66,6 +71,7 @@ export const categoryApi = createApi({
 export const {
   useGetCategoriesQuery,
   useGetCategoryByIdQuery,
+  useGetCategoryBySlugQuery,
   useGetCategoryProductsQuery, // Added the new hook
   useCreateCategoryMutation,
   useUpdateCategoryMutation,

@@ -3,13 +3,14 @@ import { FaTimes } from "react-icons/fa";
 import { useFormik } from "formik";
 import JoditEditor from "jodit-react";
 import PropTypes from "prop-types";
+
 import {
   useGetProductBySlugQuery,
   useUpdateProductMutation,
 } from "../../../../Services/productApiSlice";
 import { useGetCategoriesQuery } from "../../../../Services/categoryApiSlice";
 
-const UpdateProductModal = ({ isOpen, onClose, productId }) => {
+const UpdateProductModal = ({ isOpen, onClose, slug }) => {
   const [step, setStep] = useState(1);
   const editorRef = useRef(null);
   const [maxImagesReached, setMaxImagesReached] = useState(false);
@@ -20,14 +21,14 @@ const UpdateProductModal = ({ isOpen, onClose, productId }) => {
     isError: isCategoriesError,
   } = useGetCategoriesQuery();
 
-  // Fetch product data by ID
+  // Fetch product data by slug
   const {
     data: product,
     isLoading: isProductLoading,
     isError: isProductError,
     error: productError,
-  } = useGetProductBySlugQuery(productId, {
-    skip: !productId, // Skip if no productId
+  } = useGetProductBySlugQuery(slug, {
+    skip: !slug, // Skip if no slug
   });
 
   const [updateProduct] = useUpdateProductMutation();
@@ -35,19 +36,19 @@ const UpdateProductModal = ({ isOpen, onClose, productId }) => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      name: product?.product?.name || "",
-      price: product?.product?.price || "",
-      category: product?.product?.category?._id || "",
-      tags: product?.product?.tags?.join(", ") || "",
-      stock: product?.product?.stock || "",
+      name: product?.name || "",
+      price: product?.price || "",
+      categoryId: product?.category?.id || "",
+      tags: product?.tags?.join(", ") || "",
+      stock: product?.stock || "",
       images: [],
-      existingImages: product?.product?.images || [],
-      description: product?.product?.description || "",
+      existingImages: product?.images || [],
+      description: product?.description || "",
     },
     onSubmit: async (values) => {
       // Prepare the payload with only changed fields
       const payload = {
-        id: productId,
+        id: product.id,
       };
 
       // Only include fields that have changed
@@ -57,8 +58,8 @@ const UpdateProductModal = ({ isOpen, onClose, productId }) => {
       if (values.price !== formik.initialValues.price) {
         payload.price = Number(values.price);
       }
-      if (values.category !== formik.initialValues.category) {
-        payload.category = values.category;
+      if (values.categoryId !== formik.initialValues.categoryId) {
+        payload.categoryId = values.categoryId;
       }
       if (values.tags !== formik.initialValues.tags) {
         payload.tags = values.tags
@@ -382,8 +383,8 @@ const UpdateProductModal = ({ isOpen, onClose, productId }) => {
                     Category
                   </label>
                   <select
-                    name="category"
-                    value={formik.values.category}
+                    name="categoryId"
+                    value={formik.values.categoryId}
                     onChange={formik.handleChange}
                     className="w-full p-2 border border-gray-300 rounded-lg"
                     disabled={isCategoriesLoading || isCategoriesError}
@@ -395,7 +396,7 @@ const UpdateProductModal = ({ isOpen, onClose, productId }) => {
                       <option value="">Error loading categories</option>
                     ) : (
                       categories?.map((category) => (
-                        <option key={category._id} value={category._id}>
+                        <option key={category.id} value={category.id}>
                           {category.name}
                         </option>
                       ))
@@ -486,7 +487,7 @@ const UpdateProductModal = ({ isOpen, onClose, productId }) => {
 UpdateProductModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  productId: PropTypes.string.isRequired,
+  slug: PropTypes.string.isRequired,
 };
 
 export default UpdateProductModal;

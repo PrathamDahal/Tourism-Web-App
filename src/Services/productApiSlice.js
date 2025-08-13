@@ -30,9 +30,7 @@ export const productApi = createApi({
     // Get products by category slug
     getProductsByCategorySlug: builder.query({
       query: (slug) => `/products?category=${slug}`,
-      providesTags: (result, error, slug) => [
-        { type: "Product", slug },
-      ],
+      providesTags: (result, error, slug) => [{ type: "Product", slug }],
     }),
 
     // Get a single product by slug
@@ -68,7 +66,7 @@ export const productApi = createApi({
         url: `/products/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["Product"], // Optional: for cache invalidation
+      invalidatesTags: (result, error, id) => [{ type: "Product", id }],
     }),
   }),
 });

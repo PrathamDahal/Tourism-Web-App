@@ -98,18 +98,18 @@ const SideBar = ({ isSidebarOpen, onClose }) => {
           )}
           {(isAdmin || isHost) && (
             <NavLink
-              to="/dashboard/general"
+              to="/dashboard/accomodations"
               className={({ isActive }) => getLinkClasses(isActive)}
             >
-              General
+              Accomodations
             </NavLink>
           )}
           {(isAdmin || isTravelAgency) && (
             <NavLink
-              to="/dashboard/contact"
+              to="/dashboard/travelpackages"
               className={({ isActive }) => getLinkClasses(isActive)}
             >
-              Contact
+              Travel Packages
             </NavLink>
           )}
         </div>

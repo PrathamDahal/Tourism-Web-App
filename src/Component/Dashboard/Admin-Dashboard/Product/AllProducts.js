@@ -7,10 +7,10 @@ import {
 import { BiFilterAlt, BiSearch } from "react-icons/bi";
 import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
 import CreateProductModal from "./CreateProductModal";
-import LoadingSpinner from "./../../../LoadingSpinner";
-import ErrorMessage from "./../../../ErrorMessage";
-import SuccessToast from "./../../../SuccessToast";
-import ErrorToast from "./../../../ErrorToast";
+import LoadingSpinner from "../../../LoadingSpinner";
+import ErrorMessage from "../../../ErrorMessage";
+import SuccessToast from "../../../SuccessToast";
+import ErrorToast from "../../../ErrorToast";
 import UpdateProductModal from "./UpdateProductModal";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -45,7 +45,7 @@ const MyProducts = () => {
     const productName = product?.name || "";
     const searchText = searchTerm || "";
 
-    return productName.toLowerCase().includes(searchText.toLowerCase());
+    return productName.toLowerCase().startsWith(searchText.toLowerCase());
   });
 
   // Cleanup effect for object URLs
@@ -60,12 +60,13 @@ const MyProducts = () => {
 
   const handleCreateProduct = async (newProduct) => {
     try {
-      // Validation - include unit in required fields
+      // Validation
       const requiredFields = [
         "name",
         "price",
         "category",
         "description",
+        "stock",
         "unit",
       ];
       const missingFields = requiredFields.filter(
@@ -84,27 +85,17 @@ const MyProducts = () => {
       const formData = new FormData();
       formData.append("name", newProduct.name);
       formData.append("price", price.toString());
-      formData.append("category", newProduct.category);
+      formData.append("categoryId", newProduct.categoryId);
       formData.append("description", newProduct.description);
-      formData.append("unit", newProduct.unit); // Add unit to FormData
+      formData.append("stock", newProduct.stock);
+      formData.append("unit", newProduct.unit);
 
       // Optional fields
       if (newProduct.tags) {
-        // Check if tags is already an array
         const tagsArray = Array.isArray(newProduct.tags)
           ? newProduct.tags
           : JSON.parse(newProduct.tags);
-
         formData.append("tags", JSON.stringify(tagsArray));
-      }
-      if (newProduct.stock) {
-        const stock = Number(newProduct.stock);
-        if (!isNaN(stock)) formData.append("stock", stock.toString());
-      }
-
-      // Seller information
-      if (newProduct.seller) {
-        formData.append("seller", JSON.stringify(newProduct.seller));
       }
 
       // Image validation and handling
@@ -146,8 +137,9 @@ const MyProducts = () => {
       throw error;
     }
   };
-  const handleUpdateProduct = (productId) => {
-    setSelectedProductId(productId);
+
+  const handleUpdateProduct = (slug) => {
+    setSelectedProductId(slug);
     setIsUpdateModalOpen(true);
   };
 
@@ -262,6 +254,9 @@ const MyProducts = () => {
                   Units
                 </th>
                 <th className="px-4 md:px-6 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-4 md:px-6 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -300,7 +295,7 @@ const MyProducts = () => {
                       {product.category?.name || product.category || "N/A"}
                     </td>
                     <td className="px-4 md:px-6 py-3 text-gray-800">
-                      $
+                      Rs.
                       {isNaN(Number(product.price))
                         ? "0.00"
                         : Number(product.price).toFixed(2)}
@@ -311,11 +306,14 @@ const MyProducts = () => {
                     <td className="px-4 md:px-6 py-3 text-gray-800">
                       {product.unit ?? "N/A"}
                     </td>
+                    <td className="px-4 md:px-6 py-3 text-gray-800 capitalize">
+                      {product.status || "N/A"}
+                    </td>
                     <td className="px-4 md:px-6 py-3">
                       <div className="flex space-x-2 justify-center">
                         <button
                           className="text-green-500 hover:text-green-600 focus:outline-none"
-                          onClick={() => handleUpdateProduct(product._id)}
+                          onClick={() => handleUpdateProduct(product.slug)}
                           aria-label={`Edit ${product.name}`}
                           disabled={isDeleting}
                         >
@@ -323,7 +321,7 @@ const MyProducts = () => {
                         </button>
                         <button
                           className="text-red-500 hover:text-red-600 focus:outline-none"
-                          onClick={() => handleDelete(product._id)}
+                          onClick={() => handleDelete(product.id)}
                           aria-label={`Delete ${product.name}`}
                           disabled={isDeleting}
                         >
@@ -368,7 +366,7 @@ const MyProducts = () => {
           setIsUpdateModalOpen(false);
           setSelectedProductId(null);
         }}
-        productId={selectedProductId}
+        slug={selectedProductId}
       />
     </div>
   );

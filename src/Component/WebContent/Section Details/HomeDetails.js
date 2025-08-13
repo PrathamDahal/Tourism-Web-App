@@ -1,23 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFetchUserProfileQuery } from "../../../Services/userApiSlice";
+import Modal from "../Modal";
 
 const HomeDetails = () => {
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("accessToken");
   const [isLoggedIn] = useState(!!accessToken);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const {
-    data,
-    isLoading,
-    isError,
-  } = useFetchUserProfileQuery(undefined, {
+  const { data, isLoading, isError } = useFetchUserProfileQuery(undefined, {
     skip: !accessToken,
   });
 
   const handleAddAccommodation = () => {
     if (!isLoggedIn) {
-      navigate("/login");
+      setShowLoginModal(true);
       return;
     }
 
@@ -49,9 +47,13 @@ const HomeDetails = () => {
         or from nearby.
       </p>
       <div className="justify-between flex">
-        <button className="bg-yellow-500 text-white font-Open xl:text-base lg:text-sm md:text-xs text-[8px] px-1 md:py-1 md:px-1.5 lg:py-1 lg:px-3 xl:py-2 xl:px-6 rounded-full hover:bg-red-600 transition-all">
+        <button
+          onClick={() => navigate("/travel-packages")}
+          className="bg-yellow-500 text-white font-Open xl:text-base lg:text-sm md:text-xs text-[8px] px-1 md:py-1 md:px-1.5 lg:py-1 lg:px-3 xl:py-2 xl:px-6 rounded-full hover:bg-red-600 transition-all"
+        >
           START YOUR ADVENTURE
         </button>
+
         <button
           onClick={handleAddAccommodation}
           className="border-solid border-2 border-white font-Open xl:text-base lg:text-sm md:text-xs text-[8px] text-white px-1 md:py-1 md:px-1.5 lg:py-1 lg:px-3 xl:py-2 xl:px-6 rounded-full hover:bg-red-600 transition-all"
@@ -59,6 +61,16 @@ const HomeDetails = () => {
           ADD YOUR ACCOMMODATION
         </button>
       </div>
+
+      <Modal
+        message="Please login first to add accommodation."
+        isVisible={showLoginModal}
+        onClose={() => {
+          setShowLoginModal(false);
+          navigate("/login");
+        }}
+        duration={1500}
+      />
     </div>
   );
 };
