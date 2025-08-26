@@ -10,6 +10,8 @@ import {
 } from "../../../../Services/productApiSlice";
 import { useGetCategoriesQuery } from "../../../../Services/categoryApiSlice";
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const UpdateProductModal = ({ isOpen, onClose, slug }) => {
   const [step, setStep] = useState(1);
   const editorRef = useRef(null);
@@ -41,44 +43,33 @@ const UpdateProductModal = ({ isOpen, onClose, slug }) => {
       categoryId: product?.category?.id || "",
       tags: product?.tags?.join(", ") || "",
       stock: product?.stock || "",
-      images: [],
-      existingImages: product?.images || [],
+      images: product?.images || [], // only one array now
       description: product?.description || "",
     },
     onSubmit: async (values) => {
-      // Prepare the payload with only changed fields
-      const payload = {
-        id: product.id,
-      };
+      const payload = { id: product.id };
 
-      // Only include fields that have changed
-      if (values.name !== formik.initialValues.name) {
-        payload.name = values.name;
-      }
-      if (values.price !== formik.initialValues.price) {
+      if (values.name !== formik.initialValues.name) payload.name = values.name;
+      if (values.price !== formik.initialValues.price)
         payload.price = Number(values.price);
-      }
-      if (values.categoryId !== formik.initialValues.categoryId) {
+      if (values.categoryId !== formik.initialValues.categoryId)
         payload.categoryId = values.categoryId;
-      }
       if (values.tags !== formik.initialValues.tags) {
         payload.tags = values.tags
           .split(",")
-          .map((tag) => tag.trim())
-          .filter((tag) => tag);
+          .map((t) => t.trim())
+          .filter(Boolean);
       }
-      if (values.stock !== formik.initialValues.stock) {
+      if (values.stock !== formik.initialValues.stock)
         payload.stock = Number(values.stock);
+      if (
+        JSON.stringify(values.images) !==
+        JSON.stringify(formik.initialValues.images)
+      ) {
+        payload.images = values.images; // just one array
       }
-      if (values.existingImages !== formik.initialValues.existingImages) {
-        payload.existingImages = values.existingImages;
-      }
-      if (values.images.length > 0) {
-        payload.images = values.images;
-      }
-      if (values.description !== formik.initialValues.description) {
+      if (values.description !== formik.initialValues.description)
         payload.description = values.description;
-      }
 
       try {
         await updateProduct(payload).unwrap();
@@ -122,9 +113,7 @@ const UpdateProductModal = ({ isOpen, onClose, slug }) => {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    const totalImages =
-      (formik.values.existingImages?.length || 0) +
-      (formik.values.images?.length || 0);
+    const totalImages = formik.values.images.length;
     const remainingSlots = Math.max(0, 5 - totalImages);
 
     if (remainingSlots > 0) {
@@ -136,16 +125,10 @@ const UpdateProductModal = ({ isOpen, onClose, slug }) => {
     }
   };
 
-  const handleRemoveImage = (index, isExisting) => {
-    if (isExisting) {
-      const updatedImages = [...formik.values.existingImages];
-      updatedImages.splice(index, 1);
-      formik.setFieldValue("existingImages", updatedImages);
-    } else {
-      const updatedImages = [...formik.values.images];
-      updatedImages.splice(index, 1);
-      formik.setFieldValue("images", updatedImages);
-    }
+  const handleRemoveImage = (index) => {
+    const updatedImages = [...formik.values.images];
+    updatedImages.splice(index, 1);
+    formik.setFieldValue("images", updatedImages);
     setMaxImagesReached(false);
   };
 
@@ -257,41 +240,21 @@ const UpdateProductModal = ({ isOpen, onClose, slug }) => {
             <>
               <div className="mb-4">
                 <div className="grid grid-cols-5 gap-2 mb-4">
-                  {/* Existing images */}
-                  {formik.values.existingImages?.map((image, index) => (
-                    <div
-                      key={`existing-${index}`}
-                      className="relative w-24 h-24"
-                    >
+                  {formik.values.images?.map((image, index) => (
+                    <div key={index} className="relative w-24 h-24">
                       <img
-                        src={image.url}
+                        src={
+                          typeof image === "string"
+                            ? `${API_BASE_URL}/${image.url || image}`
+                            : URL.createObjectURL(image)
+                        }
                         alt="Product"
                         className="w-full h-full object-cover border border-gray-300"
                       />
                       <button
                         type="button"
-                        onClick={() => handleRemoveImage(index, true)}
+                        onClick={() => handleRemoveImage(index)}
                         className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
-                        aria-label="Remove image"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-
-                  {/* New images */}
-                  {formik.values.images?.map((image, index) => (
-                    <div key={`new-${index}`} className="relative w-24 h-24">
-                      <img
-                        src={URL.createObjectURL(image)}
-                        alt="Upload preview"
-                        className="w-full h-full object-cover border border-gray-300"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveImage(index, false)}
-                        className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center"
-                        aria-label="Remove image"
                       >
                         ×
                       </button>
@@ -299,24 +262,18 @@ const UpdateProductModal = ({ isOpen, onClose, slug }) => {
                   ))}
 
                   {/* Empty slots */}
-                  {[
-                    ...Array(
-                      Math.max(
-                        0,
-                        5 -
-                          (formik.values.existingImages?.length || 0) -
-                          (formik.values.images?.length || 0)
-                      )
-                    ),
-                  ].map((_, index) => (
-                    <div
-                      key={`empty-${index}`}
-                      className="w-24 h-24 border border-gray-300 flex items-center justify-center"
-                    >
-                      <span className="text-gray-400">+</span>
-                    </div>
-                  ))}
+                  {[...Array(Math.max(0, 5 - formik.values.images.length))].map(
+                    (_, idx) => (
+                      <div
+                        key={`empty-${idx}`}
+                        className="w-24 h-24 border border-gray-300 flex items-center justify-center"
+                      >
+                        <span className="text-gray-400">+</span>
+                      </div>
+                    )
+                  )}
                 </div>
+
                 <input
                   type="file"
                   multiple
@@ -324,18 +281,12 @@ const UpdateProductModal = ({ isOpen, onClose, slug }) => {
                   className="hidden"
                   id="image-upload"
                   accept="image/*"
-                  disabled={
-                    (formik.values.existingImages?.length || 0) +
-                      (formik.values.images?.length || 0) >=
-                    5
-                  }
+                  disabled={formik.values.images.length >= 5}
                 />
                 <label
                   htmlFor="image-upload"
                   className={`cursor-pointer px-4 py-2 rounded-lg block text-center ${
-                    (formik.values.existingImages?.length || 0) +
-                      (formik.values.images?.length || 0) >=
-                    5
+                    formik.values.images.length >= 5
                       ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                       : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   }`}

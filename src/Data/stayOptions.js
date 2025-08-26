@@ -27,6 +27,7 @@ export const stays = [
       title: "Daju vai lodge",
       location: "Thangpal, Bhotang",
       contact: "9812345678",
+      rating:5,
       price: 3000,
       image: [
         {
@@ -53,6 +54,7 @@ export const stays = [
       title: "Rambahadur ko bangla",
       location: "Bhotang, Thangpal",
       contact: "9812345678",
+      rating:2.5,
       price: 1499,
       image: [
         {
@@ -79,6 +81,7 @@ export const stays = [
       title: "Homestay Near Tsegro ri",
       location: "Tsegro, Thangpal",
       contact: "9812345678",
+      rating:3.8,
       price: 1000,
       image: [
         {
@@ -105,6 +108,7 @@ export const stays = [
       title: "Lake Side Homestay",
       location: "Tsegro, Thangpal",
       contact: "9812345678",
+      rating:4,
       price: 1799,
       image: [
         {
@@ -131,6 +135,7 @@ export const stays = [
       title: "Lake Side Homestay",
       location: "Tsegro, Thangpal",
       contact: "9812345678",
+      rating:4,
       price: 1799,
       image: [
         {

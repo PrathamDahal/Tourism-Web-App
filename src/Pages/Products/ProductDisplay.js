@@ -214,9 +214,7 @@ const ProductPage = () => {
             <p className="text-gray-700 text-sm">
               <span className="font-bold">Seller:</span>{" "}
               {product.seller
-                ? `${product.seller.firstName || ""} ${
-                    product.seller.middleName || ""
-                  } ${product.seller.lastName || ""}`
+                ? `${product.seller.firstName || ""} ${product.seller.lastName || ""}`
                 : "No seller info"}
             </p>
             <div className="flex items-center text-sm gap-1 mt-2 md:mt-0">

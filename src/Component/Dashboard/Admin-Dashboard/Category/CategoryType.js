@@ -170,7 +170,7 @@ const CategoryType = () => {
               {filteredCategories.length > 0 ? (
                 filteredCategories?.map((category) => (
                   <tr
-                    key={category._id}
+                    key={category.id}
                     className="hover:bg-gray-100 text-center"
                   >
                     <td className="px-4 md:px-6 py-3 text-gray-800">

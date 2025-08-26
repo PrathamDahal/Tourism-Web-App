@@ -47,7 +47,12 @@ const SellerProducts = () => {
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
   // Derived data - now accessing products from the nested structure
-  const products = response?.products || [];
+  let products = [];
+  if (response?.products) {
+    products = response.products;
+  } else if (isError && error?.status === 404) {
+    products = []; // treat 404 as no products
+  }
   const filteredProducts = products.filter((product) => {
     const productName = product?.name || "";
     const searchText = searchTerm || "";
@@ -270,10 +275,7 @@ const SellerProducts = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredProducts.length > 0 ? (
                 filteredProducts.map((product) => (
-                  <tr
-                    key={product._id}
-                    className="hover:bg-gray-50 text-center"
-                  >
+                  <tr key={product.id} className="hover:bg-gray-50 text-center">
                     <td className="px-4 md:px-6 py-3">
                       {product.images?.[0] ? (
                         <img
@@ -345,7 +347,7 @@ const SellerProducts = () => {
               ) : (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="8"
                     className="px-4 md:px-6 py-4 text-center text-gray-500"
                   >
                     {searchTerm

@@ -14,7 +14,7 @@ import { useGetSiteSettingsQuery } from "../../Services/SiteSettingApi";
 
 const Footer = () => {
   const location = useLocation();
-  const isSignUpPage = location.pathname === "/SignUp";
+  const isSignUpPage = location.pathname === "/signup";
   const isLogInPage = location.pathname === "/login";
   const isResetPage = location.pathname.startsWith("/reset-password");
 

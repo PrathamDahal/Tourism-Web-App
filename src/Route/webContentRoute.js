@@ -24,14 +24,14 @@ const WebContentRoute = () => {
       <Route path="/" element={<Outlet />}>
         <Route index element={<Home />} />
 
-        <Route path="wheretoGo" element={<Outlet />}>
+        <Route path="wheretogo" element={<Outlet />}>
           <Route index element={<WhereToGo />} />
-          <Route path="destination/:id" element={<DestinationPage />} />
+          <Route path="destination/:slug" element={<DestinationPage />} />
         </Route>
 
-        <Route path="wheretoStay" element={<Outlet />}>
+        <Route path="wheretostay" element={<Outlet />}>
           <Route index element={<WhereToStay />} />
-          <Route path="accomodation/:id" element={<AccomodationPage />} />
+          <Route path="accomodation/:slug" element={<AccomodationPage />} />
         </Route>
 
         <Route path="travel-packages" element={<Outlet />}>

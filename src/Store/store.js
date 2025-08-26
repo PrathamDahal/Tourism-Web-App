@@ -10,6 +10,8 @@ import { productApi } from "../Services/productApiSlice";
 import { registerApiSlice } from "../Services/registerApiSlice";
 import { cartApi } from "../Services/cartSlice";
 import { feedbackApi } from './../Services/feedbackApiSlice';
+import { destinationApi } from "../Services/destinationApiSlice";
+import { homestayApi } from "../Services/homestayApiSlice";
 
 
 export const store = configureStore({
@@ -24,6 +26,8 @@ export const store = configureStore({
     [registerApiSlice.reducerPath]: registerApiSlice.reducer,
     [cartApi.reducerPath]: cartApi.reducer,
     [feedbackApi.reducerPath]:feedbackApi.reducer,
+    [destinationApi.reducerPath]: destinationApi.reducer,
+    [homestayApi.reducerPath]: homestayApi.reducer,
     auth: authReducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -37,7 +41,9 @@ export const store = configureStore({
       productApi.middleware,
       registerApiSlice.middleware,
       cartApi.middleware,
-      feedbackApi.middleware
+      feedbackApi.middleware,
+      destinationApi.middleware,
+      homestayApi.middleware
     ),
 });
 

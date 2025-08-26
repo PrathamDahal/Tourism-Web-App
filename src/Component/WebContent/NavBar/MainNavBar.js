@@ -1,7 +1,7 @@
+
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaBell, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
-import { MdTranslate } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { logout, setCredentials } from "./../../../Features/slice/authSlice";
 import { useFetchUserProfileQuery } from "../../../Services/userApiSlice";
@@ -23,9 +23,10 @@ const MainNavBar = () => {
     return window.location.pathname === path;
   };
 
-  const isSignUpPage = location.pathname === "/SignUp";
+  const isSignUpPage = location.pathname === "/signup";
   const isLoginPage = location.pathname === "/login";
   const isResetPage = location.pathname.startsWith("/reset-password");
+  const isStayPage = location.pathname.startsWith("/wheretostay");
 
   const dispatch = useDispatch();
   const accessToken = localStorage.getItem("accessToken");
@@ -62,12 +63,12 @@ const MainNavBar = () => {
   return (
     <nav
       className={`${
-        isLoginPage || isSignUpPage || isResetPage
+        isLoginPage || isSignUpPage || isResetPage || isStayPage
           ? "hidden"
           : "absolute top-0 left-0 w-full z-20 bg-transparent flex justify-between items-center px-4 py-2"
       }`}
     >
-      <p className="text-red-700 font-redressed lg:text-[24px] md:text-[16px] md:px-2 lg:px-5">
+      <p className="text-red-700 font-redressed lg:text-[24px] md:text-[14px] md:px-2 lg:px-5">
         Panchpokhari Tourism
       </p>
 
@@ -83,11 +84,11 @@ const MainNavBar = () => {
       >
         {[
           { name: "Home", path: "/" },
-          { name: "Where To Go", path: "/WhereToGo" },
-          { name: "Where To Stay", path: "/WhereToStay" },
-          { name: "Local Products", path: "/LocalProducts" },
+          { name: "Where To Go", path: "/wheretogo" },
+          { name: "Where To Stay", path: "/wheretostay" },
+          { name: "Local Products", path: "/localproducts" },
           { name: "Travel Pack", path: "/travel-packages" },
-          { name: "Contact Us", path: "/ContactUs" },
+          { name: "Contact Us", path: "/contactus" },
         ].map((item) => (
           <li key={item.path} className="text-center md:text-left">
             <Link
@@ -116,9 +117,9 @@ const MainNavBar = () => {
           <Link to="/cart" className="hover:text-blue-300 text-white">
             <FaShoppingCart className="lg:text-xl md:text-lg" />
           </Link>
-          <Link to="/cart" className="hover:text-blue-300 text-white">
+          {/* <Link to="/cart" className="hover:text-blue-300 text-white">
             <MdTranslate className="lg:text-xl font-semibold md:text-lg" />
-          </Link>
+          </Link> */}
         </div>
 
         {/* Authentication Buttons */}
@@ -147,7 +148,7 @@ const MainNavBar = () => {
               {/* Profile Button */}
               <button
                 onClick={toggleDropDown}
-                className="flex items-center space-x-2 bg-transparent hover:bg-gray-100 text-black rounded-full py-2 px-3 transition-all duration-200"
+                className="flex items-center space-x-2 bg-transparent hover:bg-gray-100 hover:text-black text-white rounded-full py-2 px-1 transition-all duration-200"
               >
                 {/* User Image */}
                 <img
@@ -156,20 +157,20 @@ const MainNavBar = () => {
                     "/assets/Images/default-avatar-image.jpg"
                   }
                   alt="User"
-                  className="w-10 h-10 rounded-full border-2 border-gray-200 object-cover"
+                  className="w-10 h-10 rounded-full border-2 border-gray-400 object-cover"
                 />
                 <div className="hidden md:block text-left">
                   <p className="font-medium text-sm">
                     {data?.username || "Username"}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs">
                     {data?.email || "user@example.com"}
                   </p>
                 </div>
                 {/* Dropdown Icon */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="w-4 h-4 text-gray-500 transition-transform duration-200"
+                  className="w-4 h-4 text-gray-300 transition-transform duration-200"
                   style={{
                     transform: isDropdownOpen
                       ? "rotate(180deg)"
@@ -340,3 +341,4 @@ const MainNavBar = () => {
 };
 
 export default MainNavBar;
+ 

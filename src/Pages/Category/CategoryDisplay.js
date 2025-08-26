@@ -307,7 +307,7 @@ const CategoryPage = () => {
               {displayedProducts.length > 0 ? (
                 displayedProducts.map((product) => (
                   <ProductCard
-                    key={product._id} // Changed from product.id to product._id
+                    key={product.id} // Changed from product.id to product._id
                     product={product}
                     handleProductClick={handleProductClick}
                   />

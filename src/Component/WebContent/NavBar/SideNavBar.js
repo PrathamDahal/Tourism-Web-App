@@ -23,6 +23,10 @@ const SideNavBar = () => {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  const isActive = (path) => {
+    // Implement your logic to determine if the current path is active
+    return window.location.pathname === path;
+  };
   useEffect(() => {
     if (data) {
       dispatch(setCredentials({ user: data.user }));
@@ -61,17 +65,22 @@ const SideNavBar = () => {
       >
         {[
           { name: "Home", path: "/" },
-          { name: "Where To Go", path: "/WhereToGo" },
-          { name: "Where To Stay", path: "/WhereToStay" },
-          { name: "Local Products", path: "/LocalProducts" },
+          { name: "Where To Go", path: "/wheretogo" },
+          { name: "Where To Stay", path: "/wheretostay" },
+          { name: "Local Products", path: "/localproducts" },
           { name: "Travel Pack", path: "/travel-packages" },
-          { name: "Contact Us", path: "/ContactUs" },
+          { name: "Contact Us", path: "/contactus" },
         ].map((item) => (
           <li key={item.path} className="text-center md:text-left">
             <Link
               to={item.path}
               className={`block px-4 py-1 md:px-3 md:py-1 rounded-md transition-colors duration-200 
-                   text-black hover:text-yellow-400 hover:bg-gray-700 md:hover:bg-transparent`}
+                ${
+                  isActive(item.path)
+                    ? "text-yellow-400 bg-gray-900 md:bg-transparent"
+                    : "text-black"
+                } 
+                    hover:text-yellow-400 hover:bg-gray-700 md:hover:bg-transparent`}
             >
               {item.name}
             </Link>
@@ -98,6 +107,14 @@ const SideNavBar = () => {
         <div className="hidden md:flex xl:space-x-4 lg:space-x-2 md:space-x-0">
           {!isLoggedIn ? (
             <>
+              <button className="lg:py-1.5 lg:px-4 md:py-0.5 md:px-2 rounded-2xl">
+                <Link
+                  to="/SignUp"
+                  className=" text-base xl:text-[18px] lg:text-[14px] md:text-[12px]"
+                >
+                  SIGN UP
+                </Link>
+              </button>
               <button className="lg:py-1.5 lg:px-4 md:py-0.5 md:px-2 bg-red-500 hover:bg-red-700 rounded-2xl">
                 <Link
                   to="/login"
@@ -112,7 +129,7 @@ const SideNavBar = () => {
               {/* Profile Button */}
               <button
                 onClick={toggleDropDown}
-                className="flex items-center space-x-2 bg-transparent hover:bg-gray-100 text-black rounded-full py-2 px-3 transition-all duration-200"
+                className="flex items-center space-x-2 bg-transparent hover:bg-gray-300 text-black rounded-full py-2 px-3 transition-all duration-200"
               >
                 {/* User Image */}
                 <img
@@ -121,15 +138,13 @@ const SideNavBar = () => {
                     "/assets/Images/default-avatar-image.jpg"
                   }
                   alt="User"
-                  className="w-10 h-10 rounded-full border-2 border-gray-200 object-cover"
+                  className="w-10 h-10 rounded-full border-2 border-gray-400 object-cover"
                 />
                 <div className="hidden md:block text-left">
                   <p className="font-medium text-sm">
                     {data?.username || "Username"}
                   </p>
-                  <p className="text-xs text-gray-500">
-                    {data?.email || "user@example.com"}
-                  </p>
+                  <p className="text-xs">{data?.email || "user@example.com"}</p>
                 </div>
                 {/* Dropdown Icon */}
                 <svg
@@ -225,7 +240,9 @@ const SideNavBar = () => {
                     </button>
 
                     {/* Dashboard Option - Only for Admins */}
-                    {["ADMIN", "SELLER", "HOST", "TRAVELAGENCY"].includes(normal) && (
+                    {["ADMIN", "SELLER", "HOST", "TRAVELAGENCY"].includes(
+                      normal
+                    ) && (
                       <button
                         onClick={() => navigate("/dashboard/home")}
                         className="w-full text-left px-4 py-2 flex items-center hover:bg-gray-50 transition-colors"

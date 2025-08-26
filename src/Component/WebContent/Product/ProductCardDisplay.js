@@ -14,8 +14,8 @@ const ProductCard = ({ product, handleProductClick }) => {
   // Safely access product properties with fallbacks
   const productImages = product?.images || [];
   const firstImage = productImages.length > 0 
-    ? `${API_BASE_URL}/${productImages[0]}`
-    : '/placeholder-image.jpg'; // Default placeholder image path
+    ? `${API_BASE_URL}${productImages[0]}`
+    : '/placeholder-image.jpg'; 
 
   const productName = product?.name || 'Unnamed Product';
   const productPrice = product?.price || 0;
@@ -23,7 +23,7 @@ const ProductCard = ({ product, handleProductClick }) => {
 
   return (
     <div
-      key={product?._id}
+      key={product?.id}
       className="border p-2 rounded-md cursor-pointer hover:border hover:text-blue-400 hover:border-blue-400 hover:shadow-lg"
       onClick={() => handleProductClick(product)}
     >

@@ -22,24 +22,26 @@ const Layout = () => {
   const isAccomodationPage = location.pathname.startsWith("/wheretostay/accomodation");
   const isTravelDealsPage = location.pathname.startsWith("/travel-packages/travel-deals");
   const isCartPage = location.pathname.startsWith("/localproducts/cart");
+  const isStayPage = location.pathname.startsWith("/wheretostay");
 
 
   return (
     <div className="w-full">
-      {(isProductPage || isDestinationPage || isAccomodationPage || isTravelDealsPage || isCartPage) ? <SideNavBar /> : <MainNavBar />}
+      {(isProductPage || isDestinationPage || isAccomodationPage || isTravelDealsPage || isCartPage || isStayPage) ? <SideNavBar /> : <MainNavBar />}
 
       {/* Hero Section */}
-      <HeroSection />
+      {!isActive("/wheretostay") && <HeroSection />}
+
 
       {isActive("/") ? ( //Home
         <HomeDetails />
-      ) : isActive("/WhereToGo") ? ( //WhereToGo
+      ) : isActive("/wheretogo") ? ( //WhereToGo
         <WhereToGoDetails />
-      ) : isActive("/WhereToStay") ? ( //WhereToStay
+      ) : isActive("/wheretostay") ? ( //WhereToStay
         <WhereToStayDetails />
-      ) : isActive("/LocalProducts") ? ( //LocalProducts
+      ) : isActive("/localproducts") ? ( //LocalProducts
         <LocalDetails />
-      ) : isActive("/ContactUs") ? (
+      ) : isActive("/contactus") ? (
         <ContactUsDetails />
       ) : window.location.pathname.startsWith("/localproducts/category") ? (
         <CategoryDetails />

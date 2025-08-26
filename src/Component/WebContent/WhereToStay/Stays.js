@@ -1,94 +1,91 @@
-import React, { useState, useEffect } from "react";
-import { stays } from "./../../../Data/stayOptions";
-import { stayOptions } from "./../../../Data/stayOptions";
+import { useState, useEffect } from "react";
 import ImageCarousel from "./ImageCarousel";
 import { useNavigate } from "react-router-dom";
-import PaginationControls from './../../PaginationControls';
-import FilterComponent from "../Category/FilterComponent";
+import PaginationControls from "../../PaginationControls";
+import RatingStars from "../../RatingStars";
+import { useGetHomestaysQuery } from "../../../Services/homestayApiSlice";
+import FilterComponent from "./FilterStays";
 
 const Stays = () => {
   const [sort, setSort] = useState("recommended");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(4);
+
+  // Add filter state
+  const [filters, setFilters] = useState({
+    q: "",
+    type: "",
+    minPrice: "",
+    maxPrice: "",
+    guests: "",
+    amenities: "",
+    destinations: "",
+    destinationSlug: "",
+    withinKm: "",
+    from: "",
+    to: "",
+    published: "yes",
+    status: "",
+  });
+  const [sortBy, setSortBy] = useState("newest");
+
   const navigate = useNavigate();
 
-  // Initialize filter state
-  const [filters, setFilters] = useState({
-    selectedSubCategories: [],
-    priceRange: [0, Math.max(...stays.map(stay => stay.price))],
-    minRating: null,
-    selectedTags: [],
+  // Fetch homestays from API
+  const { data: stays = [], isLoading, error } = useGetHomestaysQuery();
+
+  // Apply filters (basic example)
+  const filteredStays = stays.filter((stay) => {
+    let match = true;
+
+    if (filters.q) {
+      match = match && stay.name.toLowerCase().includes(filters.q.toLowerCase());
+    }
+
+    if (filters.type) {
+      match = match && stay.type === filters.type;
+    }
+
+    if (filters.minPrice) {
+      match = match && stay.pricePerNight >= Number(filters.minPrice);
+    }
+
+    if (filters.maxPrice) {
+      match = match && stay.pricePerNight <= Number(filters.maxPrice);
+    }
+
+    return match;
   });
 
-  // Extract all unique subcategories from stays
-  const subcategories = [...new Set(stays.map(stay => stay.type))];
-
-  // Extract all unique tags from stays (assuming each stay has a tags property)
-  const allTags = [...new Set(stays.flatMap(stay => stay.tags || []))];
-
+  // Sorting logic
   const handleSort = (items) => {
+    if (!Array.isArray(items)) return [];
     if (sort === "price-low-high") {
-      return items.sort((a, b) => a.price - b.price);
+      return [...items].sort((a, b) => (a.pricePerNight || 0) - (b.pricePerNight || 0));
     } else if (sort === "price-high-low") {
-      return items.sort((a, b) => b.price - a.price);
+      return [...items].sort((a, b) => (b.pricePerNight || 0) - (a.pricePerNight || 0));
     }
     return items;
   };
 
-  // Apply all filters to stays
-  const applyFilters = () => {
-    let filtered = [...stays];
-    
-    // Apply subcategory filter
-    if (filters.selectedSubCategories.length > 0) {
-      filtered = filtered.filter(stay => 
-        filters.selectedSubCategories.includes(stay.type)
-      );
-    }
-    
-    // Apply price range filter
-    filtered = filtered.filter(stay => 
-      stay.price >= filters.priceRange[0] && stay.price <= filters.priceRange[1]
-    );
-    
-    // Apply rating filter
-    if (filters.minRating) {
-      filtered = filtered.filter(stay => 
-        stay.rating >= filters.minRating
-      );
-    }
-    
-    // Apply tags filter
-    if (filters.selectedTags.length > 0) {
-      filtered = filtered.filter(stay => 
-        filters.selectedTags.some(tag => stay.tags?.includes(tag))
-      );
-    }
-    
-    return filtered;
-  };
-
-  const filteredStays = applyFilters();
   const sortedStays = handleSort([...filteredStays]);
 
   const getStayTypeColor = (stayType) => {
-    const option = stayOptions.find((opt) => opt.title === stayType);
-    return option?.color || "#000";
+    const colors = {
+      hotel: "#FF7F50",
+      lodge: "#1E90FF",
+      homestay: "#32CD32",
+    };
+    return colors[stayType] || "#000";
   };
 
-  // Update itemsPerPage based on screen width
+  // Update items per page dynamically
   const updateItemsPerPage = () => {
     const width = window.innerWidth;
-
-    if (width >= 1280) {
-      setItemsPerPage(8);
-    } else if (width >= 1024) {
-      setItemsPerPage(6);
-    } else if (width >= 768) {
-      setItemsPerPage(4);
-    } else {
-      setItemsPerPage(4);
-    }
+    if (width >= 1280) setItemsPerPage(8);
+    else if (width >= 1024) setItemsPerPage(6);
+    else if (width >= 768) setItemsPerPage(4);
+    else setItemsPerPage(4);
   };
 
   useEffect(() => {
@@ -96,11 +93,6 @@ const Stays = () => {
     window.addEventListener("resize", updateItemsPerPage);
     return () => window.removeEventListener("resize", updateItemsPerPage);
   }, []);
-
-  // Reset to first page when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters]);
 
   const totalPages = Math.ceil(sortedStays.length / itemsPerPage);
   const displayedStays = sortedStays.slice(
@@ -114,30 +106,29 @@ const Stays = () => {
     }
   };
 
-  const handleStayClick = (stayId) => {
-    navigate(`/wheretostay/accomodation/${stayId}`);
+  const handleStayClick = (slug) => {
+    navigate(`/wheretostay/accomodation/${slug}`);
   };
 
   const gridColumnsClass = "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
 
+  if (isLoading) return <div>Loading stays...</div>;
+  if (error) return <div>Error loading stays</div>;
+
   return (
     <div className="flex flex-col md:flex-row py-2 px-4">
-      {/* Filter Component */}
-      <div className="w-full md:w-1/4 lg:w-1/5 pr-0 md:pr-4">
-        <FilterComponent 
-          subcategories={subcategories}
-          allTags={allTags}
+      <div className="w-full">
+        {/* Filter Component */}
+        <FilterComponent
           filters={filters}
           setFilters={setFilters}
-          handleFilterApply={() => {}} // No need for separate apply in this case
+          sortBy={sortBy}
+          setSortBy={setSortBy}
         />
-      </div>
-      
-      {/* Stays List */}
-      <div className="w-full md:w-3/4 lg:w-4/5">
-        {/* Sort Controls (optional) */}
+
+        {/* Sort Controls */}
         <div className="flex justify-end mb-4">
-          <select 
+          <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
             className="border rounded p-2 text-sm"
@@ -147,17 +138,18 @@ const Stays = () => {
             <option value="price-high-low">Price: High to Low</option>
           </select>
         </div>
-        
+
+        {/* Stays Grid */}
         <div className={`grid gap-4 ${gridColumnsClass}`}>
           {displayedStays.map((stay) => (
             <div
               className="relative p-2 mb-4 cursor-pointer"
               key={stay.id}
-              onClick={() => handleStayClick(stay.id)}
+              onClick={() => handleStayClick(stay.slug)}
             >
               <div className="border rounded-lg items-center mb-2 overflow-hidden">
                 <ImageCarousel
-                  images={stay.image}
+                  images={stay.images || []}
                   stayType={stay.type}
                   getStayTypeColor={getStayTypeColor}
                 />
@@ -165,19 +157,18 @@ const Stays = () => {
 
               <div className="py-1">
                 <h2 className="font-medium text-[14px] md:text-[16px] font-Open">
-                  {stay.title}
+                  {stay.name}
                 </h2>
                 <div className="flex flex-col md:flex-row text-[12px] md:text-[14px]">
-                  <p className="text-gray-700">{stay.location}</p>
-                  <p className="text-gray-700 md:pl-2">
-                    Mobile: {stay.contact}
-                  </p>
+                  <p className="text-gray-700">{stay.address}</p>
+                  {stay.contact && (
+                    <p className="text-gray-700 md:pl-2">Mobile: {stay.contact}</p>
+                  )}
                 </div>
+                <RatingStars rating={stay.rating || 0} />
                 <p className="font-bold mt-2 font-Open text-[15px] md:text-[17px]">
-                  NRS {stay.price}{" "}
-                  <span className="text-[13px] md:text-[15px] font-medium">
-                    / night
-                  </span>
+                  NRS {stay.pricePerNight}{" "}
+                  <span className="text-[13px] md:text-[15px] font-medium">/ night</span>
                 </p>
               </div>
             </div>
@@ -185,13 +176,15 @@ const Stays = () => {
         </div>
 
         {/* Pagination */}
-        <PaginationControls
-          currentPage={currentPage}
-          totalPages={totalPages}
-          handlePreviousPage={() => goToPage(currentPage - 1)}
-          handleNextPage={() => goToPage(currentPage + 1)}
-          handlePageClick={(page) => goToPage(page)}
-        />
+        {totalPages > 1 && (
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages}
+            handlePreviousPage={() => goToPage(currentPage - 1)}
+            handleNextPage={() => goToPage(currentPage + 1)}
+            handlePageClick={(page) => goToPage(page)}
+          />
+        )}
       </div>
     </div>
   );

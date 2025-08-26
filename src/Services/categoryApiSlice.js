@@ -48,8 +48,8 @@ export const categoryApi = createApi({
 
     // UPDATE a category
     updateCategory: builder.mutation({
-      query: ({ id, ...updatedCategory }) => ({
-        url: `/productcategories/${id}`,
+      query: ({ slug, ...updatedCategory }) => ({
+        url: `/productcategories/${slug}`,
         method: 'PATCH',
         body: updatedCategory,
       }),
