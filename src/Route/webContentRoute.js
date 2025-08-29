@@ -12,9 +12,9 @@ import LocalProducts from "./../Pages/Local Products/LocalProducts";
 import DestinationPage from "../Pages/WhereToGo/Destinations/Destinations";
 import AccomodationPage from "../Pages/WhereToStay/Accomodations/AccomodationPage";
 import TravelPackages from "../Pages/Travel Packages/TravelPackages";
-import TravelDeals from "../Pages/Travel Packages/Travel Deals/TravelDeals";
 import RegisterPage from "../Pages/Sign Up/SignUp";
 import AddToCart from "../Pages/Cart Page/AddToCart";
+import TravelDeals from "../Pages/Travel Packages/Travel Deals/TravelDeals";
 // import ProtectedRoute from "./ProtectedRoute";
 // import AddToCart from "./../Pages/Cart Page/AddToCart";
 
@@ -36,7 +36,7 @@ const WebContentRoute = () => {
 
         <Route path="travel-packages" element={<Outlet />}>
           <Route index element={<TravelPackages />} />
-          <Route path="travel-deals/:id" element={<TravelDeals />} />
+          <Route path="travel-deals/:slug" element={<TravelDeals />} />
         </Route>
 
         <Route path="contactus" element={<ContactUs />} />

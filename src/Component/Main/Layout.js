@@ -18,20 +18,35 @@ const Layout = () => {
 
   const isActive = (path) => location.pathname === path;
   const isProductPage = location.pathname.startsWith("/localproducts/product");
-  const isDestinationPage = location.pathname.startsWith("/wheretogo/destination");
-  const isAccomodationPage = location.pathname.startsWith("/wheretostay/accomodation");
-  const isTravelDealsPage = location.pathname.startsWith("/travel-packages/travel-deals");
+  const isDestinationPage = location.pathname.startsWith(
+    "/wheretogo/destination"
+  );
+  const isAccomodationPage = location.pathname.startsWith(
+    "/wheretostay/accomodation"
+  );
+  const isTravelDealsPage = location.pathname.startsWith(
+    "/travel-packages/travel-deals"
+  );
   const isCartPage = location.pathname.startsWith("/localproducts/cart");
   const isStayPage = location.pathname.startsWith("/wheretostay");
-
+  const isTravelPage = location.pathname.startsWith("/travel-packages");
 
   return (
     <div className="w-full">
-      {(isProductPage || isDestinationPage || isAccomodationPage || isTravelDealsPage || isCartPage || isStayPage) ? <SideNavBar /> : <MainNavBar />}
+      {isProductPage ||
+      isDestinationPage ||
+      isAccomodationPage ||
+      isTravelDealsPage ||
+      isCartPage ||
+      isStayPage ||
+      isTravelPage ? (
+        <SideNavBar />
+      ) : (
+        <MainNavBar />
+      )}
 
       {/* Hero Section */}
-      {!isActive("/wheretostay") && <HeroSection />}
-
+      {!["/wheretostay", "/travel-packages"].some(isActive) && <HeroSection />}
 
       {isActive("/") ? ( //Home
         <HomeDetails />
@@ -48,9 +63,7 @@ const Layout = () => {
       ) : isActive("/travel-packages") ? (
         <TravelPackageDetails />
       ) : (
-        <div className="hidden">
-          No Details
-        </div>
+        <div className="hidden">No Details</div>
       )}
 
       {/* Main Content */}

@@ -7,11 +7,18 @@ import {
   FaUmbrellaBeach,
   FaSnowflake,
   FaTree,
+  FaUser,
+  FaDoorClosed,
+  FaBed,
+  FaBath,
+  FaMapMarkerAlt,
 } from "react-icons/fa";
 import { DateRange } from "react-date-range";
 import { addDays } from "date-fns";
+import en from "date-fns/locale/en-US";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
+import "./calendar-fix.css";
 import {
   MdPets,
   MdAcUnit,
@@ -38,6 +45,45 @@ L.Icon.Default.mergeOptions({
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
+// Calendar Legend Component
+const CalendarLegend = () => {
+  return (
+    <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+      <h4 className="font-medium mb-2">Calendar Legend</h4>
+
+      <div className="flex flex-wrap gap-2">
+        <div className="flex items-center">
+          <div className="w-3 h-3 bg-blue-500 border rounded-sm border-blue-500 mr-2"></div>
+          <span className=" text-xs">Selected dates</span>
+        </div>
+
+        <div className="flex items-center">
+          <div className="w-3 h-3 bg-gray-300 border rounded-sm border-gray-300 mr-2 relative"></div>
+          <span className="text-gray-500 text-xs">Blocked by host</span>
+        </div>
+
+        <div className="flex items-center">
+          <div className="w-3 h-3 bg-red-100 border rounded-sm border-red-300 mr-2 relative"></div>
+          <span className="text-red-500 text-xs">Not Available (booked)</span>
+        </div>
+
+        <div className="flex items-center">
+          <div className="w-3 h-3 border-2 rounded-sm border-blue-500 mr-2"></div>
+          <span className="text-gray-500 text-xs">Today</span>
+        </div>
+      </div>
+
+      <div className="mt-3 p-2 bg-yellow-100 rounded border border-yellow-200">
+        <p className="text-xs text-amber-700">
+          <span className="font-medium">Tip:</span> Unavailable dates are
+          crossed out or marked with ×. Try selecting different dates for your
+          stay.
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const AccomodationPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -54,6 +100,7 @@ const AccomodationPage = () => {
 
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [showQuote, setShowQuote] = useState(false);
 
   useEffect(() => {
     if (!isLoading && (isError || !stay)) {
@@ -72,6 +119,19 @@ const AccomodationPage = () => {
   if (!stay) {
     return <div>Redirecting...</div>;
   }
+
+  // Assuming these fees (you can replace with API data if available)
+  const cleaningFee = stay.cleaningFee || 20;
+  const serviceFee = stay.serviceFee || 15;
+  const taxRate = 0.1; // 10% tax
+
+  // Calculate total price
+  const nights =
+    Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)) || 1;
+  const roomPrice = stay.pricePerNight || 100; // fallback price
+  const subtotal = roomPrice * roomCount * nights;
+  const taxes = subtotal * taxRate;
+  const totalPrice = subtotal + cleaningFee + serviceFee + taxes;
 
   const handleReserve = () => {
     if (!checkInDate || !checkOutDate) {
@@ -131,57 +191,46 @@ const AccomodationPage = () => {
             alt={stay.name}
             className="w-full h-auto max-h-[500px] object-cover"
           />
-          <h1 className="absolute bottom-1 left-24 z-20 text-5xl font-medium text-white font-redressed text-center mb-6">
-            {stay.name}
-          </h1>
+          <div className="absolute bottom-6 left-24 z-20 text-white">
+            <h1 className="text-5xl font-medium font-redressed mb-2">
+              {stay.name}
+            </h1>
+            <p className="flex items-center gap-2 text-lg text-gray-200">
+              <FaMapMarkerAlt /> {stay.address}
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-col lg:flex-row px-32 gap-6">
+      <div className="flex flex-col lg:flex-row mx-24 gap-4">
         {/* Left Column */}
         <div className="flex-1">
-          <div className="border rounded-lg shadow-md p-6">
+          <div className="border rounded-lg shadow-md mb-4 p-6 font-poppins">
             {/* Property Details */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">Property Details</h2>
-              <ul className="list-disc list-inside pl-4 space-y-2 text-gray-700">
-                <li>Sample detail 1</li>
-                <li>Sample detail 2</li>
-                <li>Sample detail 3</li>
-              </ul>
-            </div>
-
-            {/* Sample Section */}
-            <div className="mb-8">
-              <h2 className="text-xl font-bold mb-4">Highlights:</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {["Mountain", "Water", "Landscape"].map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center bg-gray-100 px-3 py-2 rounded-md"
-                  >
-                    <span className="mr-2 text-blue-600">
-                      {index === 0 ? <FaMountain /> : index === 1 ? <MdOutlineWater /> : <MdOutlineLandscape />}
-                    </span>
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <hr className="my-8 border-gray-300" />
+            <h2 className="text-2xl font-medium mb-6">Property Details</h2>
 
             {/* Description */}
             <div className="mb-8">
-              <h2 className="text-xl font-medium mb-1">
-                Entire home in {stay.address}
-              </h2>
-              <div className="text-sm text-gray-600 mb-4">
-                {stay.maxGuests} guests · {stay.bedrooms} bedrooms · {stay.beds}{" "}
-                beds · {stay.bathrooms} baths
+              <h2 className="text-xl font-medium mb-1">{stay.name}</h2>
+              <div className="flex items-center text-gray-600 mb-4 space-x-4">
+                <div className="flex items-center space-x-1">
+                  <FaUser />
+                  <span>{stay.maxGuests} guests</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <FaDoorClosed />
+                  <span>{stay.bedrooms} bedrooms</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <FaBed />
+                  <span>{stay.beds} beds</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <FaBath />
+                  <span>{stay.bathrooms} bathrooms</span>
+                </div>
               </div>
-
               <p className="text-gray-700 mb-6 leading-relaxed">
                 {stay.description}
               </p>
@@ -204,59 +253,84 @@ const AccomodationPage = () => {
               </div>
             </div>
           </div>
+
+          {/* Map */}
+          <div className="mb-16 rounded-lg overflow-hidden">
+            <MapContainer
+              center={center}
+              zoom={13}
+              scrollWheelZoom={false}
+              className="rounded-lg"
+              style={{ height: "300px", width: "100%" }}
+            >
+              <TileLayer
+                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {!isNaN(lat) && !isNaN(lng) && (
+                <Marker position={[lat, lng]}>
+                  <Popup>{stay.name}</Popup>
+                </Marker>
+              )}
+            </MapContainer>
+          </div>
         </div>
 
         {/* Right Column - Booking */}
-        <div className="lg:w-96">
+        <div className="lg:w-[520px] space-y-2">
           <div className="border rounded-lg shadow-md p-6">
             <div className="flex justify-between items-center mb-4">
               <div className="text-xl font-Open">Quote & Book</div>
-              <div className="text-lg font-bold">
-                {stay.pricePerNight}
-                <span className="text-sm font-normal text-gray-500">
-                  /night
-                </span>
+              <div className="text-lg font-bold text-red-600">
+                Rs.{stay.pricePerNight}
+                <span className="text-sm font-medium">/night</span>
               </div>
             </div>
 
             {/* Calendar Section */}
             <div className="border border-gray-300 rounded-xl mb-4 text-sm p-3">
-              <DateRange
-                ranges={[
-                  {
-                    startDate: checkInDate,
-                    endDate: checkOutDate,
-                    key: "selection",
-                  },
-                ]}
-                onChange={(ranges) => {
-                  const { startDate, endDate } = ranges.selection;
-                  setCheckInDate(startDate);
-                  setCheckOutDate(endDate);
-                }}
-                moveRangeOnFirstSelection={false}
-                minDate={new Date()}
-                disabledDates={[
-                  new Date(2025, 1, 12),
-                  new Date(2025, 1, 13),
-                ]}
-              />
-              <div className="flex justify-between mt-2 text-sm text-gray-600">
+              <h4 className="font-medium mb-2">Select your dates:</h4>
+              <div className="w-full">
+                <DateRange
+                  className="w-full"
+                  wrapperClassName="w-full"
+                  ranges={[
+                    {
+                      startDate: checkInDate,
+                      endDate: checkOutDate,
+                      key: "selection",
+                    },
+                  ]}
+                  onChange={(ranges) => {
+                    setCheckInDate(ranges.selection.startDate);
+                    setCheckOutDate(ranges.selection.endDate);
+                  }}
+                  moveRangeOnFirstSelection={false}
+                  minDate={new Date()}
+                  locale={en}
+                />
+              </div>
+
+              {/* Calendar Legend */}
+              <CalendarLegend />
+
+              <div className="flex justify-between mt-4 text-sm text-gray-600">
                 <span>
-                  Check-in: {checkInDate?.toLocaleDateString() || "-"}
+                  Check-in:{" "}
+                  {checkInDate ? checkInDate.toLocaleDateString() : "-"}
                 </span>
                 <span>
-                  Check-out: {checkOutDate?.toLocaleDateString() || "-"}
+                  Check-out:{" "}
+                  {checkOutDate ? checkOutDate.toLocaleDateString() : "-"}
                 </span>
               </div>
             </div>
-
             {/* Room Selection */}
-            <div className="flex justify-between items-center p-3 border-b border-gray-300">
+            <div className="flex justify-between items-center p-3">
               <div>
                 <div className="font-medium">Room</div>
               </div>
-              <div className="flex items-center border p-1 shadow-lg">
+              <div className="flex items-center border p-1">
                 <button
                   onClick={() => decrementCount(setRoomCount, roomCount)}
                   className="w-6 h-6 flex items-center justify-center text-blue-600"
@@ -276,40 +350,90 @@ const AccomodationPage = () => {
             </div>
 
             {/* Guest Selection */}
-            <div className="flex justify-between items-center p-3">
+            <div className="space-y-1 justify-between items-center p-3">
               <div>
-                <div className="font-medium">Guests</div>
+                <div className="font-medium">Enter number of guests</div>
               </div>
-              <div className="flex items-center border p-1 shadow-lg">
-                <button
-                  onClick={() => decrementCount(setGuestCount, guestCount)}
-                  className="w-6 h-6 flex items-center justify-center text-blue-600"
-                >
-                  -
-                </button>
-                <span className="mx-3">{guestCount}</span>
-                <button
-                  onClick={() =>
-                    incrementCount(setGuestCount, guestCount, stay.maxGuests)
-                  }
-                  className="w-6 h-6 flex items-center justify-center text-blue-600"
-                >
-                  +
-                </button>
+              <div className="flex items-center border p-1 rounded-md">
+                <input
+                  type="number"
+                  min={1}
+                  max={stay.maxGuests}
+                  value={guestCount}
+                  onChange={(e) => {
+                    const value =
+                      e.target.value === ""
+                        ? ""
+                        : Math.min(
+                            Math.max(1, Number(e.target.value)),
+                            stay.maxGuests
+                          );
+                    setGuestCount(value);
+                  }}
+                  className="w-full px-2 text-left outline-none"
+                />
               </div>
-              <p className="ml-1 text-blue-600 text-sm">
+              <p className="ml-1 text-right text-blue-600 text-sm">
                 max {stay.maxGuests} guests
               </p>
             </div>
-          </div>
 
-          {/* Reserve Button */}
-          <button
-            onClick={handleReserve}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md mb-4 font-medium"
-          >
-            Reserve
-          </button>
+            {/* Get Quote Button */}
+            <div className="my-4">
+              <button
+                onClick={() => setShowQuote((prev) => !prev)}
+                className="w-full py-1 rounded-xl mb-2 border border-gray-200 bg-gray-100 font-poppins"
+              >
+                {showQuote ? "Hide Quote" : "Get Quote"}
+              </button>
+
+              {showQuote && (
+                <>
+                  <div className="my-4 p-4 border rounded-lg bg-gray-50 text-sm space-y-2">
+                    <div className="flex justify-between">
+                      <span>Price per room / night:</span>
+                      <span>Rs.{roomPrice.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Number of rooms:</span>
+                      <span>{roomCount}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Nights:</span>
+                      <span>{nights}</span>
+                    </div>
+                    <div className="flex justify-between font-medium">
+                      <span>Subtotal:</span>
+                      <span>Rs.{subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Cleaning Fee:</span>
+                      <span>Rs.{cleaningFee.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Service Fee:</span>
+                      <span>Rs.{serviceFee.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Taxes:</span>
+                      <span>Rs.{taxes.toFixed(2)}</span>
+                    </div>
+                    <hr className="border-gray-300" />
+                    <div className="flex justify-between font-bold text-lg">
+                      <span>Total Price:</span>
+                      <span>Rs.{totalPrice.toFixed(2)}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleReserve}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 mt-4 rounded-md mb-4 font-medium"
+                  >
+                    Reserve
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
 
           <BookingConfirmationModal
             isOpen={showConfirmationModal}
@@ -335,27 +459,6 @@ const AccomodationPage = () => {
       </div>
 
       <hr className="my-8 border-gray-300" />
-
-      {/* Map */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">Location</h2>
-        <MapContainer
-          center={center}
-          zoom={13}
-          scrollWheelZoom={false}
-          style={{ height: "300px", width: "100%" }}
-        >
-          <TileLayer
-            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          {!isNaN(lat) && !isNaN(lng) && (
-            <Marker position={[lat, lng]}>
-              <Popup>{stay.name}</Popup>
-            </Marker>
-          )}
-        </MapContainer>
-      </div>
     </div>
   );
 };

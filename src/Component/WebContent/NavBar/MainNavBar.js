@@ -27,6 +27,7 @@ const MainNavBar = () => {
   const isLoginPage = location.pathname === "/login";
   const isResetPage = location.pathname.startsWith("/reset-password");
   const isStayPage = location.pathname.startsWith("/wheretostay");
+  const isTravelPage = location.pathname.startsWith("/travel-packages");
 
   const dispatch = useDispatch();
   const accessToken = localStorage.getItem("accessToken");
@@ -63,7 +64,7 @@ const MainNavBar = () => {
   return (
     <nav
       className={`${
-        isLoginPage || isSignUpPage || isResetPage || isStayPage
+        isLoginPage || isSignUpPage || isResetPage || isStayPage || isTravelPage
           ? "hidden"
           : "absolute top-0 left-0 w-full z-20 bg-transparent flex justify-between items-center px-4 py-2"
       }`}

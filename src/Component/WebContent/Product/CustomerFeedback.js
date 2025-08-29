@@ -71,9 +71,12 @@ const CustomerFeedback = ({ feedback, onSubmit }) => {
   };
 
   return (
-    <div className="mt-6 mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
+    <div className="mt-6">
+      <h2>{feedback.totalReviews}</h2>
       {/* Existing reviews */}
-      <div className="space-y-6 mb-8">
+      <div
+        className="grid gap-6 mb-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 "
+      >
         {feedback.map((item, index) => (
           <div key={index} className="p-4 border rounded-lg relative">
             <div className="flex items-center space-x-4">
@@ -155,7 +158,7 @@ const CustomerFeedback = ({ feedback, onSubmit }) => {
           </button>
         </form>
       )}
-      
+
       {editModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md relative">
