@@ -12,6 +12,14 @@ export const travelPackageApi = createApi({
       providesTags: ["TravelPackage"],
     }),
 
+    // Get travel packages created by a specific user
+    getTravelPackagesByCreator: builder.query({
+      query: (createdById) => `/travel-packages?createdById=${createdById}`,
+      providesTags: (result, error, createdById) => [
+        { type: "TravelPackage", id: createdById },
+      ],
+    }),
+
     // Get travel package by ID
     getTravelPackageById: builder.query({
       query: (id) => `/travel-packages/${id}`,
@@ -55,14 +63,14 @@ export const travelPackageApi = createApi({
       ],
     }),
 
-    // Delete a travel package
+    // Delete a travel package by slug
     deleteTravelPackage: builder.mutation({
-      query: (id) => ({
-        url: `/travel-packages/${id}`,
+      query: (slug) => ({
+        url: `/travel-packages/${slug}`, // use slug here
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, id) => [
-        { type: "TravelPackage", id },
+      invalidatesTags: (result, error, slug) => [
+        { type: "TravelPackage", id: slug }, // can still use slug as tag
       ],
     }),
   }),
@@ -70,6 +78,7 @@ export const travelPackageApi = createApi({
 
 export const {
   useGetTravelPackagesQuery,
+  useGetTravelPackagesByCreatorQuery,
   useGetTravelPackageByIdQuery,
   useGetTravelPackageBySlugQuery,
   useGetTravelPackagesByDestinationIdQuery,

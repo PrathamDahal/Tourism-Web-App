@@ -1,59 +1,58 @@
 import { useState, useEffect } from "react";
-import {
-  useDeleteTravelPackageMutation,
-  useGetTravelPackagesQuery,
-} from "../../../../Services/travelPackageApiSlice";
-import { useGetUserByIdQuery } from "../../../../Services/userApiSlice";
-import { useUpdateTravelPackageMutation } from "../../../../Services/travelPackageApiSlice";
 import { BiFilterAlt, BiSearch } from "react-icons/bi";
-import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
-import LoadingSpinner from "../../../LoadingSpinner";
+import { FaEye, FaPencilAlt, FaTrashAlt } from "react-icons/fa";
 import { ErrorMessage } from "formik";
-import SuccessToast from "../../../SuccessToast";
-import ErrorToast from "../../../ErrorToast";
-import TravelPackageModal from "./TravelPackageModal";
+import {
+  useCreateTravelPackageMutation,
+  useDeleteTravelPackageMutation,
+  useGetTravelPackagesByCreatorQuery,
+  useUpdateTravelPackageMutation,
+} from "../../../Services/travelPackageApiSlice";
+import { useFetchUserProfileQuery } from "../../../Services/userApiSlice";
+import LoadingSpinner from "../../LoadingSpinner";
+import SuccessToast from "../../SuccessToast";
+import ErrorToast from "../../ErrorToast";
+import TravelPackageModal from "../Admin-Dashboard/Travel Package/TravelPackageModal";
+import CreateTravelPackageModal from "./CreateTravelPackageModal";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
-const AllTravelPackages = () => {
+const AgencyTravelPackages = () => {
   // State
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPackage, setSelectedPackage] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [notification, setNotification] = useState({
     show: false,
     message: "",
     type: "",
   });
 
-  // API hook
+  // Fetch current user profile
+  const { data: userProfile, isLoading: isUserLoading } =
+    useFetchUserProfileQuery();
+
+  // Fetch packages created by the current user (skip until userProfile is available)
   const {
     data: response,
-    isLoading,
+    isLoading: isPackagesLoading,
     isError,
     error,
     refetch,
-  } = useGetTravelPackagesQuery();
+  } = useGetTravelPackagesByCreatorQuery(userProfile?.id, {
+    skip: !userProfile?.id,
+  });
 
-  const CreatedByCell = ({ userId }) => {
-    const { data: user, isLoading } = useGetUserByIdQuery(userId, {
-      skip: !userId, // avoid unnecessary calls
-    });
-
-    if (!userId) return <span className="text-gray-500">N/A</span>;
-    if (isLoading) return <span className="text-gray-400">Loading...</span>;
-
-    return <span>{user?.username || "Unknown User"}</span>;
-  };
+  const [createTravelPackage, { isLoading: isCreating }] =
+    useCreateTravelPackageMutation();
 
   const [updateTravelPackage] = useUpdateTravelPackageMutation();
   const [deleteTravelPackage] = useDeleteTravelPackageMutation();
 
-  // Derived data
   const packages = response?.data || [];
-  const filteredPackages = packages.filter((pkg) => {
-    const pkgName = pkg?.name || "";
-    return pkgName.toLowerCase().startsWith(searchTerm.toLowerCase());
-  });
+  const filteredPackages = packages.filter((pkg) =>
+    pkg?.name?.toLowerCase().startsWith(searchTerm.toLowerCase())
+  );
 
   // Cleanup effect
   useEffect(() => {
@@ -127,7 +126,7 @@ const AllTravelPackages = () => {
     }
   };
 
-  if (isLoading) return <LoadingSpinner fullScreen />;
+  if (isUserLoading || isPackagesLoading) return <LoadingSpinner fullScreen />;
   if (isError)
     return (
       <ErrorMessage
@@ -157,8 +156,8 @@ const AllTravelPackages = () => {
 
       {/* Search & Filter */}
       <div className="flex flex-col md:flex-row justify-between items-center py-2 mb-3 space-y-4 md:space-y-0">
-        <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
-          <div className="relative flex w-full md:w-64">
+        <div className="flex flex-1 space-x-2 md:space-x-4 w-full md:w-auto">
+          <div className="relative flex-1 md:flex-none w-full md:w-64">
             <input
               type="text"
               placeholder="Search travel packages..."
@@ -173,6 +172,22 @@ const AllTravelPackages = () => {
           </div>
           <button className="px-3 py-2 flex items-center justify-center bg-gray-200 rounded-md hover:bg-gray-300 w-full md:w-auto">
             Filter <BiFilterAlt size={18} className="ml-2" />
+          </button>
+        </div>
+        <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2 w-full md:w-auto mt-2 md:mt-0">
+          <button
+            className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 w-full md:w-auto flex items-center justify-center"
+            onClick={() => setIsModalOpen(true)}
+            disabled={isCreating}
+            aria-label="Add new package"
+          >
+            {isCreating ? <LoadingSpinner size="small" /> : "+ Add Package"}
+          </button>
+          <button
+            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 w-full md:w-auto flex items-center justify-center"
+            aria-label="View all bookings"
+          >
+            <FaEye className="mr-2" /> View All Bookings
           </button>
         </div>
       </div>
@@ -203,9 +218,6 @@ const AllTravelPackages = () => {
                 </th>
                 <th className="px-4 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Departures
-                </th>
-                <th className="px-4 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
-                  Created By
                 </th>
                 <th className="px-4 py-2 text-center text-xs font-medium text-gray-700 uppercase tracking-wider">
                   Actions
@@ -267,9 +279,6 @@ const AllTravelPackages = () => {
                         />
                       </button>
                     </td>
-                    <td className="px-4 py-3 text-gray-800">
-                      <CreatedByCell userId={pkg.createdById} />
-                    </td>
                     <td className="px-4 py-3">
                       <div className="flex space-x-2 justify-center">
                         <button
@@ -297,7 +306,7 @@ const AllTravelPackages = () => {
               ) : (
                 <tr>
                   <td
-                    colSpan="9"
+                    colSpan="8"
                     className="px-4 py-4 text-center text-gray-500"
                   >
                     {searchTerm
@@ -316,8 +325,32 @@ const AllTravelPackages = () => {
           )}
         </div>
       </div>
+      {isModalOpen && (
+        <CreateTravelPackageModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={async (values) => {
+            try {
+              await createTravelPackage(values).unwrap();
+              setNotification({
+                show: true,
+                message: "Travel package created successfully!",
+                type: "success",
+              });
+              setIsModalOpen(false);
+              refetch(); // refresh list
+            } catch (err) {
+              setNotification({
+                show: true,
+                message: err?.data?.message || "Failed to create package",
+                type: "error",
+              });
+            }
+          }}
+        />
+      )}
     </div>
   );
 };
 
-export default AllTravelPackages;
+export default AgencyTravelPackages;

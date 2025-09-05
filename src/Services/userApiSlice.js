@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { setCredentials } from "../Features/slice/authSlice"; // Import setCredentials action
-import { baseQuery } from '../Features/baseQuery';
+import { setCredentials } from "../Features/slice/authSlice"; 
+import { baseQuery } from "../Features/baseQuery";
 
 export const userApi = createApi({
   reducerPath: "userApi",
@@ -8,10 +8,7 @@ export const userApi = createApi({
   endpoints: (builder) => ({
     fetchUserProfile: builder.query({
       query: () => {
-        // Retrieve accessToken from localStorage
         const accessToken = localStorage.getItem("accessToken");
-
-        // Make sure accessToken is present
         if (!accessToken) {
           throw new Error("Access token is required");
         }
@@ -20,7 +17,7 @@ export const userApi = createApi({
           url: "/user/profile",
           method: "GET",
           headers: {
-            Authorization: `Bearer ${accessToken}`, // Pass accessToken in headers
+            Authorization: `Bearer ${accessToken}`,
           },
         };
       },
@@ -30,10 +27,29 @@ export const userApi = createApi({
           const { data } = await queryFulfilled;
           dispatch(setCredentials({ user: data.user }));
         } catch (error) {
+          console.error("Error fetching user profile:", error);
         }
+      },
+    }),
+
+    // ✅ New endpoint to get user by ID
+    getUserById: builder.query({
+      query: (userId) => {
+        const accessToken = localStorage.getItem("accessToken");
+        if (!accessToken) {
+          throw new Error("Access token is required");
+        }
+
+        return {
+          url: `/user/${userId}`, // dynamic userId
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        };
       },
     }),
   }),
 });
 
-export const { useFetchUserProfileQuery } = userApi;
+export const { useFetchUserProfileQuery, useGetUserByIdQuery } = userApi;

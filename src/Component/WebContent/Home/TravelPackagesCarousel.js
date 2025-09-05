@@ -1,40 +1,43 @@
-import React, { useEffect, useState } from "react";
-import { destinations } from "../../../Data/DestinationCarousel";
-import { stayOptions, stays } from "../../../Data/stayOptions";
+import { useEffect, useState } from "react";
+import { stayOptions } from "../../../Data/stayOptions";
 import FeaturedCarousel from "./Carousel/FeaturedCarousel";
 import { useNavigate } from "react-router-dom";
+import { useGetTravelPackagesQuery } from "../../../Services/travelPackageApiSlice";
 
 const TravelPackagesCarousel = () => {
   const [startIndex, setStartIndex] = useState(0);
   const [isSliding, setIsSliding] = useState(false);
+  const [imagesPerSlide, setImagesPerSlide] = useState(4);
   const navigate = useNavigate();
 
-  const [imagesPerSlide, setImagesPerSlide] = useState(4);
+  // ✅ Fetch travel packages
+  const { data: packagesRaw, isLoading, error } = useGetTravelPackagesQuery();
+
+  const stays = packagesRaw?.data || [];
 
   useEffect(() => {
     const updateImagesPerSlide = () => {
       if (window.innerWidth >= 1200) {
-        setImagesPerSlide(4); // XL screen
+        setImagesPerSlide(4);
       } else if (window.innerWidth >= 768) {
-        setImagesPerSlide(3); // MD screen
+        setImagesPerSlide(3);
       } else {
-        setImagesPerSlide(1); // Mobile screen
+        setImagesPerSlide(1);
       }
     };
 
-    updateImagesPerSlide(); // Initial setup
-    window.addEventListener("resize", updateImagesPerSlide); // Listen for resizing
-
-    return () => window.removeEventListener("resize", updateImagesPerSlide); // Cleanup listener
+    updateImagesPerSlide();
+    window.addEventListener("resize", updateImagesPerSlide);
+    return () => window.removeEventListener("resize", updateImagesPerSlide);
   }, []);
 
   const goToPrevSlide = () => {
-    if (!isSliding) {
+    if (!isSliding && stays.length) {
       setIsSliding(true);
       setTimeout(() => {
         setStartIndex((prevIndex) =>
           prevIndex === 0
-            ? destinations.length - imagesPerSlide
+            ? stays.length - imagesPerSlide
             : prevIndex - imagesPerSlide
         );
         setIsSliding(false);
@@ -43,11 +46,11 @@ const TravelPackagesCarousel = () => {
   };
 
   const goToNextSlide = () => {
-    if (!isSliding) {
+    if (!isSliding && stays.length) {
       setIsSliding(true);
       setTimeout(() => {
         setStartIndex((prevIndex) =>
-          prevIndex + imagesPerSlide >= destinations.length
+          prevIndex + imagesPerSlide >= stays.length
             ? 0
             : prevIndex + imagesPerSlide
         );
@@ -61,9 +64,12 @@ const TravelPackagesCarousel = () => {
     return option?.color || "#000";
   };
 
-  const handleSlideClick = (stayId) => {
-    navigate(`/travel-packages/travel-deals/${stayId}`); // Navigate to the destination page
+  const handleSlideClick = (slug) => {
+    navigate(`/travel-packages/travel-deals/${slug}`);
   };
+
+  if (isLoading) return <p className="text-center">Loading...</p>;
+  if (error) return <p className="text-center text-red-500">Failed to load packages.</p>;
 
   return (
     <div className="py-8 px-4">
@@ -96,33 +102,26 @@ const TravelPackagesCarousel = () => {
         >
           {stays.map((stay, index) => (
             <div
-              key={index}
+              key={stay.id || index}
               className="w-full flex-shrink-0 sm:w-1/2 md:w-1/3 lg:w-1/4"
-              onClick={() => handleSlideClick(stay.id)} 
+              onClick={() => handleSlideClick(stay.slug)}
             >
               <FeaturedCarousel
-                images={stay.image}
+                images={Array.isArray(stay.images) ? stay.images : []} // ✅ correct field
                 stayType={stay.type}
                 getStayTypeColor={getStayTypeColor}
               />
 
               <div className="py-1">
                 <h2 className="font-medium text-[14px] font-Open">
-                  {stay.title}
+                  {stay.name}
                 </h2>
-                <div className="flex flex-wrap">
-                  <p className="text-gray-700 text-xs font-Open">
-                    {stay.location}
-                  </p>
-                  <p className="text-gray-700 text-xs font-Open pl-2">
-                    Mobile: {stay.contact}
-                  </p>
-                </div>
+                <p className="text-gray-700 text-xs font-Open">
+                  Duration: {stay.durationDays} Days / {stay.durationNights} Nights
+                </p>
                 <p className="font-bold mt-2 font-Open text-[15px]">
                   NRS {stay.price}{" "}
-                  <span className="text-[14px] font-medium font-Open">
-                    / night
-                  </span>
+                  <span className="text-[14px] font-medium font-Open">/ person</span>
                 </p>
               </div>
             </div>

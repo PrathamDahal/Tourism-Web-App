@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
+
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const ArrowButton = ({ direction, onClick }) => (
   <button
@@ -12,7 +14,7 @@ const ArrowButton = ({ direction, onClick }) => (
   </button>
 );
 
-const FeaturedCarousel = ({ images, stayType, getStayTypeColor }) => {
+const FeaturedCarousel = ({ images = [], stayType, getStayTypeColor }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const goToPrevSlide = () => {
@@ -27,12 +29,19 @@ const FeaturedCarousel = ({ images, stayType, getStayTypeColor }) => {
     );
   };
 
+  // ✅ Reset index if images change and currentIndex is out of range
+  useEffect(() => {
+    if (currentIndex >= images.length) {
+      setCurrentIndex(0);
+    }
+  }, [images, currentIndex]);
+
   return (
     <div className="relative group overflow-hidden rounded-lg hover:border-gray-400 hover:border mr-3">
-      <div className="transition-transform duration-300 transform group-hover:scale-105">
+      <div className="transition-transform duration-300 transform group-hover:scale-105 origin-center">
         {images.length > 0 ? (
           <img
-            src={images[currentIndex].url}
+            src={`${API_BASE_URL}${images[currentIndex]}`} // ✅ prepend API_BASE_URL
             alt={`Slide ${currentIndex + 1}`}
             className="w-full xl:h-[300px] sm:h-[150px] md:h-[200px] lg:h-[250px] object-cover"
           />
@@ -44,30 +53,38 @@ const FeaturedCarousel = ({ images, stayType, getStayTypeColor }) => {
       </div>
 
       {/* Custom Arrow Buttons */}
-      <ArrowButton direction="prev" onClick={goToPrevSlide} />
-      <ArrowButton direction="next" onClick={goToNextSlide} />
+      {images.length > 1 && (
+        <>
+          <ArrowButton direction="prev" onClick={goToPrevSlide} />
+          <ArrowButton direction="next" onClick={goToNextSlide} />
+        </>
+      )}
 
       {/* Stay Type Label */}
-      <p
-        className="absolute z-10 top-0 right-0 px-7 text-white text-sm font-medium rounded-b-md rounded-r-none"
-        style={{ backgroundColor: getStayTypeColor(stayType) }}
-      >
-        {stayType}
-      </p>
+      {stayType && (
+        <p
+          className="absolute z-10 top-0 right-0 px-7 text-white text-sm font-medium rounded-b-md rounded-r-none"
+          style={{ backgroundColor: getStayTypeColor(stayType) }}
+        >
+          {stayType}
+        </p>
+      )}
 
       {/* Pagination Dots */}
-      <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-        {images.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentIndex(index)}
-            className={`w-2 h-2 rounded-full ${
-              index === currentIndex ? "bg-white" : "bg-gray-400"
-            }`}
-            aria-label={`Go to slide ${index + 1}`}
-          />
-        ))}
-      </div>
+      {images.length > 1 && (
+        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          {images.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              className={`w-2 h-2 rounded-full ${
+                index === currentIndex ? "bg-white" : "bg-gray-400"
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
