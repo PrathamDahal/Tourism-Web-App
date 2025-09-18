@@ -4,17 +4,18 @@ import { baseQuery } from "./../Features/baseQuery";
 export const feedbackApi = createApi({
   reducerPath: "feedbackApi",
   baseQuery,
-  tagTypes: ["Reviews"], // used for automatic refetching
+  tagTypes: ["Reviews"],
   endpoints: (builder) => ({
-    // GET: Fetch reviews by type and ID
+    // GET: Fetch reviews for a specific package
     getReviews: builder.query({
-      query: ({ type, id }) => `/${type}/${id}/reviews`,
+      query: ({ targetType, targetId }) =>
+        `/${targetType}/${targetId}/reviews`,
       transformResponse: (response) => {
         if (!Array.isArray(response)) return [];
         return response.map((review) => ({
           id: review.id,
           name: `${review.user.firstName} ${review.user.lastName}`,
-          reviews: review.rating,
+          rating: review.rating,
           comment: review.comment,
           image: review.user.images,
           userId: review.user.id,
@@ -23,31 +24,31 @@ export const feedbackApi = createApi({
       providesTags: ["Reviews"],
     }),
 
-    // POST: Add a new review
+    // POST: Add a review for a package
     addReview: builder.mutation({
-      query: ({ type, id, ...rest }) => ({
+      query: ({ targetType, targetId, ...rest }) => ({
         url: `/reviews`,
         method: "POST",
         body: {
-          targetType: type,
-          targetId: id,
-          ...rest, // rating, comment
+          targetType,
+          targetId,
+          ...rest, // e.g., rating, comment
         },
       }),
       invalidatesTags: ["Reviews"],
     }),
 
-    // PATCH: Edit an existing review by reviewId
+    // PATCH: Edit a review
     editReview: builder.mutation({
       query: ({ reviewId, ...body }) => ({
         url: `/reviews/${reviewId}`,
         method: "PATCH",
-        body, // expects: { rating, comment }
+        body, // { rating, comment }
       }),
       invalidatesTags: ["Reviews"],
     }),
 
-    // DELETE: Delete a review by reviewId
+    // DELETE: Delete a review
     deleteReview: builder.mutation({
       query: (reviewId) => ({
         url: `/reviews/${reviewId}`,
@@ -58,7 +59,8 @@ export const feedbackApi = createApi({
 
     // GET: Fetch average rating and review count
     getAverageReview: builder.query({
-      query: ({ type, id }) => `/${type}/${id}/reviews/average`,
+      query: ({ targetType, targetId }) =>
+        `/${targetType}/${targetId}/reviews/average`,
       transformResponse: (response) => ({
         average: response.average,
         count: response.count,
@@ -70,7 +72,7 @@ export const feedbackApi = createApi({
 export const {
   useGetReviewsQuery,
   useAddReviewMutation,
-  useGetAverageReviewQuery,
   useEditReviewMutation,
   useDeleteReviewMutation,
+  useGetAverageReviewQuery,
 } = feedbackApi;

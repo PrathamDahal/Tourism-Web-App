@@ -3,8 +3,8 @@ import { useGetTravelPackageBySlugQuery } from "../../../Services/travelPackageA
 import { Upload, ChevronDown, Check, X } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import BookingConfirmationModal from "../../../Component/WebContent/Accomodations/BookingModal";
 import CustomerFeedbackContainer from "../../../Component/WebContent/Product/CustomerFeedbackContainer";
+import BookingConfirmationModal from "../../../Component/WebContent/Travel Packages/BookingConfirmationModal";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -17,13 +17,38 @@ const TravelDeals = () => {
     isError,
   } = useGetTravelPackageBySlugQuery(slug);
 
-  const [departureDate, setDepartureDate] = useState("");
+  const [departureDate] = useState("");
   const [travelers, setTravelers] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [receipt, setReceipt] = useState(null);
 
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [selectedDeparture, setSelectedDeparture] = useState("");
+
+  useEffect(() => {
+    if (deal?.availableDepartures?.length) {
+      setSelectedDeparture(deal.availableDepartures[0].date);
+    } else if (deal) {
+      setSelectedDeparture("Wednesday, February 28, 2024"); // fallback
+    }
+  }, [deal]);
+
+  // Remove the departureDate input in the right column and use selectedDeparture for booking
+  const handleBookNow = () => {
+    if (!selectedDeparture) {
+      alert("Please select a departure");
+      return;
+    }
+
+    // QR Payment check
+    if (paymentMethod === "qr" && !receipt) {
+      setShowSuccessToast(true); // reuse your toast for error message
+      return; // do not open the modal
+    }
+
+    setShowConfirmationModal(true);
+  };
 
   useEffect(() => {
     if (!isLoading && (isError || !deal)) {
@@ -38,14 +63,6 @@ const TravelDeals = () => {
       </div>
     );
   if (!deal) return <div>Redirecting...</div>;
-
-  const handleBookNow = () => {
-    if (!departureDate) {
-      alert("Please select a departure date");
-      return;
-    }
-    setShowConfirmationModal(true);
-  };
 
   const handleConfirmBooking = () => {
     console.log("Booking confirmed:", {
@@ -89,12 +106,19 @@ const TravelDeals = () => {
   return (
     <div className="mx-32 -mt-3">
       {/* Top Banner */}
-      <div className="relative mb-16 w-screen -ml-[calc(50vw-50%)]">
-        <img
-          src={mainImage}
-          alt={deal.name}
-          className="w-full h-auto max-h-[500px] object-cover"
-        />
+      <div className="relative mb-16 w-screen -ml-[calc(50vw-50%)] bg-gray-200 flex justify-center items-center max-h-[500px] overflow-hidden">
+        {mainImage ? (
+          <img
+            src={mainImage}
+            alt={deal.name}
+            className="w-full h-auto max-h-[500px] object-cover"
+          />
+        ) : (
+          <div className="w-full h-80 flex flex-col justify-center items-center bg-gray-700 text-white">
+            <span className="text-3xl font-bold">No Image Available</span>
+            <span className="text-sm mt-2">{deal.name}</span>
+          </div>
+        )}
 
         {/* Overlay container */}
         <div className="absolute bottom-6 gap-4 left-24 right-24 z-20 flex justify-normal items-center px-6 py-3 rounded">
@@ -194,9 +218,9 @@ const TravelDeals = () => {
               </h2>
               <div className="space-y-4">
                 {availableDepartures.map((departure, index) => (
-                  <div
+                  <label
                     key={index}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                   >
                     <div>
                       <div className="font-semibold text-gray-900">
@@ -210,11 +234,15 @@ const TravelDeals = () => {
                       <div className="text-xl font-bold text-gray-900">
                         Rs.{departure.price.toLocaleString()}
                       </div>
-                      <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-medium">
-                        Available
-                      </span>
+                      <input
+                        type="radio"
+                        name="departure"
+                        checked={selectedDeparture === departure.date}
+                        onChange={() => setSelectedDeparture(departure.date)}
+                        className="form-radio h-5 w-5 text-red-500"
+                      />
                     </div>
-                  </div>
+                  </label>
                 ))}
               </div>
             </div>
@@ -241,30 +269,6 @@ const TravelDeals = () => {
             </div>
           </div>
           <div className="p-6 space-y-6">
-            {/* Select Departure */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Departure *
-              </label>
-              <div className="relative">
-                <input
-                  type="date"
-                  value={departureDate}
-                  onChange={(e) => setDepartureDate(e.target.value)}
-                  min={new Date().toISOString().split("T")[0]}
-                  className="w-full p-3 border border-gray-300 rounded-md appearance-none bg-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 relative z-10"
-                />
-                {!departureDate && (
-                  <div className="absolute inset-0 flex items-center px-3 pointer-events-none z-0">
-                    <span className="text-gray-400">
-                      Choose a departure date
-                    </span>
-                    <ChevronDown className="ml-auto h-4 w-4 text-gray-400" />
-                  </div>
-                )}
-              </div>
-            </div>
-
             {/* Number of Travelers */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -374,28 +378,38 @@ const TravelDeals = () => {
             </button>
           </div>
 
-          <BookingConfirmationModal
-            isOpen={showConfirmationModal}
-            onClose={() => setShowConfirmationModal(false)}
-            onConfirm={handleConfirmBooking}
-            stay={deal}
-            checkInDate={new Date(departureDate)}
-            checkOutDate={
-              deal.durationDays
-                ? new Date(
-                    new Date(departureDate).setDate(
-                      new Date(departureDate).getDate() + deal.durationDays
+          {showConfirmationModal && selectedDeparture && (
+            <BookingConfirmationModal
+              isOpen={showConfirmationModal}
+              onClose={() => setShowConfirmationModal(false)}
+              onConfirm={handleConfirmBooking}
+              stay={deal}
+              checkInDate={new Date(selectedDeparture)}
+              checkOutDate={
+                deal.durationDays
+                  ? new Date(
+                      new Date(selectedDeparture).setDate(
+                        new Date(selectedDeparture).getDate() +
+                          deal.durationDays
+                      )
                     )
-                  )
-                : new Date(departureDate)
-            }
-            roomCount={1}
-            guestCount={travelers}
-          />
+                  : new Date(selectedDeparture)
+              }
+              roomCount={1}
+              guestCount={travelers}
+              paymentMethod={paymentMethod}
+              receipt={receipt}
+            />
+          )}
+
           {showSuccessToast && (
             <div className="fixed top-4 right-4 z-50">
               <SuccessToast
-                message="Your booking has been confirmed! We will contact you soon."
+                message={
+                  paymentMethod === "qr" && !receipt
+                    ? "Please upload your receipt before proceeding."
+                    : "Your booking has been confirmed! We will contact you soon."
+                }
                 onClose={() => setShowSuccessToast(false)}
                 duration={5000}
               />

@@ -23,8 +23,8 @@ const MainNavBar = () => {
     return window.location.pathname === path;
   };
 
-  const isSignUpPage = location.pathname === "/signup";
-  const isLoginPage = location.pathname === "/login";
+  const isSignUpPage = location.pathname.startsWith("/signup");
+  const isLoginPage = location.pathname.startsWith("/login");
   const isResetPage = location.pathname.startsWith("/reset-password");
   const isStayPage = location.pathname.startsWith("/wheretostay");
   const isTravelPage = location.pathname.startsWith("/travel-packages");
@@ -129,7 +129,7 @@ const MainNavBar = () => {
             <>
               <button className="lg:py-1.5 lg:px-4 md:py-0.5 md:px-2 hover:bg-red-700 rounded-2xl">
                 <Link
-                  to="/SignUp"
+                  to="/signup"
                   className="text-white text-base underline xl:text-[18px] lg:text-[14px] md:text-[12px]"
                 >
                   SIGN UP

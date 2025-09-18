@@ -6,7 +6,7 @@ const HeroSection = () => {
 
   // Determine the current page
   const isHomePage = location.pathname === "/";
-  const isSignUpPage = location.pathname === "/SignUp";
+  const isSignUpPage = location.pathname === "/signup";
   const isLogInPage = location.pathname === "/login";
   const isResetPage = location.pathname.startsWith("/reset-password");
   const isProductPage = location.pathname.startsWith("/localproducts/product");

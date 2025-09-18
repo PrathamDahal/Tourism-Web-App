@@ -1,7 +1,6 @@
-import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Footer from "./Footer";
-import "../../App.css"; // Import the CSS file
+import "../../App.css";
 import MainNavBar from "./../WebContent/NavBar/MainNavBar";
 import SideNavBar from "./../WebContent/NavBar/SideNavBar";
 import HeroSection from "./../WebContent/Hero/HeroSection";
@@ -17,44 +16,49 @@ const Layout = () => {
   const location = useLocation();
 
   const isActive = (path) => location.pathname === path;
+
   const isProductPage = location.pathname.startsWith("/localproducts/product");
-  const isDestinationPage = location.pathname.startsWith(
-    "/wheretogo/destination"
-  );
-  const isAccomodationPage = location.pathname.startsWith(
-    "/wheretostay/accomodation"
-  );
-  const isTravelDealsPage = location.pathname.startsWith(
-    "/travel-packages/travel-deals"
-  );
+  const isDestinationPage = location.pathname.startsWith("/wheretogo/destination");
+  const isAccomodationPage = location.pathname.startsWith("/wheretostay/accomodation");
+  const isTravelDealsPage = location.pathname.startsWith("/travel-packages/travel-deals");
   const isCartPage = location.pathname.startsWith("/localproducts/cart");
   const isStayPage = location.pathname.startsWith("/wheretostay");
   const isTravelPage = location.pathname.startsWith("/travel-packages");
 
+  const isSignUpPage = location.pathname.toLowerCase().startsWith("/signup");
+  const isLogInPage = location.pathname.toLowerCase().startsWith("/login");
+  const isResetPage = location.pathname.toLowerCase().startsWith("/reset-password");
+
   return (
     <div className="w-full">
-      {isProductPage ||
-      isDestinationPage ||
-      isAccomodationPage ||
-      isTravelDealsPage ||
-      isCartPage ||
-      isStayPage ||
-      isTravelPage ? (
-        <SideNavBar />
-      ) : (
-        <MainNavBar />
+      {/* Navbar */}
+      {!isSignUpPage && !isLogInPage && !isResetPage && (
+        <>
+          {isProductPage ||
+          isDestinationPage ||
+          isAccomodationPage ||
+          isTravelDealsPage ||
+          isCartPage ||
+          isStayPage ||
+          isTravelPage ? (
+            <SideNavBar />
+          ) : (
+            <MainNavBar />
+          )}
+
+          {/* Hero Section */}
+          {!["/wheretostay", "/travel-packages"].some(isActive) && <HeroSection />}
+        </>
       )}
 
-      {/* Hero Section */}
-      {!["/wheretostay", "/travel-packages"].some(isActive) && <HeroSection />}
-
-      {isActive("/") ? ( //Home
+      {/* Page Details */}
+      {isActive("/") ? (
         <HomeDetails />
-      ) : isActive("/wheretogo") ? ( //WhereToGo
+      ) : isActive("/wheretogo") ? (
         <WhereToGoDetails />
-      ) : isActive("/wheretostay") ? ( //WhereToStay
+      ) : isActive("/wheretostay") ? (
         <WhereToStayDetails />
-      ) : isActive("/localproducts") ? ( //LocalProducts
+      ) : isActive("/localproducts") ? (
         <LocalDetails />
       ) : isActive("/contactus") ? (
         <ContactUsDetails />
@@ -71,8 +75,8 @@ const Layout = () => {
         <Outlet />
       </main>
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer - hidden on signup, login, reset */}
+      {!isSignUpPage && !isLogInPage && !isResetPage && <Footer />}
     </div>
   );
 };

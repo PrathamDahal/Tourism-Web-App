@@ -53,6 +53,8 @@ const SideBar = ({ isSidebarOpen, onClose }) => {
       <h2 className="text-center py-3 lg:text-lg font-light md:text-sm font-redressed text-red-600">
         PanchPokhari Tourism
       </h2>
+
+      {/* Dashboard Section */}
       <div className="mb-3">
         <h3 className="pl-2 text-left mb-2 text-gray-600 font-semibold">
           Dashboard
@@ -74,7 +76,10 @@ const SideBar = ({ isSidebarOpen, onClose }) => {
           )}
         </div>
       </div>
+
       <hr className="bg-gray-300 my-4 -mx-2" />
+
+      {/* Web Content Section */}
       <div className="mb-3">
         <h3 className="pl-2 text-left mb-3 text-gray-600 font-semibold">
           Web Content
@@ -105,15 +110,44 @@ const SideBar = ({ isSidebarOpen, onClose }) => {
             </NavLink>
           )}
           {(isAdmin || isTravelAgency) && (
-            <NavLink
-              to="/dashboard/travelpackages"
-              className={({ isActive }) => getLinkClasses(isActive)}
-            >
-              Travel Packages
-            </NavLink>
+            <div>
+              <NavLink
+                to="/dashboard/travelpackages"
+                className={({ isActive }) => getLinkClasses(isActive)}
+                onClick={() =>
+                  navigate("/dashboard/travelpackages?view=overview")
+                }
+              >
+                Travel Packages
+              </NavLink>
+              {/* Submenu */}
+              <div className="mx-2 mt-1 flex flex-col space-y-1">
+                {["overview", "packages"].map((sub) => {
+                  const isActiveSub =
+                    new URLSearchParams(window.location.search).get("view") ===
+                    sub;
+                  return (
+                    <button
+                      key={sub}
+                      onClick={() =>
+                        navigate(`/dashboard/travelpackages?view=${sub}`)
+                      }
+                      className={`py-2 text-center mx-2 bg-slate-200 text-sm rounded-md transition-colors ${
+                        isActiveSub
+                          ? "text-red-500 font-medium"
+                          : "text-gray-600 hover:text-red-500"
+                      }`}
+                    >
+                      {sub.charAt(0).toUpperCase() + sub.slice(1)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           )}
         </div>
       </div>
+
       <hr className="bg-gray-300 my-4 -mx-2" />
 
       <button

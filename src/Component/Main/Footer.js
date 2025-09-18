@@ -1,22 +1,14 @@
-import {
-  BiSolidEnvelope,
-  BiSolidMap,
-  BiSolidPhoneCall,
-} from "react-icons/bi";
+import { BiSolidEnvelope, BiSolidMap, BiSolidPhoneCall } from "react-icons/bi";
 import {
   FaFacebookF,
   FaInstagram,
   FaTwitter,
   FaLinkedinIn,
 } from "react-icons/fa";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useGetSiteSettingsQuery } from "../../Services/SiteSettingApi";
 
 const Footer = () => {
-  const location = useLocation();
-  const isSignUpPage = location.pathname === "/signup";
-  const isLogInPage = location.pathname === "/login";
-  const isResetPage = location.pathname.startsWith("/reset-password");
 
   const { data, isLoading, error } = useGetSiteSettingsQuery();
 
@@ -51,13 +43,7 @@ const Footer = () => {
   } = siteSettings;
 
   return (
-    <footer
-      className={`${
-        isSignUpPage || isLogInPage || isResetPage
-          ? "hidden"
-          : "bg-[#EFEFEF] text-black py-10"
-      }`}
-    >
+    <footer className="bg-[#EFEFEF] text-black py-10">
       <div className="container mx-auto py-10 border-t-2 border-gray-800">
         <div className="mx-4 sm:mx-8 p-2 flex flex-col md:flex-row justify-between items-center md:items-start space-y-6 md:space-y-0">
           {/* Logo & Name */}
@@ -134,9 +120,21 @@ const Footer = () => {
             <ul className="space-y-4">
               {[
                 { icon: <FaTwitter />, label: "Twitter", link: twitterLink },
-                { icon: <FaInstagram />, label: "Instagram", link: instagramLink },
-                { icon: <FaFacebookF />, label: "Facebook", link: facebookLink },
-                { icon: <FaLinkedinIn />, label: "LinkedIn", link: linkedinLink },
+                {
+                  icon: <FaInstagram />,
+                  label: "Instagram",
+                  link: instagramLink,
+                },
+                {
+                  icon: <FaFacebookF />,
+                  label: "Facebook",
+                  link: facebookLink,
+                },
+                {
+                  icon: <FaLinkedinIn />,
+                  label: "LinkedIn",
+                  link: linkedinLink,
+                },
               ].map((social, index) => (
                 <li
                   key={index}

@@ -13,6 +13,7 @@ import { feedbackApi } from './../Services/feedbackApiSlice';
 import { destinationApi } from "../Services/destinationApiSlice";
 import { homestayApi } from "../Services/homestayApiSlice";
 import { travelPackageApi } from "../Services/travelPackageApiSlice";
+import { departuresApi } from "../Services/departuresApiSlice";
 
 
 export const store = configureStore({
@@ -30,6 +31,7 @@ export const store = configureStore({
     [destinationApi.reducerPath]: destinationApi.reducer,
     [homestayApi.reducerPath]: homestayApi.reducer,
     [travelPackageApi.reducerPath]: travelPackageApi.reducer,
+    [departuresApi.reducerPath]: departuresApi.reducer, // add API reducer
     auth: authReducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -46,7 +48,8 @@ export const store = configureStore({
       feedbackApi.middleware,
       destinationApi.middleware,
       homestayApi.middleware,
-      travelPackageApi.middleware
+      travelPackageApi.middleware,
+      departuresApi.middleware
     ),
 });
 

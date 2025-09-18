@@ -1,9 +1,9 @@
 import SideBar from "../../../Component/Dashboard/SideBar";
 import Header from "../../../Component/Dashboard/Header";
-import AllTravelPackages from "../../../Component/Dashboard/Admin-Dashboard/Travel Package/AllTravelPackages";
 import { useFetchUserProfileQuery } from "../../../Services/userApiSlice";
 import AgencyTravelPackage from "../../../Component/Dashboard/Travel-Dashboard/AllTravelPackage";
 import LoadingSpinner from "../../../Component/LoadingSpinner";
+import TravelPackagesDashboard from "../../../Component/Dashboard/Admin-Dashboard/Travel Package/AllTravelPackages";
 
 const TravelPackages = () => {
   const { data, isLoading } = useFetchUserProfileQuery();
@@ -16,7 +16,7 @@ const TravelPackages = () => {
       <SideBar />
       <div className="flex-1 px-4">
         <Header />
-        {role === "ADMIN" && <AllTravelPackages />}
+        {role === "ADMIN" && <TravelPackagesDashboard />}
         {role === "TRAVELAGENCY" && <AgencyTravelPackage />}
         {!["ADMIN", "TRAVELAGENCY"].includes(role) && (
           <p className="text-center mt-6 text-red-500">

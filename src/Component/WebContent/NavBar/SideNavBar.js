@@ -109,7 +109,7 @@ const SideNavBar = () => {
             <>
               <button className="lg:py-1.5 lg:px-4 md:py-0.5 md:px-2 rounded-2xl">
                 <Link
-                  to="/SignUp"
+                  to="/signup"
                   className=" text-base xl:text-[18px] lg:text-[14px] md:text-[12px]"
                 >
                   SIGN UP
