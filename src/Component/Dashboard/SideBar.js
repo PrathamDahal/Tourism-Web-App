@@ -28,7 +28,7 @@ const SideBar = ({ isSidebarOpen, onClose }) => {
     }
   };
 
-  if (isLoading) return <LoadingSpinner />;
+ if (isLoading) return <LoadingSpinner fullScreen={true} size="medium" />;
 
   const isAdmin = role === "ADMIN";
   const isSeller = role === "SELLER";

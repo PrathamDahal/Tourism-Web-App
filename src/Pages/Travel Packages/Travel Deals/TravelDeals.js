@@ -3,7 +3,7 @@ import { useGetTravelPackageBySlugQuery } from "../../../Services/travelPackageA
 import { Upload, ChevronDown, Check, X } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import CustomerFeedbackContainer from "../../../Component/WebContent/Product/CustomerFeedbackContainer";
+import CustomerFeedbackContainer from "../../../Component/WebContent/Reviews/CustomerFeedbackContainer";
 import BookingConfirmationModal from "../../../Component/WebContent/Travel Packages/BookingConfirmationModal";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -420,7 +420,7 @@ const TravelDeals = () => {
 
       <hr className="my-8 border-gray-300" />
 
-      <CustomerFeedbackContainer type="product" id={deal.id} />
+      <CustomerFeedbackContainer type="package" id={deal.id} />
     </div>
   );
 };

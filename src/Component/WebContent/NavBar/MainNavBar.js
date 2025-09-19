@@ -1,6 +1,5 @@
-
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaBell, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { logout, setCredentials } from "./../../../Features/slice/authSlice";
@@ -11,7 +10,6 @@ const API_BASE_URL = process.env.REACT_APP_API_URL;
 const MainNavBar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const location = useLocation();
   const navigate = useNavigate();
 
   const toggleDropDown = () => {
@@ -22,12 +20,6 @@ const MainNavBar = () => {
     // Implement your logic to determine if the current path is active
     return window.location.pathname === path;
   };
-
-  const isSignUpPage = location.pathname.startsWith("/signup");
-  const isLoginPage = location.pathname.startsWith("/login");
-  const isResetPage = location.pathname.startsWith("/reset-password");
-  const isStayPage = location.pathname.startsWith("/wheretostay");
-  const isTravelPage = location.pathname.startsWith("/travel-packages");
 
   const dispatch = useDispatch();
   const accessToken = localStorage.getItem("accessToken");
@@ -63,10 +55,7 @@ const MainNavBar = () => {
 
   return (
     <nav
-      className={`${
-        isLoginPage || isSignUpPage || isResetPage || isStayPage || isTravelPage
-          ? "hidden"
-          : "absolute top-0 left-0 w-full z-20 bg-transparent flex justify-between items-center px-4 py-2"
+      className={`${"absolute top-0 left-0 w-full z-20 bg-transparent flex justify-between items-center px-4 py-2"
       }`}
     >
       <p className="text-red-700 font-redressed lg:text-[24px] md:text-[14px] md:px-2 lg:px-5">
@@ -164,9 +153,7 @@ const MainNavBar = () => {
                   <p className="font-medium text-sm">
                     {data?.username || "Username"}
                   </p>
-                  <p className="text-xs">
-                    {data?.email || "user@example.com"}
-                  </p>
+                  <p className="text-xs">{data?.email || "user@example.com"}</p>
                 </div>
                 {/* Dropdown Icon */}
                 <svg
@@ -192,7 +179,7 @@ const MainNavBar = () => {
 
               {/* Dropdown Menu */}
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white shadow-xl rounded-lg overflow-hidden z-10 border border-gray-100">
+                <div className="absolute right-0 mt-1 w-64 bg-gray-100 shadow-xl rounded-lg overflow-hidden z-30 border border-gray-300">
                   {/* User Info Header */}
                   <div className="bg-gray-50 p-4 border-b border-gray-100">
                     <div className="flex items-center">
@@ -342,4 +329,3 @@ const MainNavBar = () => {
 };
 
 export default MainNavBar;
- 

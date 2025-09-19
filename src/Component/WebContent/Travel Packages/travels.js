@@ -4,6 +4,7 @@ import FilterComponent from "./FilterTravels";
 import ImageCarousel from "../WhereToStay/ImageCarousel";
 import PaginationControls from "../../PaginationControls";
 import { useGetTravelPackagesQuery } from "../../../Services/travelPackageApiSlice";
+import LoadingSpinner from "../../LoadingSpinner";
 
 const Travels = () => {
   const [sort, setSort] = useState("recommended");
@@ -26,7 +27,6 @@ const Travels = () => {
 
   // Extract the array safely
   const packages = Array.isArray(packagesRaw?.data) ? packagesRaw.data : [];
-  console.log(packages);
 
   // Now you can safely use .filter, .map, etc.
   const filteredPackages = packages.filter((pkg) => {
@@ -103,7 +103,7 @@ const Travels = () => {
 
   const gridColumnsClass = "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
 
-  if (isLoading) return <div>Loading travel packages...</div>;
+  if (isLoading) return <LoadingSpinner fullScreen={true} size="medium" />;
   if (error) return <div>Error loading travel packages</div>;
 
   return (

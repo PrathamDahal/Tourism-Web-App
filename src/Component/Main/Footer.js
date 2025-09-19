@@ -7,14 +7,17 @@ import {
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useGetSiteSettingsQuery } from "../../Services/SiteSettingApi";
+import ErrorMessage from "../ErrorMessage";
+import LoadingSpinner from "../LoadingSpinner";
 
 const Footer = () => {
-
   const { data, isLoading, error } = useGetSiteSettingsQuery();
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error || !data) return <div>Error loading site settings.</div>;
-
+  if (isLoading) return <LoadingSpinner fullScreen={true} size="medium" />;
+  if (error || !data)
+    return (
+      <ErrorMessage message="Failed to load site settings." className="m-4" />
+    );
   const defaultSettings = {
     name: "PanchPokhari Tourism",
     phoneNumber: "+1012 3456 7890",

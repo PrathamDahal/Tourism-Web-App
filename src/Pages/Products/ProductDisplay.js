@@ -11,7 +11,7 @@ import RatingStars from "./../../Component/RatingStars";
 import { useGetProductBySlugQuery } from "../../Services/productApiSlice";
 import { useAddToCartMutation } from "../../Services/cartSlice";
 import ErrorToast from "../../Component/ErrorToast";
-import CustomerFeedbackContainer from "../../Component/WebContent/Product/CustomerFeedbackContainer";
+import CustomerFeedbackContainer from "../../Component/WebContent/Reviews/CustomerFeedbackContainer";
 import { useGetAverageReviewQuery } from "../../Services/feedbackApiSlice";
 import { skipToken } from "@reduxjs/toolkit/query";
 

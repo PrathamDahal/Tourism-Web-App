@@ -22,7 +22,9 @@ const Layout = () => {
   const isAccomodationPage = location.pathname.startsWith("/wheretostay/accomodation");
   const isTravelDealsPage = location.pathname.startsWith("/travel-packages/travel-deals");
   const isCartPage = location.pathname.startsWith("/localproducts/cart");
+  const isLocalPage = location.pathname.startsWith("/localproducts");
   const isStayPage = location.pathname.startsWith("/wheretostay");
+  const isGoPage = location.pathname.startsWith("/wheretogo");
   const isTravelPage = location.pathname.startsWith("/travel-packages");
 
   const isSignUpPage = location.pathname.toLowerCase().startsWith("/signup");
@@ -40,14 +42,14 @@ const Layout = () => {
           isTravelDealsPage ||
           isCartPage ||
           isStayPage ||
-          isTravelPage ? (
+          isTravelPage || isGoPage || isLocalPage ? (
             <SideNavBar />
           ) : (
             <MainNavBar />
           )}
 
           {/* Hero Section */}
-          {!["/wheretostay", "/travel-packages"].some(isActive) && <HeroSection />}
+          {!["/localproducts","/wheretogo","/wheretostay", "/travel-packages"].some(isActive) && <HeroSection />}
         </>
       )}
 

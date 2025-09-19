@@ -5,6 +5,8 @@ import PaginationControls from "../../PaginationControls";
 import RatingStars from "../../RatingStars";
 import { useGetHomestaysQuery } from "../../../Services/homestayApiSlice";
 import FilterComponent from "./FilterStays";
+import ErrorMessage from "../../ErrorMessage";
+import LoadingSpinner from "../../LoadingSpinner";
 
 const Stays = () => {
   const [sort, setSort] = useState("recommended");
@@ -39,7 +41,8 @@ const Stays = () => {
     let match = true;
 
     if (filters.q) {
-      match = match && stay.name.toLowerCase().includes(filters.q.toLowerCase());
+      match =
+        match && stay.name.toLowerCase().includes(filters.q.toLowerCase());
     }
 
     if (filters.type) {
@@ -61,9 +64,13 @@ const Stays = () => {
   const handleSort = (items) => {
     if (!Array.isArray(items)) return [];
     if (sort === "price-low-high") {
-      return [...items].sort((a, b) => (a.pricePerNight || 0) - (b.pricePerNight || 0));
+      return [...items].sort(
+        (a, b) => (a.pricePerNight || 0) - (b.pricePerNight || 0)
+      );
     } else if (sort === "price-high-low") {
-      return [...items].sort((a, b) => (b.pricePerNight || 0) - (a.pricePerNight || 0));
+      return [...items].sort(
+        (a, b) => (b.pricePerNight || 0) - (a.pricePerNight || 0)
+      );
     }
     return items;
   };
@@ -110,10 +117,17 @@ const Stays = () => {
     navigate(`/wheretostay/accomodation/${slug}`);
   };
 
-  const gridColumnsClass = "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+  const gridColumnsClass =
+    "grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
 
-  if (isLoading) return <div>Loading stays...</div>;
-  if (error) return <div>Error loading stays</div>;
+  if (isLoading) return <LoadingSpinner fullScreen={true} size="medium" />;
+  if (error)
+    return (
+      <ErrorMessage
+        message="Failed to load accomodations."
+        className="my-4"
+      />
+    );
 
   return (
     <div className="flex flex-col md:flex-row py-2 px-4">
@@ -162,13 +176,17 @@ const Stays = () => {
                 <div className="flex flex-col md:flex-row text-[12px] md:text-[14px]">
                   <p className="text-gray-700">{stay.address}</p>
                   {stay.contact && (
-                    <p className="text-gray-700 md:pl-2">Mobile: {stay.contact}</p>
+                    <p className="text-gray-700 md:pl-2">
+                      Mobile: {stay.contact}
+                    </p>
                   )}
                 </div>
                 <RatingStars rating={stay.rating || 0} />
                 <p className="font-bold mt-2 font-Open text-[15px] md:text-[17px]">
                   NRS {stay.pricePerNight}{" "}
-                  <span className="text-[13px] md:text-[15px] font-medium">/ night</span>
+                  <span className="text-[13px] md:text-[15px] font-medium">
+                    / night
+                  </span>
                 </p>
               </div>
             </div>

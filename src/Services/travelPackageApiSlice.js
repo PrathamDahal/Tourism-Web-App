@@ -12,14 +12,6 @@ export const travelPackageApi = createApi({
       providesTags: ["TravelPackage"],
     }),
 
-    // Get travel packages created by a specific user
-    getTravelPackagesByCreator: builder.query({
-      query: (createdById) => `/travel-packages?createdById=${createdById}`,
-      providesTags: (result, error, createdById) => [
-        { type: "TravelPackage", id: createdById },
-      ],
-    }),
-
     // Get travel package by ID
     getTravelPackageById: builder.query({
       query: (id) => `/travel-packages/${id}`,
@@ -38,6 +30,14 @@ export const travelPackageApi = createApi({
         `/travel-packages?destinationId=${destinationId}`,
       providesTags: (result, error, destinationId) => [
         { type: "TravelPackage", destinationId },
+      ],
+    }),
+
+    //Get travel packages by creatorId
+    getTravelPackagesByCreatorId: builder.query({
+      query: (creatorId) => `/travel-packages/by/${creatorId}`,
+      providesTags: (result, error, creatorId) => [
+        { type: "TravelPackage", creatorId },
       ],
     }),
 
@@ -70,18 +70,24 @@ export const travelPackageApi = createApi({
         method: "DELETE",
       }),
       invalidatesTags: (result, error, slug) => [
-        { type: "TravelPackage", id: slug }, // can still use slug as tag
+        { type: "TravelPackage", id: slug },
       ],
+    }),
+
+    getTravelPackageMetrics: builder.query({
+      query: () => "/travel-packages/dashboard/metrics",
+      providesTags: ["TravelPackage"],
     }),
   }),
 });
 
 export const {
   useGetTravelPackagesQuery,
-  useGetTravelPackagesByCreatorQuery,
   useGetTravelPackageByIdQuery,
   useGetTravelPackageBySlugQuery,
   useGetTravelPackagesByDestinationIdQuery,
+  useGetTravelPackagesByCreatorIdQuery,
+  useGetTravelPackageMetricsQuery,
   useCreateTravelPackageMutation,
   useUpdateTravelPackageMutation,
   useDeleteTravelPackageMutation,

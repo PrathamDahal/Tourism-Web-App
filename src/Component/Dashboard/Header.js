@@ -2,6 +2,7 @@ import { useLocation } from "react-router-dom";
 import { FiMenu } from "react-icons/fi";
 import { useFetchUserProfileQuery } from "../../Services/userApiSlice";
 import HomeButton from "../HomeButton";
+import LoadingSpinner from "../LoadingSpinner";
 
 const Header = ({ onMenuToggle }) => {
   const location = useLocation();
@@ -27,7 +28,7 @@ const Header = ({ onMenuToggle }) => {
 
   const { data, isLoading } = useFetchUserProfileQuery();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <LoadingSpinner fullScreen={true} size="medium" />;
 
   return (
     <div className="flex flex-col md:flex-row items-center justify-between px-4 py-2 border-b-2 border-gray-100">

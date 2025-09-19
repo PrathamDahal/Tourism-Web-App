@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaBell, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
 import { MdTranslate } from "react-icons/md";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "./../../../Features/slice/authSlice";
+import { logout, setCredentials } from "./../../../Features/slice/authSlice";
 import { useFetchUserProfileQuery } from "../../../Services/userApiSlice";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -39,8 +39,9 @@ const SideNavBar = () => {
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
-    dispatch(setCredentials({ user: null }));
+     dispatch(logout());
     setIsLoggedIn(false);
+    navigate(`/login`);
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -170,7 +171,7 @@ const SideNavBar = () => {
 
               {/* Dropdown Menu */}
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white shadow-xl rounded-lg overflow-hidden z-10 border border-gray-100">
+                <div className="absolute right-0 mt-1 w-64 bg-gray-100 shadow-xl rounded-lg overflow-hidden z-30 border border-gray-300">
                   {/* User Info Header */}
                   <div className="bg-gray-50 p-4 border-b border-gray-100">
                     <div className="flex items-center">
