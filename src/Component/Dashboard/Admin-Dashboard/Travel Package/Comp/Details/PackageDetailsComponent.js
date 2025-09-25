@@ -77,8 +77,8 @@ const PackageDetailsComponent = ({
                   <div>
                     <p className="text-sm text-gray-600">Duration</p>
                     <p className="font-semibold text-gray-900">
-                      {selectedPackage.duration || "5"} Days /{" "}
-                      {(selectedPackage.duration || 5) - 1} Nights
+                      {selectedPackage.durationDays || "5"} Days /{" "}
+                      {selectedPackage.durationNights || "5"} Nights
                     </p>
                   </div>
                 </div>
@@ -90,7 +90,7 @@ const PackageDetailsComponent = ({
                   <div>
                     <p className="text-sm text-gray-600">Capacity</p>
                     <p className="font-semibold text-gray-900">
-                      {selectedPackage.capacity || "20"} People
+                      {selectedPackage.capacity || "0"} People
                     </p>
                   </div>
                 </div>
@@ -102,7 +102,7 @@ const PackageDetailsComponent = ({
                   <div>
                     <p className="text-sm text-gray-600">Destination</p>
                     <p className="font-semibold text-gray-900">
-                      {selectedPackage.destinationsRelation?.[0]?.name || "N/A"}
+                      {selectedPackage.destinations?.[0]?.name || "N/A"}
                     </p>
                   </div>
                 </div>

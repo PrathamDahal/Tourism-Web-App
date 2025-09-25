@@ -1,18 +1,35 @@
-import React from "react";
 import { useGetReviewsQuery } from "../../../../../../../Services/feedbackApiSlice";
+import ErrorMessage from "../../../../../../ErrorMessage";
+import LoadingSpinner from "../../../../../../LoadingSpinner";
 
 const ReviewsTab = ({ packageData }) => {
   const targetId = packageData?.id;
   const targetType = "package";
 
-  const { data: reviews = [], isLoading, isError } = useGetReviewsQuery({
+  const {
+    data: reviews = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useGetReviewsQuery({
     targetType,
     targetId,
   });
 
-  if (isLoading) return <p className="text-gray-600">Loading reviews...</p>;
-  if (isError) return <p className="text-red-500">Failed to load reviews.</p>;
-
+  if (isLoading)
+    return (
+      <p className="text-gray-600">
+        <LoadingSpinner />
+      </p>
+    );
+  if (isError && error?.status !== 404)
+    return (
+      <ErrorMessage
+        message="Oops! Something went wrong while loading reviews."
+        onRetry={refetch}
+      />
+    );
   return (
     <div className="space-y-4">
       <h3 className="text-xl font-semibold text-gray-800">Reviews</h3>

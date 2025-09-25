@@ -37,7 +37,7 @@ const Footer = () => {
     phoneNumber,
     email,
     address,
-    district,
+    // district,
     facebookLink,
     instagramLink,
     twitterLink,
@@ -84,7 +84,7 @@ const Footer = () => {
               <li className="flex items-center justify-center md:justify-start space-x-4">
                 <BiSolidMap className="text-xl md:text-2xl text-black flex-shrink-0" />
                 <span className="text-gray-700 lg:text-base md:text-sm font-Open overflow-hidden text-ellipsis whitespace-nowrap">
-                  {address}, {district}
+                  {address}
                 </span>
               </li>
             </ul>

@@ -1,13 +1,16 @@
-import React, { useRef, useEffect, useMemo, useState } from "react";
+import { useRef, useEffect, useMemo, useState, useCallback } from "react";
 import { FaTimes } from "react-icons/fa";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import JoditEditor from "jodit-react";
+import { useCreateTravelPackageMutation } from "../../../../Services/travelPackageApiSlice";
 
-const CreateTravelPackageModal = ({ isOpen, onClose, onCreate }) => {
+const CreateTravelPackageModal = ({ isOpen, onClose }) => {
   const editorRef = useRef(null);
   const [coverPreview, setCoverPreview] = useState(null);
   const [imagePreviews, setImagePreviews] = useState([]);
+
+  const [createTravelPackage, { isLoading }] = useCreateTravelPackageMutation();
 
   const config = useMemo(
     () => ({
@@ -51,7 +54,7 @@ const CreateTravelPackageModal = ({ isOpen, onClose, onCreate }) => {
       images: [],
       included: [""],
       notIncluded: [""],
-      destinationIds: [],
+      destinations: [""],
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Name is required"),
@@ -59,37 +62,132 @@ const CreateTravelPackageModal = ({ isOpen, onClose, onCreate }) => {
       price: Yup.number().required("Price is required").positive(),
       durationDays: Yup.number().required("Days required").min(1),
       durationNights: Yup.number().required("Nights required").min(0),
-      destinationIds: Yup.array()
-        .of(Yup.string())
-        .min(1, "Select at least one destination"),
+      destinations: Yup.array()
+        .of(Yup.string().required("Destination cannot be empty"))
+        .min(1, "At least one destination is required"),
     }),
-    onSubmit: async (values) => {
-      const formData = new FormData();
-      Object.keys(values).forEach((key) => {
-        if (key === "coverImage" && values.coverImage) {
-          formData.append("coverImage", values.coverImage);
-        } else if (key === "images") {
-          values.images.forEach((file) => formData.append("images", file));
-        } else if (Array.isArray(values[key])) {
-          values[key].forEach((item) => formData.append(`${key}[]`, item));
-        } else {
-          formData.append(key, values[key]);
-        }
-      });
-      await onCreate(formData);
-      formik.resetForm();
-      setCoverPreview(null);
-      setImagePreviews([]);
+    onSubmit: async (values, { resetForm }) => {
+      try {
+        const formData = new FormData();
+        Object.keys(values).forEach((key) => {
+          if (key === "coverImage" && values.coverImage) {
+            formData.append("coverImage", values.coverImage);
+          } else if (key === "images") {
+            values.images.forEach(
+              (file) => file && formData.append("images", file)
+            );
+          } else if (Array.isArray(values[key])) {
+            // Filter out empty strings before appending
+            const filteredArray = values[key].filter(
+              (item) => item && item.trim() !== ""
+            );
+            filteredArray.forEach((item) => formData.append(`${key}[]`, item));
+          } else {
+            formData.append(key, values[key]);
+          }
+        });
+
+        await createTravelPackage(formData).unwrap();
+        resetForm();
+        setCoverPreview(null);
+        setImagePreviews([]);
+        onClose();
+      } catch (err) {
+        console.error("Failed to create travel package:", err);
+      }
     },
   });
 
-  // Cleanup previews
+  // Memoize the reset function to avoid dependency issues
+  const resetFormAndPreviews = useCallback(() => {
+    formik.resetForm();
+    setCoverPreview(null);
+    setImagePreviews([]);
+  }, [formik]);
+
+  // Reset form & previews whenever modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      resetFormAndPreviews();
+    }
+  }, [isOpen, resetFormAndPreviews]);
+
+  // Handle cover image change
+  const handleCoverImageChange = useCallback(
+    (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        formik.setFieldValue("coverImage", file);
+
+        // Clean up previous preview URL to prevent memory leaks
+        if (coverPreview) {
+          URL.revokeObjectURL(coverPreview);
+        }
+
+        setCoverPreview(URL.createObjectURL(file));
+      }
+    },
+    [formik, coverPreview]
+  );
+
+  // Handle removing cover image
+  const handleRemoveCoverImage = useCallback(() => {
+    formik.setFieldValue("coverImage", null);
+    if (coverPreview) {
+      URL.revokeObjectURL(coverPreview);
+    }
+    setCoverPreview(null);
+  }, [formik, coverPreview]);
+
+  // Handle gallery images change
+  const handleGalleryImagesChange = useCallback(
+    (e) => {
+      const files = Array.from(e.target.files).slice(0, 5);
+      formik.setFieldValue("images", files);
+
+      // Clean up previous preview URLs
+      imagePreviews.forEach((url) => {
+        if (url) URL.revokeObjectURL(url);
+      });
+
+      // Create new preview URLs
+      const newPreviews = files.map((file) => URL.createObjectURL(file));
+      setImagePreviews(newPreviews);
+    },
+    [formik, imagePreviews]
+  );
+
+  // Handle removing individual gallery image
+  const handleRemoveGalleryImage = useCallback(
+    (idx) => {
+      const newImages = [...formik.values.images];
+      const newPreviews = [...imagePreviews];
+
+      // Clean up the specific preview URL
+      if (newPreviews[idx]) {
+        URL.revokeObjectURL(newPreviews[idx]);
+      }
+
+      newImages[idx] = null;
+      newPreviews[idx] = null;
+
+      formik.setFieldValue("images", newImages);
+      setImagePreviews(newPreviews);
+    },
+    [formik, imagePreviews]
+  );
+
+  // Clean up URLs on unmount
   useEffect(() => {
     return () => {
-      imagePreviews.forEach((url) => URL.revokeObjectURL(url));
-      if (coverPreview) URL.revokeObjectURL(coverPreview);
+      if (coverPreview) {
+        URL.revokeObjectURL(coverPreview);
+      }
+      imagePreviews.forEach((url) => {
+        if (url) URL.revokeObjectURL(url);
+      });
     };
-  }, [coverPreview, imagePreviews]);
+  }, [formik, coverPreview, imagePreviews]);
 
   if (!isOpen) return null;
 
@@ -110,20 +208,30 @@ const CreateTravelPackageModal = ({ isOpen, onClose, onCreate }) => {
         </div>
 
         <form onSubmit={formik.handleSubmit} className="space-y-4">
-          {/* Images */}
+          {/* Cover Image */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Cover Image
             </label>
             <div className="flex items-center space-x-4">
               {/* Preview Box */}
-              <div className="w-32 h-32 border border-gray-300 rounded-md flex items-center justify-center overflow-hidden bg-gray-100">
+              <div className="w-32 h-32 border border-gray-300 rounded-md flex items-center justify-center overflow-hidden bg-gray-100 relative">
                 {coverPreview ? (
-                  <img
-                    src={coverPreview}
-                    alt="Cover Preview"
-                    className="w-full h-full object-cover"
-                  />
+                  <>
+                    <img
+                      src={coverPreview}
+                      alt="Cover Preview"
+                      className="w-full h-full object-cover"
+                    />
+                    {/* Remove button */}
+                    <button
+                      type="button"
+                      className="absolute top-1 right-1 text-white bg-red-500 rounded-full p-1 hover:bg-red-600"
+                      onClick={handleRemoveCoverImage}
+                    >
+                      <FaTimes size={12} />
+                    </button>
+                  </>
                 ) : (
                   <span className="text-gray-400">+</span>
                 )}
@@ -136,11 +244,7 @@ const CreateTravelPackageModal = ({ isOpen, onClose, onCreate }) => {
                   accept="image/*"
                   id="cover-upload"
                   className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    formik.setFieldValue("coverImage", file);
-                    setCoverPreview(URL.createObjectURL(file));
-                  }}
+                  onChange={handleCoverImageChange}
                 />
                 <label
                   htmlFor="cover-upload"
@@ -158,24 +262,33 @@ const CreateTravelPackageModal = ({ isOpen, onClose, onCreate }) => {
             )}
           </div>
 
-          {/* Cover & Gallery Images */}
+          {/* Gallery Images */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Gallery Images
             </label>
-
             <div className="grid grid-cols-5 gap-2 mb-2">
-              {[...Array(5)].map((_, index) => (
+              {[...Array(5)].map((_, idx) => (
                 <div
-                  key={index}
-                  className="w-24 h-24 border border-gray-300 flex items-center justify-center"
+                  key={idx}
+                  className="w-24 h-24 border border-gray-300 rounded-md flex items-center justify-center relative overflow-hidden bg-gray-100"
                 >
-                  {formik.values.images[index] ? (
-                    <img
-                      src={URL.createObjectURL(formik.values.images[index])}
-                      alt="Upload preview"
-                      className="w-full h-full object-cover"
-                    />
+                  {formik.values.images[idx] ? (
+                    <>
+                      <img
+                        src={URL.createObjectURL(formik.values.images[idx])}
+                        alt="Gallery preview"
+                        className="w-full h-full object-cover"
+                      />
+                      {/* Remove image button */}
+                      <button
+                        type="button"
+                        className="absolute top-1 right-1 text-white bg-red-500 rounded-full p-1 hover:bg-red-600"
+                        onClick={() => handleRemoveGalleryImage(idx)}
+                      >
+                        <FaTimes size={12} />
+                      </button>
+                    </>
                   ) : (
                     <span className="text-gray-400 cursor-pointer">+</span>
                   )}
@@ -186,13 +299,10 @@ const CreateTravelPackageModal = ({ isOpen, onClose, onCreate }) => {
             <input
               type="file"
               multiple
-              onChange={(e) => {
-                const files = Array.from(e.target.files).slice(0, 5);
-                formik.setFieldValue("images", files);
-              }}
-              className="hidden"
-              id="image-upload"
               accept="image/*"
+              id="image-upload"
+              className="hidden"
+              onChange={handleGalleryImagesChange}
             />
             <label
               htmlFor="image-upload"
@@ -200,11 +310,6 @@ const CreateTravelPackageModal = ({ isOpen, onClose, onCreate }) => {
             >
               Add Images
             </label>
-            {formik.touched.images && formik.errors.images && (
-              <div className="text-red-500 text-sm mt-1">
-                {formik.errors.images}
-              </div>
-            )}
           </div>
 
           {/* Basic Info */}
@@ -289,17 +394,22 @@ const CreateTravelPackageModal = ({ isOpen, onClose, onCreate }) => {
                     }}
                     className="flex-1 p-2 border rounded-lg"
                   />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const arr = [...formik.values.included];
-                      arr.splice(idx, 1);
-                      formik.setFieldValue("included", arr.length ? arr : [""]);
-                    }}
-                    className="text-red-500 px-2"
-                  >
-                    <FaTimes />
-                  </button>
+                  {formik.values.included.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const arr = [...formik.values.included];
+                        arr.splice(idx, 1);
+                        formik.setFieldValue(
+                          "included",
+                          arr.length ? arr : [""]
+                        );
+                      }}
+                      className="text-red-500 px-2"
+                    >
+                      <FaTimes />
+                    </button>
+                  )}
                 </div>
               ))}
               <button
@@ -310,7 +420,7 @@ const CreateTravelPackageModal = ({ isOpen, onClose, onCreate }) => {
                     "",
                   ])
                 }
-                className="mt-1 px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300"
+                className="mt-1 px-3 py-1 bg-gray-200 text-sm rounded-lg hover:bg-gray-300"
               >
                 + Add
               </button>
@@ -334,20 +444,22 @@ const CreateTravelPackageModal = ({ isOpen, onClose, onCreate }) => {
                     }}
                     className="flex-1 p-2 border rounded-lg"
                   />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const arr = [...formik.values.notIncluded];
-                      arr.splice(idx, 1);
-                      formik.setFieldValue(
-                        "notIncluded",
-                        arr.length ? arr : [""]
-                      );
-                    }}
-                    className="text-red-500 px-2"
-                  >
-                    <FaTimes />
-                  </button>
+                  {formik.values.notIncluded.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const arr = [...formik.values.notIncluded];
+                        arr.splice(idx, 1);
+                        formik.setFieldValue(
+                          "notIncluded",
+                          arr.length ? arr : [""]
+                        );
+                      }}
+                      className="text-red-500 px-2"
+                    >
+                      <FaTimes />
+                    </button>
+                  )}
                 </div>
               ))}
               <button
@@ -358,7 +470,7 @@ const CreateTravelPackageModal = ({ isOpen, onClose, onCreate }) => {
                     "",
                   ])
                 }
-                className="mt-1 px-3 py-1 bg-gray-200 rounded-lg hover:bg-gray-300"
+                className="mt-1 px-3 py-1 bg-gray-200 text-sm rounded-lg hover:bg-gray-300"
               >
                 + Add
               </button>
@@ -386,24 +498,58 @@ const CreateTravelPackageModal = ({ isOpen, onClose, onCreate }) => {
 
           {/* Destinations */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Destination ID/Slug *
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Destinations (IDs or Slugs) *
             </label>
-            <input
-              type="text"
-              placeholder="Comma separated IDs"
-              value={formik.values.destinationIds.join(",")}
-              onChange={(e) =>
-                formik.setFieldValue(
-                  "destinationIds",
-                  e.target.value.split(",").map((s) => s.trim())
-                )
+
+            {formik.values.destinations.map((destination, idx) => (
+              <div key={idx} className="flex gap-2 mt-1 items-center">
+                <input
+                  type="text"
+                  placeholder="pokhara or 93406fc8-0530-4c01-8bb6-c1c05c9c19ba"
+                  value={destination}
+                  onChange={(e) => {
+                    const arr = [...formik.values.destinations];
+                    arr[idx] = e.target.value;
+                    formik.setFieldValue("destinations", arr);
+                  }}
+                  className="flex-1 p-2 border rounded-lg"
+                />
+                {formik.values.destinations.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const arr = [...formik.values.destinations];
+                      arr.splice(idx, 1);
+                      formik.setFieldValue(
+                        "destinations",
+                        arr.length ? arr : [""]
+                      );
+                    }}
+                    className="text-red-500 px-2"
+                  >
+                    <FaTimes />
+                  </button>
+                )}
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={() =>
+                formik.setFieldValue("destinations", [
+                  ...formik.values.destinations,
+                  "",
+                ])
               }
-              className="w-full p-2 border rounded-lg"
-            />
-            {formik.touched.destinationIds && formik.errors.destinationIds && (
+              className="mt-1 px-3 py-1 bg-gray-200 text-sm rounded-lg hover:bg-gray-300"
+            >
+              + Add
+            </button>
+
+            {formik.touched.destinations && formik.errors.destinations && (
               <div className="text-red-500 text-sm">
-                {formik.errors.destinationIds}
+                {formik.errors.destinations}
               </div>
             )}
           </div>
@@ -411,9 +557,14 @@ const CreateTravelPackageModal = ({ isOpen, onClose, onCreate }) => {
           <div className="flex justify-end mt-4">
             <button
               type="submit"
-              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              disabled={isLoading}
+              className={`px-6 py-2 rounded-lg text-white ${
+                isLoading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-red-600 hover:bg-red-700"
+              }`}
             >
-              Create Package
+              {isLoading ? "Creating..." : "Create Package"}
             </button>
           </div>
         </form>

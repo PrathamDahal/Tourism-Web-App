@@ -28,7 +28,7 @@ const SideBar = ({ isSidebarOpen, onClose }) => {
     }
   };
 
- if (isLoading) return <LoadingSpinner fullScreen={true} size="medium" />;
+  if (isLoading) return <LoadingSpinner fullScreen={true} size="medium" />;
 
   const isAdmin = role === "ADMIN";
   const isSeller = role === "SELLER";
@@ -102,12 +102,96 @@ const SideBar = ({ isSidebarOpen, onClose }) => {
             </NavLink>
           )}
           {(isAdmin || isHost) && (
-            <NavLink
-              to="/dashboard/accomodations"
-              className={({ isActive }) => getLinkClasses(isActive)}
-            >
-              Accomodations
-            </NavLink>
+            <div>
+              <NavLink
+                to="/dashboard/accomodations"
+                className={({ isActive }) => getLinkClasses(isActive)}
+                onClick={() =>
+                  navigate("/dashboard/accomodations?view=overview")
+                }
+              >
+                Accomodations
+              </NavLink>
+
+              {/* Submenu */}
+              <div className="mx-2 mt-1 flex flex-col space-y-1">
+                {["overview", "stays", "bookings"].map((sub) => {
+                  const isActiveSub =
+                    new URLSearchParams(window.location.search).get("view") ===
+                      sub && window.location.pathname.includes("accomodations");
+
+                  return (
+                    <div key={sub}>
+                      <button
+                        onClick={() =>
+                          navigate(`/dashboard/accomodations?view=${sub}`)
+                        }
+                        className={`py-2 text-center mx-2 bg-slate-200 text-sm rounded-md transition-colors w-full ${
+                          isActiveSub
+                            ? "text-red-500 font-medium"
+                            : "text-gray-600 hover:text-red-500"
+                        }`}
+                      >
+                        {sub.charAt(0).toUpperCase() + sub.slice(1)}
+                      </button>
+
+                      {/* 👇 Stays Submenu */}
+                      {sub === "stays" && isActiveSub && (
+                        <div className="ml-6 mt-1 flex flex-col space-y-1">
+                          {["all", "add"].map((staySub) => {
+                            const isActiveStaySub =
+                              new URLSearchParams(window.location.search).get(
+                                "stay"
+                              ) === staySub;
+
+                            return (
+                              <div key={staySub}>
+                                <button
+                                  onClick={() =>
+                                    navigate(
+                                      `/dashboard/accomodations?view=stays&stay=${staySub}`
+                                    )
+                                  }
+                                  className={`py-2 text-center mx-2 bg-slate-200 text-sm rounded-md transition-colors w-full ${
+                                    isActiveStaySub
+                                      ? "text-red-500 font-medium"
+                                      : "text-gray-600 hover:text-red-500"
+                                  }`}
+                                >
+                                  {staySub === "all" ? "All Stays" : "Add Stay"}
+                                </button>
+
+                                {/* 👇 Rooms Submenu under Add Stay */}
+                                {staySub === "add" && isActiveStaySub && (
+                                  <div className="ml-6 mt-1 flex flex-col space-y-1">
+                                    <button
+                                      onClick={() =>
+                                        navigate(
+                                          `/dashboard/accomodations?view=stays&stay=add&room=true`
+                                        )
+                                      }
+                                      className={`py-2 text-center mx-2 bg-slate-200 text-sm rounded-md transition-colors w-full ${
+                                        new URLSearchParams(
+                                          window.location.search
+                                        ).get("room")
+                                          ? "text-red-500 font-medium"
+                                          : "text-gray-600 hover:text-red-500"
+                                      }`}
+                                    >
+                                      Rooms
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           )}
           {(isAdmin || isTravelAgency) && (
             <div>

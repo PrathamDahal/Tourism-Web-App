@@ -43,7 +43,7 @@ const ProductCard = ({ product, handleProductClick }) => {
           <h2 className="text-gray-700 text-[12px] overflow-hidden font-semibold font-poppins">
             {productName}
           </h2>
-          <p className="text-black text-base font-bold font-poppins">
+          <p className="text-red-600 text-base font-bold font-poppins">
             Nrs. {productPrice.toLocaleString()}
           </p>
           <RatingStars rating={productReviews} />

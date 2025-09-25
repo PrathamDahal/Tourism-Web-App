@@ -102,10 +102,10 @@ const ProductPage = () => {
               images.map((img, index) => (
                 <img
                   key={index}
-                  src={`${API_BASE_URL}/${img}`}
+                  src={`${API_BASE_URL}${img}`}
                   alt="Gallery"
                   className="w-12 h-12 object-contain border cursor-pointer hover:opacity-75"
-                  onClick={() => setSelectedImage(`${API_BASE_URL}/${img}`)}
+                  onClick={() => setSelectedImage(`${API_BASE_URL}${img}`)}
                 />
               ))
             ) : (
@@ -143,10 +143,10 @@ const ProductPage = () => {
                 images.map((img, index) => (
                   <img
                     key={index}
-                    src={`${API_BASE_URL}/${img}`}
+                    src={`${API_BASE_URL}${img}`}
                     alt="Gallery"
                     className="w-20 h-22 object-contain border cursor-pointer hover:opacity-75"
-                    onClick={() => setSelectedImage(`${API_BASE_URL}/${img}`)}
+                    onClick={() => setSelectedImage(`${API_BASE_URL}${img}`)}
                   />
                 ))
               ) : (
@@ -181,7 +181,7 @@ const ProductPage = () => {
               src={
                 selectedImage ||
                 (images.length > 0
-                  ? `${API_BASE_URL}/${images[0]}`
+                  ? `${API_BASE_URL}${images[0]}`
                   : "/default-product.png")
               }
               alt={product.name || "No Image"}

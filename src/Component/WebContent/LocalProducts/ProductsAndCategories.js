@@ -183,7 +183,7 @@ const LocalProductPage = () => {
               <img
                 src={
                   category.imageUrl
-                    ? `${API_BASE_URL}/${category.imageUrl}`
+                    ? `${API_BASE_URL}${category.imageUrl}`
                     : "/assets/Images/default-avatar-image.jpg"
                 }
                 alt={category.name}

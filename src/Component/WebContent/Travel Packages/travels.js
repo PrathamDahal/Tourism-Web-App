@@ -246,7 +246,7 @@ const Travels = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <span className="text-xl font-bold text-red-500">
-                      ${pkg.price || "1,299"}
+                      Rs.{pkg.price || "1,299"}
                     </span>
                     <span className="text-sm text-gray-500 ml-1">
                       per person

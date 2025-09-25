@@ -78,7 +78,7 @@ const SideNavBar = () => {
               className={`block px-4 py-1 md:px-3 md:py-1 rounded-md transition-colors duration-200 
                 ${
                   isActive(item.path)
-                    ? "text-yellow-400 bg-gray-900 md:bg-transparent"
+                    ? "text-yellow-600 bg-gray-900 md:bg-transparent"
                     : "text-black"
                 } 
                     hover:text-yellow-400 hover:bg-gray-700 md:hover:bg-transparent`}
